@@ -12,6 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using nrcv2.Data;
 using nrcv2.Models;
+using Radzen;
+
 namespace nrcv2
 {
     public class Startup
@@ -30,7 +32,15 @@ namespace nrcv2
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();
-            services.AddDbContext<nrcdbContext>(options => options.UseSqlServer(Configuration["connectionstrings:myconnection"]));
+          
+
+            services.AddDbContext<nrcdbContext>(options => options.UseSqlServer(Configuration["ConnectionStrings:myconnection"])); //Configuration.GetConnectionString("myconnection")
+
+            //radzen
+            services.AddScoped<DialogService>();
+            services.AddScoped<NotificationService>();
+            services.AddScoped<TooltipService>();
+            services.AddScoped<ContextMenuService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
