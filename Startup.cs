@@ -32,8 +32,9 @@ namespace nrcv2
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();
-          
 
+            services.AddDbContextFactory<nrcdbContext>(options => options.UseSqlServer(Configuration["ConnectionStrings:myconnection"]), 
+    ServiceLifetime.Scoped); //Configuration.GetConnectionString("myconnection")
             services.AddDbContext<nrcdbContext>(options => options.UseSqlServer(Configuration["ConnectionStrings:myconnection"])); //Configuration.GetConnectionString("myconnection")
 
             //radzen

@@ -1,20 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\ashwork\\vs projects\\nrcv2\\nrcv2\\nrcv2.csproj": {}
+    "F:\\blazors\\nrcv2\\nrcv2\\nrcv2.csproj": {}
   },
   "projects": {
-    "D:\\ashwork\\vs projects\\nrcv2\\nrcv2\\nrcv2.csproj": {
+    "F:\\blazors\\nrcv2\\nrcv2\\nrcv2.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\ashwork\\vs projects\\nrcv2\\nrcv2\\nrcv2.csproj",
+        "projectUniqueName": "F:\\blazors\\nrcv2\\nrcv2\\nrcv2.csproj",
         "projectName": "nrcv2",
-        "projectPath": "D:\\ashwork\\vs projects\\nrcv2\\nrcv2\\nrcv2.csproj",
-        "packagesPath": "C:\\Users\\ash\\.nuget\\packages\\",
-        "outputPath": "D:\\ashwork\\vs projects\\nrcv2\\nrcv2\\obj\\",
+        "projectPath": "F:\\blazors\\nrcv2\\nrcv2\\nrcv2.csproj",
+        "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
+        "outputPath": "F:\\blazors\\nrcv2\\nrcv2\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
         "configFilePaths": [
-          "C:\\Users\\ash\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -26,7 +29,6 @@
         },
         "frameworks": {
           "netcoreapp3.1": {
-            "targetAlias": "netcoreapp3.1",
             "projectReferences": {}
           }
         },
@@ -38,7 +40,6 @@
       },
       "frameworks": {
         "netcoreapp3.1": {
-          "targetAlias": "netcoreapp3.1",
           "dependencies": {
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
@@ -77,7 +78,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.101\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.301\\RuntimeIdentifierGraph.json"
         }
       }
     }

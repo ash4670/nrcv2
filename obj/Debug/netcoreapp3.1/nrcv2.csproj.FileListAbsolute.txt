@@ -191,3 +191,7 @@ D:\ashwork\vs projects\nrcv2\nrcv2\obj\Debug\netcoreapp3.1\nrcv2.csprojAssemblyR
 D:\ashwork\vs projects\nrcv2\nrcv2\bin\Debug\netcoreapp3.1\nrcv2.StaticWebAssets.xml
 D:\ashwork\vs projects\nrcv2\nrcv2\bin\Debug\netcoreapp3.1\Radzen.Blazor.dll
 D:\ashwork\vs projects\nrcv2\nrcv2\bin\Debug\netcoreapp3.1\System.Linq.Dynamic.Core.dll
+F:\blazors\nrcv2\nrcv2\bin\Debug\netcoreapp3.1\nrcv2.StaticWebAssets.xml
+F:\blazors\nrcv2\nrcv2\bin\Debug\netcoreapp3.1\Radzen.Blazor.dll
+F:\blazors\nrcv2\nrcv2\bin\Debug\netcoreapp3.1\System.Linq.Dynamic.Core.dll
+F:\blazors\nrcv2\nrcv2\obj\Debug\netcoreapp3.1\nrcv2.csprojAssemblyReference.cache
