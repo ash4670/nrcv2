@@ -1,6 +1,6 @@
 ﻿@page "/counter"
 @inject IDbContextFactory<nrcdbContext> dbf;
-    <form>
+    
         <h1>Counter</h1>
         <div class="form-group">
             <label for="stock" class="control-label"></label>
@@ -23,19 +23,33 @@
                 <tr>
                     <td><input form="StockCode" class="form-control" @bind="@item.StockCode" />   </td>
                     <td><input form="StockName" class="form-control" @bind="@item.StockName" />    </td>
-                    <td><button class="btn btn-primary" @onclick="()=> { _storlist.Remove(item); } ">X</button></td>
+                    <td><button class="btn btn-primary" @onclick:preventDefault @onclick="()=> { _storlist.Remove(item); } ">X</button></td>
                 </tr>
 
             }
         </table>
-        <button class="btn btn-primary" @onclick="onSaveAll">save all</button>
-        <button class="btn btn-primary" @onclick="onInsertRow" >insertrow</button>
-    </form>
+        <button class="btn btn-primary" @onclick="onSaveAll" >save all</button>
+        <button class="btn btn-primary" @onclick="onAddRow"   >+</button>
+    
 
     @code {
-        private int currentCount = 0;
-        private string selectedcode = "";
-        private List<Stock> _storlist = new List<Stock>();
+
+        private int currentCount=0;
+        public string selectedcode { get; set; }
+
+        protected override void OnInitialized()
+        {
+            using (var db = dbf.CreateDbContext())
+            {
+                _storlist = db.Stocks.ToList();
+
+            }
+            selectedcode = "";
+
+
+        }
+
+
         private void IncrementCount()
         {
             currentCount++;
@@ -43,32 +57,42 @@
         }
         private async Task  onSaveAll()
         {
-            using (var db = dbf.CreateDbContext())
+            try
             {
-                db.UpdateRange(_storlist);
-                await db.SaveChangesAsync();
-                _storlist = await db.Stocks.ToListAsync();
+                using (var db = dbf.CreateDbContext())
+                {
+                    db.UpdateRange(_storlist);
+                    await db.SaveChangesAsync();
+                    _storlist = await db.Stocks.ToListAsync();
+                }
             }
-        }
-
-        private void onInsertRow()
-        {
-            Stock s = new Stock() {StockCode="zxy1",StockName="abc", Name1="" };
-            _storlist.Insert(1,s);
-            // StateHasChanged();
-
-        }
-
-        protected override void OnInitialized()
-        {
-
-            using (var db = dbf.CreateDbContext())
+            catch (Exception)
             {
-             _storlist =  db.Stocks.ToList();
 
+                throw;
             }
-            base.OnInitialized();
 
         }
 
-    }
+        private List<Stock> _storlist = new List<Stock>();
+
+        private void onAddRow()
+        {
+            Stock s = new Stock() {StockName="abc", Name1="" };
+            _storlist.Add(s);
+            
+
+
+        }
+
+
+
+
+
+
+
+
+}
+
+           
+         
