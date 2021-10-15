@@ -8,15 +8,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace nrcv2.Models
 {
-    [Table("glob_vars")]
-    public partial class GlobVar
+    [Table("testtable")]
+    public partial class Testtable
     {
-        [Column("yearstart", TypeName = "date")]
-        public DateTime? Yearstart { get; set; }
-        [Column("yearend", TypeName = "date")]
-        public DateTime? Yearend { get; set; }
         [Key]
-        [Column("ID")]
+        [Column("id")]
         public int Id { get; set; }
+        [Required]
+        [Column("name")]
+        [StringLength(50)]
+        public string Name { get; set; }
     }
 }

@@ -1,0 +1,41 @@
+﻿@page "/StockList"
+@inject IDbContextFactory<nrcwebContext> dbf;
+<h1> قائمة المخازن </h1>
+@*
+        <div class="form-group">
+        <label for="stock" class="control-label"></label>
+        <select @bind="@selectedcode" class="form-control">
+            @foreach (var item in _storlist)
+            {
+                <option value="@item.StockCode">@item.StockName</option>
+            }
+        </select>
+    </div>
+*@
+<input class="form-control" @bind="@_filter" @bind:event="oninput" />
+<table class="table table-hover">
+    <tbody>
+        @foreach (var item in _storlist.Where(a => a.StockName.Contains(_filter)))
+        {
+            <tr>
+                <a href="StockEdit\@item.Id">
+                <td><span> @item.StockCode</span></td>
+                <td><span>@item.StockName</span></td>
+                </a>
+                <td><button class="btn btn-primary" @onclick:preventDefault @onclick="() => { _storlist.Remove(item); } ">&times</button></td>
+            </tr>
+        }
+    </tbody>
+</table>
+       
+@code {
+    public static string selectedcode { get; set; }
+    public string _filter = "";
+    private List<Stock> _storlist = new List<Stock>();
+    protected override void OnInitialized()
+    {
+        _filter = "";
+        using (var db = dbf.CreateDbContext()) _storlist = db.Stocks.ToList();
+        selectedcode = "";
+    }
+}

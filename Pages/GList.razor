@@ -1,0 +1,123 @@
+﻿@typeparam T
+@inject IDbContextFactory<nrcwebContext> dbf
+@using System.Reflection
+@using System.ComponentModel
+<style>
+    table>thead>tr  {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: white;
+    }
+
+     
+  
+    
+</style>
+@if (data == null)
+{<p><em>Loading...</em></p> }
+else
+{
+
+<input style="width: 75%" placeholder="بحث" type="text" class="form-control" @bind-value="_filter" @bind-value:event="oninput" @onkeyup="myfilter" />
+
+<div style=" height: 250px ; overflow: auto;">
+    <table class="table table-hover table-bordered ">
+        <thead class="font-weight-bold">
+            @myHeader
+            <tr>
+                <th style="width: 5%">م</th>
+                @foreach (PropertyInfo c in displayedcolumn)
+                {
+                <th @onclick="@(() => mysort(c.Name))"> @GetAttributeDisplayName(c)  </th>
+                }
+            </tr>
+        </thead>
+
+        <tbody >
+
+            @{int rownum = 1; }
+            @foreach (T item in data)
+            {
+            <tr class="text-right" @onclick="()=>f_Rowclicked(item)" @ondblclick="()=>f_Rowdblclicked(item)">
+                <td style="width: 5%">@rownum</td>
+                @foreach (PropertyInfo c in displayedcolumn)
+                {
+                    <td>@c.GetValue(item, null) </td>
+                }
+            </tr>
+            rownum++;
+            }
+
+        </tbody>
+        @ChildContent
+        @myFooter
+    </table>
+</div>
+                    }
+
+
+
+@code {
+    #region declarations
+
+
+    public  T selectedrow { get; set; }
+    public  string _filter { get; set; } = "";
+    public List<T> orgdata { get; set; }
+    [Parameter] public List<T> data { get; set; }
+    [Parameter] public RenderFragment myHeader { get; set; }
+    [Parameter] public RenderFragment myFooter { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public String scollist { get; set; }
+    [Parameter] public EventCallback<T> OnRowdblclicked { get; set; }
+    [Parameter] public EventCallback<T> OnRowclicked { get; set; }
+    public IEnumerable<String> collist { get; set; }
+    public List<PropertyInfo> props;
+    public List<PropertyInfo> displayedcolumn = new List<PropertyInfo>();
+    #endregion
+    public void mysort(string colname)
+    {
+        data = data.OrderBy(x => x.GetType().GetProperty(colname).GetValue(x, null)).ToList();
+    }
+    public void myfilter()
+    {
+        if (_filter == null || _filter == string.Empty)
+            data = orgdata;
+        else
+            data = orgdata.Where(x => (x.GetType().GetProperties().Intersect(displayedcolumn).Where(p => x.GetType().GetProperty(p.Name).GetValue(x, null) != null)).Any(p => (x.GetType().GetProperty(p.Name).GetValue(x, null)).ToString().Contains(_filter))).ToList();
+    }
+    protected override void OnInitialized()
+    {
+        if ((scollist != null) && (scollist.Trim().Equals(scollist))) collist = scollist.Split(',');
+        if (data == null) using (var db = dbf.CreateDbContext()) data = db.Set<T>().ToList<T>();
+
+        props = (data.FirstOrDefault()).GetType().GetProperties().ToList();
+        if (collist != null)
+            displayedcolumn = props.Where(p => collist.Contains(p.Name.ToLower())).ToList();
+        else
+            displayedcolumn = props.Where(p => p.PropertyType == typeof(string) || p.PropertyType.IsValueType).ToList();
+
+
+        orgdata = data;
+    }
+    public void f_Rowclicked(T row)
+    {
+        selectedrow = row;
+        OnRowclicked.InvokeAsync(row );
+    }
+
+    public void f_Rowdblclicked(T row)
+    {
+        selectedrow = row;
+        OnRowdblclicked.InvokeAsync(row );
+    }
+
+    private string GetAttributeDisplayName(PropertyInfo property)//this method to get the display name from the model attribute displayname
+    {
+        var atts = property.GetCustomAttributes(typeof(DisplayNameAttribute), true);
+        if (atts.Length == 0) return null;
+        return (atts[0] as DisplayNameAttribute).DisplayName;
+    } }
+
+

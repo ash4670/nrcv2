@@ -1,7 +1,32 @@
 ﻿@page "/"
-
 <h1>Hello, world!</h1>
-
 Welcome to your new app.
-
 <SurveyPrompt Title="How is Blazor working for you?" />
+@if (showModal)
+ {
+<GModal Title="قائمة المخازن" Content="" OnClose=@ModalClosed>
+    <GList @ref="listRef" T="Stock" scollist="stockcode,stockname" OnRowdblclicked="@f_rowdblclicked"></GList>
+</GModal>
+}
+<button type="button" class="btn btn-danger btn-sm" @onclick="() => OpenModal()">Open the modal</button>
+    
+    
+@code{ 
+    public bool showModal { get; set; }
+    private GList<Stock> listRef;
+    public void ModalClosed(bool arg){
+        if (arg){     var x = listRef.selectedrow;  }
+        showModal = false;
+        StateHasChanged() ;
+    }
+    private void OpenModal()
+    {
+        showModal = true;
+        StateHasChanged();
+    }
+    public void f_rowdblclicked(Stock arg){
+        showModal = false;
+        var x = arg;
+        StateHasChanged();
+    }
+}

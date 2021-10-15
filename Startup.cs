@@ -33,11 +33,11 @@ namespace nrcv2
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();
 
-            services.AddDbContextFactory<nrcdbContext>(options => options.UseSqlServer(Configuration["ConnectionStrings:myconnection"]), 
+            services.AddDbContextFactory<nrcwebContext>(options => options.UseSqlServer(Configuration["ConnectionStrings:myconnection"]),
     ServiceLifetime.Scoped); //Configuration.GetConnectionString("myconnection")
-            services.AddDbContext<nrcdbContext>(options => options.UseSqlServer(Configuration["ConnectionStrings:myconnection"])); //Configuration.GetConnectionString("myconnection")
+            services.AddDbContext<nrcwebContext>(options => options.UseSqlServer(Configuration["ConnectionStrings:myconnection"])); //Configuration.GetConnectionString("myconnection")
 
-            //radzen
+            ////radzen
             services.AddScoped<DialogService>();
             services.AddScoped<NotificationService>();
             services.AddScoped<TooltipService>();

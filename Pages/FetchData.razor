@@ -1,46 +1,24 @@
 ﻿@page "/fetchdata"
-
 @using nrcv2.Data
-@inject WeatherForecastService ForecastService
+@inject IDbContextFactory<nrcwebContext> dbf
 
-<h1>Weather forecast</h1>
+<p>@tableselectedrow?.Id</p><p>@tableselectedrow?.StockName</p>
+<GList T="Stock" data="stlist" scollist="stockcode,stockname" OnRowdblclicked="@f_rowdblclicked" OnRowclicked="@f_rowclicked">
+    <myHeader> </myHeader> <myFooter> test footer</myFooter>
+    <ChildContent><p> this will be in childcontent </p></ChildContent>
+</GList>
 
-<p>This component demonstrates fetching data from a service.</p>
 
-@if (forecasts == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
 
 @code {
-    private WeatherForecast[] forecasts;
-
+    public List<Stock> stlist { get; set; }
+    private Stock tableselectedrow;
+    public void f_rowdblclicked(Stock arg) { tableselectedrow = arg; }
+    public void f_rowclicked(Stock arg) { tableselectedrow = arg; }
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await ForecastService.GetForecastAsync(DateTime.Now);
+        using (var db = dbf.CreateDbContext())  stlist = await db.Stocks.Where(p => p.StockCode != "03").ToListAsync<Stock>();
     }
 }
+@*<GList T="Work" />*@
+@*<GList T="Stock" scollist="stockcode,stockname" />*@

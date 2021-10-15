@@ -1,61 +1,49 @@
 ﻿@page "/counter"
-@inject IDbContextFactory<nrcdbContext> dbf;
-    
-        <h1>Counter</h1>
-        <div class="form-group">
-            <label for="stock" class="control-label"></label>
-            <select @bind="@selectedcode" class="form-control">
-                @foreach (var item in _storlist)
-                {
-                    <option value="@item.StockCode">@item.StockName</option>
-                }
-            </select>
-        </div>
-        <p>Current count: @currentCount</p>
-        <p>Current stock: @selectedcode</p>
+@inject IDbContextFactory<nrcwebContext> dbf;
+@inject NotificationService n
 
+<RadzenButton Text="hello" 
+               Click=onAddRow ></RadzenButton>
 
-        <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
-        <table>
+    <h1>Counter</h1>
+    <div class="form-group">
+        <label for="stock" class="control-label"></label>
+        <select @bind="@selectedcode" class="form-control">
             @foreach (var item in _storlist)
             {
-
-                <tr>
-                    <td><input form="StockCode" class="form-control" @bind="@item.StockCode" />   </td>
-                    <td><input form="StockName" class="form-control" @bind="@item.StockName" />    </td>
-                    <td><button class="btn btn-primary" @onclick:preventDefault @onclick="()=> { _storlist.Remove(item); } ">X</button></td>
-                </tr>
-
+                <option value="@item.StockCode">@item.StockName</option>
             }
-        </table>
-        <button class="btn btn-primary" @onclick="onSaveAll" >save all</button>
-        <button class="btn btn-primary" @onclick="onAddRow"   >+</button>
-    
+        </select>
+    </div>
+    <p>Current count: @currentCount</p>
+    <p>Current stock: @selectedcode</p>
+
+
+    <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+    <table>
+        @foreach (var item in _storlist)
+        {
+
+            <tr>
+                <td><input form="StockCode" class="form-control" @bind="@item.StockCode" />   </td>
+                <td><input form="StockName" class="form-control" @bind="@item.StockName" />    </td>
+                <td><button class="btn btn-primary" @onclick="()=> { _storlist.Remove(item); } ">X</button></td>
+            </tr>
+
+        }
+    </table>
+    <button class="btn btn-primary" @onclick="onSaveAll">save all</button>
+    <button class="btn btn-primary" @onclick="onAddRow">+</button>
+
 
     @code {
-
-        private int currentCount=0;
-        public string selectedcode { get; set; }
-
+        private static int currentCount = 0;
+        public static string selectedcode { get; set; }
+        private List<Stock> _storlist = new List<Stock>();
         protected override void OnInitialized()
-        {
-            using (var db = dbf.CreateDbContext())
-            {
-                _storlist = db.Stocks.ToList();
-
-            }
-            selectedcode = "";
-
-
-        }
-
-
-        private void IncrementCount()
-        {
-            currentCount++;
-            //  currentCount = _db.Stocks.Count();
-        }
-        private async Task  onSaveAll()
+        { using (var db = dbf.CreateDbContext()) _storlist = db.Stocks.ToList(); }
+        private void IncrementCount() { currentCount++; }
+        private async Task onSaveAll()
         {
             try
             {
@@ -68,31 +56,21 @@
             }
             catch (Exception)
             {
-
                 throw;
             }
 
         }
-
-        private List<Stock> _storlist = new List<Stock>();
-
-        private void onAddRow()
+        public void onAddRow()
         {
-            Stock s = new Stock() {StockName="abc", Name1="" };
+            Stock s = new Stock() { StockName = "abc", Name1 = "" };
             _storlist.Add(s);
-            
-
-
+            n.Notify(NotificationSeverity.Info,"","abc",3000);
         }
 
+        void ButtonClicked()
+        {
+            //
+        }
+    }
 
 
-
-
-
-
-
-}
-
-           
-         

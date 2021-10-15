@@ -1,0 +1,30 @@
+﻿<div  class="modal  fade show " id="myModal" style=" border : 3px solid #666;display: block;background-color: rgba(10,10,10,.8);">
+    <div class="modal-dialog  modal-xl">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <h4 class="modal-title offset-5">@Title</h4>
+                <button type="button" class="close" @onclick="async () =>await OnClose.InvokeAsync(false)">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>@Content</p>
+                @ChildContent
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" @onclick="async () =>await OnClose.InvokeAsync(true)">OK</button>
+            </div>
+        </div>
+    </div>
+    
+</div>
+@code {
+    #region declarations
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public string Title { get; set; }
+    [Parameter] public string Content { get; set; }
+    [Parameter] public EventCallback<bool> OnClose { get; set; }
+    #endregion
+
+    private Task ModalCancel() { return OnClose.InvokeAsync(false); }
+    private Task ModalOk()    { return OnClose.InvokeAsync(true);  }
+    //@onclick="@ModalCancel"
+}
