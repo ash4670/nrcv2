@@ -1,0 +1,92 @@
+﻿@page "/editstock_org"
+@page "/editstock_org/{id:int}"
+@inject IDbContextFactory<nrcwebContext> dbf;
+
+    <EditForm Model=_stock OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <div class="form-group">
+            <label for="StockCode">كود المخزن</label>
+            <input type="text" id="StockCode" value="@_stock.StockCode"  @onchange="f_onchange" class="form-control" />
+            <ValidationMessage For="() => _stock.StockCode" />
+        </div>
+        <div class="form-group">
+            <label for="StockCode">وصف المخزن</label>
+            <InputText id="StockName" @bind-Value="_stock.StockName" class="form-control" />
+            <ValidationMessage For="() => _stock.StockName" />
+        </div>
+        <div class="form-group">
+            <label for="Name1">وصف</label>
+            <InputText id="Name1" @bind-Value="_stock.Name1" class="form-control" />
+            <ValidationMessage For="() => _stock.Name1" />
+        </div>
+        <div class="form-group">
+            <label for="Vdate">تاريخ التعريف</label>
+            <InputDate id="Vdate" @bind-Value="_stock.Vdate" ParsingErrorMessage="التاريخ غير صحيح" class="form-control" />
+            <ValidationMessage For="() => _stock.Vdate" />
+        </div>
+        <ValidationSummary />
+    </EditForm>
+
+
+<button class="btn btn-primary" @onclick="onSave">save all</button>
+<button class="btn btn-primary" @onclick="onNew">جديد</button>
+<button class="btn btn-danger" @onclick="onDelete">حذف</button>
+
+
+@code {
+    [Parameter]
+    public int? id { get; set; }
+    private Stock _stock = new Stock();
+    protected override void OnInitialized()
+    {
+        if (id != null) using (var db = dbf.CreateDbContext()) _stock = db.Stocks.Where(r => r.Id == id).FirstOrDefault();
+
+    }
+
+    private async Task onSave()
+    {
+        try
+        {
+
+
+            using (var db = dbf.CreateDbContext())
+            {
+                if (_stock.Id == 0)
+                {
+                    await db.AddAsync(_stock);
+                }
+                else
+                {
+                    db.Update(_stock);
+                }
+                await db.SaveChangesAsync();
+            }
+
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+
+    }
+    private void onDelete()
+    {
+        using (var db = dbf.CreateDbContext())
+        {
+            if (_stock.Id != 0) db.Remove(_stock);
+        }
+    }
+    private void onNew()
+    {
+        _stock = new Stock();
+    }
+    private  void HandleValidSubmit(){ }
+
+    public void f_onchange(ChangeEventArgs args) {
+        string _x="";
+        _x =  args.ToString();
+
+    }
+}
+
+

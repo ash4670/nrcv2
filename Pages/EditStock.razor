@@ -1,92 +1,148 @@
 ﻿@page "/editstock"
 @page "/editstock/{id:int}"
 @inject IDbContextFactory<nrcwebContext> dbf;
+@inject NotificationService notif_service
+<RadzenTemplateForm TItem="Stock" Data=@_stock InvalidSubmit=@OnInvalidSubmit>
+    <RadzenFieldset>
 
-    <EditForm Model=_stock OnValidSubmit="HandleValidSubmit">
-        <DataAnnotationsValidator />
-        <div class="form-group">
-            <label for="StockCode">كود المخزن</label>
-            <input type="text" id="StockCode" value="@_stock.StockCode"  @onchange="f_onchange" class="form-control" />
-            <ValidationMessage For="() => _stock.StockCode" />
+        <div class="alert alert-primary h3 text-center ">
+            @(_stock.Id==0? "جديد" : "تعديل")
         </div>
-        <div class="form-group">
-            <label for="StockCode">وصف المخزن</label>
-            <InputText id="StockName" @bind-Value="_stock.StockName" class="form-control" />
-            <ValidationMessage For="() => _stock.StockName" />
+
+
+        <div class="form-group row">
+            <RadzenLabel Text="كود المخزن" class="m-2 col-2" />
+            <span>
+                <RadzenMask Mask="**-**" Pattern="[^0-9]" style="display: block" Name="StockCode" @bind-Value=@_stock.StockCode Change=@(args => OnChange(args, "stockcode")) />
+                <RadzenRequiredValidator Component="StockCode" Text="يجب إدخال كود المخزن" Style="position: absolute" />
+                <RadzenRegexValidator Component="StockCode" Text="كود المخزن رقمين" Pattern="\d{2}" Style="position: absolute" />
+            </span>
+
         </div>
-        <div class="form-group">
-            <label for="Name1">وصف</label>
-            <InputText id="Name1" @bind-Value="_stock.Name1" class="form-control" />
-            <ValidationMessage For="() => _stock.Name1" />
+
+        <div class="form-group row">
+            <RadzenLabel Text="وصف المخزن" class="m-2 col-2" />
+            <span>
+                <RadzenTextBox style="display: block" Name="StockName" @bind-Value=@_stock.StockName  Change=@(args => OnChange(args, "stockname")) />
+                <RadzenRequiredValidator Component="StockName" Text="يجب إدخال وصف المخزن" Style="position: absolute" />
+            </span>
+
         </div>
-        <div class="form-group">
-            <label for="Vdate">تاريخ التعريف</label>
-            <InputDate id="Vdate" @bind-Value="_stock.Vdate" ParsingErrorMessage="التاريخ غير صحيح" class="form-control" />
-            <ValidationMessage For="() => _stock.Vdate" />
+
+        <div class="form-group row">
+            <label for="Name1" class="m-2 col-2">امين المخزن</label>
+            <RadzenTextBox style="display: block" Name="Name1" @bind-Value=@_stock.Name1  Change=@(args => OnChange(args, "name1"))/>
         </div>
-        <ValidationSummary />
-    </EditForm>
+        <div class="form-group row">
+            <RadzenLabel Text="التاريخ" class="m-2 col-2" />
+            <RadzenDatePicker @bind-Value="_stock.Vdate" id="vdate" TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1" MinutesStep="1" SecondsStep="1" Change=@(args => OnChange(args.ToString(), "vdate")) DateFormat="MM/dd/yyyy HH:mm:ss" />
+        </div>
+        <div class="row">
+            <div class="col-4">
+                <RadzenButton class="btn-dark" ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Secondary" @onclick="onSave">تسجيل</RadzenButton>
+            </div>
+            <div class="col-4">
+                <button class="btn btn-primary" @onclick="onNew">جديد</button>
+            </div>
+            <div class="col-4">
+                <button class="btn btn-danger" @onclick="onDelete">حذف</button>
+            </div>
+        </div>
+    </RadzenFieldset>
+</RadzenTemplateForm>
+   
 
-
-<button class="btn btn-primary" @onclick="onSave">save all</button>
-<button class="btn btn-primary" @onclick="onNew">جديد</button>
-<button class="btn btn-danger" @onclick="onDelete">حذف</button>
-
-
-@code {
-    [Parameter]
-    public int? id { get; set; }
-    private Stock _stock = new Stock();
-    protected override void OnInitialized()
-    {
-        if (id != null) using (var db = dbf.CreateDbContext()) _stock = db.Stocks.Where(r => r.Id == id).FirstOrDefault();
-
-    }
-
-    private async Task onSave()
-    {
-        try
+    @code {
+        [Parameter]
+        public int? id { get; set; }
+        private Stock _stock = new Stock();
+        protected override void OnInitialized()
         {
+            if (id != null) using (var db = dbf.CreateDbContext()) _stock = db.Stocks.Where(r => r.Id == id).FirstOrDefault();
 
-
-            using (var db = dbf.CreateDbContext())
+        }
+        private async Task onSave()
+        {
+            try
             {
-                if (_stock.Id == 0)
+
+
+                using (var db = dbf.CreateDbContext())
                 {
-                    await db.AddAsync(_stock);
+                    if (_stock.Id == 0)
+                    {
+                        await db.AddAsync(_stock);
+                    }
+                    else
+                    {
+                        db.Update(_stock);
+                    }
+                    await db.SaveChangesAsync();
                 }
-                else
-                {
-                    db.Update(_stock);
-                }
-                await db.SaveChangesAsync();
+
+            }
+            catch (Exception e)
+            {
+                throw e;
             }
 
         }
-        catch (Exception)
+        private void onDelete()
         {
-            throw;
+            using (var db = dbf.CreateDbContext())
+            {
+                if (_stock.Id != 0) db.Remove(_stock);
+            }
         }
-
-    }
-    private void onDelete()
-    {
-        using (var db = dbf.CreateDbContext())
+        private void onNew()
         {
-            if (_stock.Id != 0) db.Remove(_stock);
+            _stock = new Stock();
+            _stock.Vdate = DateTime.Now;
+        }
+        void OnChange(string value, string name)
+        {
+            Console.WriteLine($"{name} value changed to {value}");
+            switch (name.ToLower())
+            {
+                case "stockcode":
+                    using (var db = dbf.CreateDbContext())
+                    {
+                        Stock st;
+                        st = db.Stocks.FirstOrDefault<Stock>(a => a.StockCode == value);
+                        if (st != null)
+                            _stock = st;
+                        else
+                        {
+                            onNew();
+                            _stock.StockCode = value;
+                        }
+
+                    }
+                    break;
+
+                case "stockname":
+                    if (string.IsNullOrEmpty(value)) {
+                        notif_service.Notify((new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error Summary", Detail = "Error Detail", Duration = -1 }));
+                    }
+                    break;
+                case "vname":
+                    DateTime dt;
+                    if (!DateTime.TryParse(value,out dt)) { }
+                    break;
+                default:
+                    break;
+            }
+
+        }
+        void OnSubmit(Stock model)
+        {
+            Console.WriteLine(model);
+        }
+        void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+        {
+            Console.WriteLine(args.ToString());
+            //console.Log($"InvalidSubmit: {JsonSerializer.Serialize(args, new JsonSerializerOptions() { WriteIndented = true })}");
         }
     }
-    private void onNew()
-    {
-        _stock = new Stock();
-    }
-    private  void HandleValidSubmit(){ }
-
-    public void f_onchange(ChangeEventArgs args) {
-        string _x="";
-        _x =  args.ToString();
-
-    }
-}
 
 
