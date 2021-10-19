@@ -13,7 +13,7 @@
         <div class="form-group row">
             <RadzenLabel Text="كود المخزن" class="m-2 col-2" />
             <span>
-                <RadzenMask Mask="**-**" Pattern="[^0-9]" style="display: block" Name="StockCode" @bind-Value=@_stock.StockCode Change=@(args => OnChange(args, "stockcode")) />
+                <RadzenMask Mask=@mask Pattern="[^0-9]" style="display: block" Name="StockCode" @bind-Value=@_stock.StockCode @onchange=@(args => OnChange(args, "stockcode")) />
                 <RadzenRequiredValidator Component="StockCode" Text="يجب إدخال كود المخزن" Style="position: absolute" />
                 <RadzenRegexValidator Component="StockCode" Text="كود المخزن رقمين" Pattern="\d{2}" Style="position: absolute" />
             </span>
@@ -23,7 +23,7 @@
         <div class="form-group row">
             <RadzenLabel Text="وصف المخزن" class="m-2 col-2" />
             <span>
-                <RadzenTextBox style="display: block" Name="StockName" @bind-Value=@_stock.StockName  Change=@(args => OnChange(args, "stockname")) />
+                <RadzenTextBox style="display: block" Name="StockName" @bind-Value=@_stock.StockName @onchange=@(args => OnChange(args, "stockname")) />
                 <RadzenRequiredValidator Component="StockName" Text="يجب إدخال وصف المخزن" Style="position: absolute" />
             </span>
 
@@ -31,12 +31,16 @@
 
         <div class="form-group row">
             <label for="Name1" class="m-2 col-2">امين المخزن</label>
-            <RadzenTextBox style="display: block" Name="Name1" @bind-Value=@_stock.Name1  Change=@(args => OnChange(args, "name1"))/>
+            <RadzenTextBox style="display: block" Name="Name1" @bind-Value=@_stock.Name1 @onchange=@(args => OnChange(args, "name1")) />
         </div>
         <div class="form-group row">
             <RadzenLabel Text="التاريخ" class="m-2 col-2" />
-            <RadzenDatePicker @bind-Value="_stock.Vdate" id="vdate" TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1" MinutesStep="1" SecondsStep="1" Change=@(args => OnChange(args.ToString(), "vdate")) DateFormat="MM/dd/yyyy HH:mm:ss" />
+            <input @bind="_stock.Vdate" id="vdate" TValue="DateTime?"  />
+            
+            
         </div>
+
+        
         <div class="row">
             <div class="col-4">
                 <RadzenButton class="btn-dark" ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Secondary" @onclick="onSave">تسجيل</RadzenButton>
@@ -55,10 +59,13 @@
     @code {
         [Parameter]
         public int? id { get; set; }
-        private Stock _stock = new Stock();
+        private Stock _stock ;
+        private string mask="**";
+
         protected override void OnInitialized()
         {
             if (id != null) using (var db = dbf.CreateDbContext()) _stock = db.Stocks.Where(r => r.Id == id).FirstOrDefault();
+            else onNew();
 
         }
         private async Task onSave()
@@ -96,38 +103,41 @@
         }
         private void onNew()
         {
+            DateTime dt;
             _stock = new Stock();
-            _stock.Vdate = DateTime.Now;
+            DateTime.TryParse(DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss"),out dt);
+            _stock.Vdate = dt;
         }
-        void OnChange(string value, string name)
+        void OnChange(ChangeEventArgs arg, string name)
         {
-            Console.WriteLine($"{name} value changed to {value}");
+            Console.WriteLine($"{name} value changed to {arg.Value}");
             switch (name.ToLower())
             {
                 case "stockcode":
+
                     using (var db = dbf.CreateDbContext())
                     {
                         Stock st;
-                        st = db.Stocks.FirstOrDefault<Stock>(a => a.StockCode == value);
+                        st = db.Stocks.FirstOrDefault<Stock>(a => a.StockCode == arg.Value.ToString());
                         if (st != null)
                             _stock = st;
                         else
                         {
                             onNew();
-                            _stock.StockCode = value;
+                            _stock.StockCode = arg.Value.ToString();
                         }
 
                     }
                     break;
 
                 case "stockname":
-                    if (string.IsNullOrEmpty(value)) {
-                        notif_service.Notify((new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error Summary", Detail = "Error Detail", Duration = -1 }));
+                    if (string.IsNullOrEmpty(arg.Value.ToString())) {
+                        notif_service.Notify((new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "", Detail = "يجب إدخال الإسم", Duration = -1 }));
                     }
                     break;
-                case "vname":
+                case "vdate":
                     DateTime dt;
-                    if (!DateTime.TryParse(value,out dt)) { }
+                    if (DateTime.TryParse(arg.Value.ToString(), out dt)) { _stock.Vdate = dt; }
                     break;
                 default:
                     break;
