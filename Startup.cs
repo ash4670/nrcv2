@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using nrcv2.Data;
 using nrcv2.Models;
+using nrcv2.services;
 using Radzen;
 
 namespace nrcv2
@@ -42,6 +43,7 @@ namespace nrcv2
             services.AddScoped<NotificationService>();
             services.AddScoped<TooltipService>();
             services.AddScoped<ContextMenuService>();
+            services.AddScoped<Gtools>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

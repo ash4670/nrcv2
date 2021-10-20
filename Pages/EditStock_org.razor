@@ -1,17 +1,17 @@
 ﻿@page "/editstock_org"
 @page "/editstock_org/{id:int}"
 @inject IDbContextFactory<nrcwebContext> dbf;
+@inject Gtools gtool;
 
 <div class="card">
     <div class="  text-center  alert alert-info border border-info h4   ">  @(_stock.Id==0? "جديد" : "تعديل")</div>
     <div class="card-body">
 
         <EditForm Model=_stock OnValidSubmit="HandleValidSubmit">
-
             <DataAnnotationsValidator />
             <div class="form-group form-inline">
                 <label class="col-sm-2" for="StockCode">كود المخزن</label>
-                <input type="text" required size="10" placeholder="كود المخزن" minlength="2" maxlength="2" id="StockCode" value="@_stock.StockCode" @onchange="@((a)=>f_onchange(a,"stockcode"))" class="form-control col-sm-2" />
+                <input type="text" required size="10"  minlength="2" maxlength="2" id="StockCode" value="@_stock.StockCode" @onchange="@((a)=>f_onchange(a,"stockcode"))" class="form-control col-sm-2" />
             </div>
             <ValidationMessage For="() => _stock.StockCode" />
 
@@ -39,7 +39,7 @@
         </EditForm>
 
     </div>
-    
+
     <div class=" alert alert-info border border-info text-center h3">
         <button class="btn btn-primary btn  col-2 mr-auto font-weight-bolder" @onclick="onSave">تسجيل</button>
         <button class="btn btn-primary btn col-2 mr-auto font-weight-bolder" @onclick="onNew">إضافة</button>
@@ -50,110 +50,119 @@
 </div>
 
 
-    @code {
-        [Parameter]
-        public int? id { get; set; }
-        private Stock _stock = new Stock();
-        protected override void OnInitialized()
+@code {
+    [Parameter]
+    public int? id { get; set; }
+    private Stock _stock = new Stock();
+    protected override void OnInitialized()
+    {
+        if (id != null) using (var db = dbf.CreateDbContext()) _stock = db.Stocks.Where(r => r.Id == id).FirstOrDefault();
+
+    }
+    private async Task<int> onSave()
+    {
+        if (!of_preesave()) return -1;
+        try
         {
-            if (id != null) using (var db = dbf.CreateDbContext()) _stock = db.Stocks.Where(r => r.Id == id).FirstOrDefault();
-
-        }
-        private async Task onSave()
-        {
-            try
-            {
 
 
-                using (var db = dbf.CreateDbContext())
-                {
-                    if (_stock.Id == 0)
-                    {
-                        await db.AddAsync(_stock);
-                    }
-                    else
-                    {
-                        db.Update(_stock);
-                    }
-                    await db.SaveChangesAsync();
-                }
-
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-
-        }
-        private void onDelete()
-        {
             using (var db = dbf.CreateDbContext())
             {
-                if (_stock.Id != 0) db.Remove(_stock);
-            }
-        }
-        private void onNew()
-        {
-            _stock = new Stock();
-        }
-        private void HandleValidSubmit() { }
-
-        public async Task f_onchange(ChangeEventArgs args, string name)
-        {
-            string _value = "";
-            switch (name.ToLower())
-            {
-                case "stockcode":
-                    _stock.StockCode = "";
-                    await Task.Delay(1); //Magic!
-                    StateHasChanged();
-                    _value = (string)args.Value;
-                    _value = _value.Substring(0, Math.Min(2, _value.Length));
-                    _value = _value.Length ==1 ? String.Concat("0", _value) : _value;
-                    using (var db = dbf.CreateDbContext())
-                    {
-                        Stock st;
-                        st = db.Stocks.FirstOrDefault<Stock>(a => a.StockCode == _value);
-                        if (st != null)
-                            _stock = st;
-                        else
-                        {
-                            onNew();
-                            _stock.StockCode = _value;
-                        }
-                    }
-                    StateHasChanged();
-                    break;
-                case "stockname":
-                    _stock.StockName = "";
-                    await Task.Delay(1); //Magic!
-                    StateHasChanged();
-                    _value = (string)args.Value;
-                    if (string.IsNullOrEmpty(args.Value.ToString()))
-                    {
-                        _notifi.Notify((new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "", Detail = "يجب إدخال الإسم", Duration = -1 }));
-                    }
-                    _value = _value.Substring(0, Math.Min(50, _value.Length));
-
-                    _stock.StockName = _value;
-
-                    StateHasChanged();
-                    break;
-                case "name1":
-                    if (string.IsNullOrEmpty(args.Value.ToString()))
-                    {
-                        _notifi.Notify((new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "", Detail = "يجب إدخال الإسم", Duration = -1 }));
-                    }
-                    break;
-                case "vdate":
-                    DateTime dt;
-                    if (DateTime.TryParse(args.Value.ToString(), out dt)) { _stock.Vdate = dt; }
-                    break;
-                default:
-                    break;
+                if (_stock.Id == 0)
+                {
+                    await db.AddAsync(_stock);
+                }
+                else
+                {
+                    db.Update(_stock);
+                }
+                await db.SaveChangesAsync();
             }
 
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        return 0;
+    }
+
+    private void onDelete()
+    {
+        using (var db = dbf.CreateDbContext())
+        {
+            if (_stock.Id != 0) db.Remove(_stock);
         }
     }
+    private void onNew()
+    {
+        _stock = new Stock();
+    }
+    private void HandleValidSubmit() { }
+
+    public async Task f_onchange(ChangeEventArgs args, string name)
+    {
+        string _value = "";
+        switch (name.ToLower())
+        {
+            case "stockcode":
+                _stock.StockCode = "";
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _value = (string)args.Value;
+                _value = _value.Substring(0, Math.Min(2, _value.Length));
+                _value = _value.Length == 1 ? String.Concat("0", _value) : _value;
+                using (var db = dbf.CreateDbContext())
+                {
+                    Stock st;
+                    st = db.Stocks.FirstOrDefault<Stock>(a => a.StockCode == _value);
+                    if (st != null)
+                        _stock = st;
+                    else
+                    {
+                        onNew();
+                        _stock.StockCode = _value;
+                    }
+                }
+                StateHasChanged();
+                break;
+            case "stockname":
+                _stock.StockName = "";
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _value = (string)args.Value;
+                if (string.IsNullOrEmpty(args.Value.ToString()))
+                {
+                    // _notifi.Notify((new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "", Detail = "يجب إدخال الإسم", Duration = -1 }));
+                    gtool.Mynotify("خطأ","يجب إدخال وصف المخزن");
+                }
+                _value = _value.Substring(0, Math.Min(50, _value.Length));
+                _stock.StockName = _value;
+                StateHasChanged();
+                break;
+            case "name1":
+                if (string.IsNullOrEmpty(args.Value.ToString()))
+                {
+                    //  _notifi.Notify((new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "", Detail = "يجب إدخال الإسم", Duration = -1 }));
+                }
+                break;
+            case "vdate":
+                DateTime dt;
+                if (DateTime.TryParse(args.Value.ToString(), out dt)) { _stock.Vdate = dt; }
+                break;
+            default: break;
+        }
+
+    }
+
+    private bool of_preesave() {
+        if (String.IsNullOrWhiteSpace(_stock.StockCode)) { gtool.Mynotify("خطأ", "كود المخزن غير معرف"); return false; }
+        if (String.IsNullOrWhiteSpace(_stock.StockName)) { gtool.Mynotify("خطأ", "اسم المخزن غير معرف"); return false; }
+        if (String.IsNullOrWhiteSpace(_stock.Name1)) { gtool.Mynotify("خطأ", "أمين المخزن غير معرف"); return false; }
+        if (!_stock.Vdate.HasValue || String.IsNullOrWhiteSpace(_stock.Vdate.ToString())) { gtool.Mynotify("خطأ", "ادخل تاريخ التعريف"); return false; }
+
+        return true;
+    }
+}
 
 

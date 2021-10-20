@@ -14,6 +14,7 @@ Welcome to your new app.
 @code{ 
     public bool showModal { get; set; }
     private GList<Stock> listRef;
+    
     public void ModalClosed(bool arg){
         if (arg){     var x = listRef.selectedrow;  }
         showModal = false;
