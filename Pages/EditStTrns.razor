@@ -3,14 +3,28 @@
 @inject IDbContextFactory<nrcwebContext> dbf;
 @inject DialogService ds
 @inject NotificationService ns
-<div class="card">
+
+    <style>
+        table > thead > tr {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: white;
+        }
+      
+    </style>
+
+<div class="card  w-auto h-auto" >
   
-    <div class="card-header alert alert-primary h3 text-center m-0 p-0 ">@(_hadd.Kind == 1 ? "إذن إضافة" : "إذن صرف") - @(_hadd.Id == 0 ? "جديد" : "تعديل")</div>
+    <div class="card-header alert alert-primary h3 text-center m-0 p-0 ">
+        @_hadd.StockCode
+        @_hadd.Kind
+        @_hadd.TrnNo
+        @(_hadd.Kind == 1 ? "إذن إضافة" : "إذن صرف") - @(_hadd.Id == 0 ? "جديد" : "تعديل")
+    </div>
     <div class="card-body">
         <RadzenTemplateForm TItem="Hadd" Data=@_hadd InvalidSubmit=@OnInvalidSubmit>
-            @_hadd.StockCode
-            @_hadd.Kind
-            @_hadd.TrnNo
+
             <div class="form-group  row  ">
                 <Label class="btn-outline-primary col-sm-2" @onclick="@(async ()=>await f_ondblclick("stockcode"))">كود المخزن ...</Label>
                 <span>
@@ -68,22 +82,52 @@
 
 
 
-
         </RadzenTemplateForm>
+
+        <div style=" height:250px ;font-size:small; overflow: auto; ">
+            <table class="table table-responsive  table-hover table-bordered  ">
+                <thead class="font-weight-bold">
+                    <tr><th class="col-sm-2"> كود الصنف</th> <th class="col-sm-3"> إسم الصنف</th>  <th class="col-sm-2">الوحدة</th><th class="col-sm-2">الكمية</th> <th class="col-sm-2"> السعر</th> <th class="col-sm-1"> حذف</th> </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in _hadd.Dadds)
+                    {
+
+                    <tr style="padding:0;margin:0">
+                        <td style="padding:0;margin:0"> <RadzenTextBox form="itemcode"  @bind-Value="@item.ItemCode" /></td>
+                        <td style="padding:0;margin:0">@item.EngName</td>
+                          <td style="padding:0;margin:0">  <RadzenTextBox form="unitname" class="form-control-sm" @bind-Value="@item.UnitName" /></td>
+                        <td style="padding:0;margin:0"><RadzenNumeric form="itemquant" class="form-control-sm" @bind-Value="@item.ItemQuant" /></td>
+                        <td style="padding:0;margin:0"><RadzenNumeric form="itemprice" class="form-control-sm" @bind-Value="@item.ItemPrice" /></td>
+                        <td style="padding:0;margin:0"><button class="btn btn-primary btn-sm" @onclick="()=> { _hadd.Dadds.Remove(item); } ">&times;</button></td>
+                    </tr>
+                        
+                    }
+                </tbody>
+            </table>
+        </div>
+
+
     </div>
-    <div class="card-footer m-0 p-0">
+    <div class="card-footer m-0 p-1">
         <div class="row text-center ">
-            <div class="col-4 ">
-                <RadzenButton class="btn-dark btn-sm " ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Secondary" @onclick="onSave">تسجيل</RadzenButton>
+            <div class="col-3 ">
+                <RadzenButton class="btn-dark  " ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Secondary" @onclick="onSave">تسجيل</RadzenButton>
             </div>
-            <div class="col-4 ">
-                <button class="btn btn-sm btn-outline-dark " @onclick="onNew">جديد</button>
+            <divclass ="col-3">
+                <button class="btn btn-primary" @onclick="onAddNewItem">إضافة صنف</button>
+            </divclass>
+            <div class="col-3 ">
+                <button class="btn btn-outline-dark " @onclick="onNew">جديد</button>
             </div>
-            <div class="col-4 " >
-                <button class="btn btn-sm btn-outline-dark " @onclick="onDelete">حذف</button>
+            <div class="col-3 " >
+                <button class="btn  btn-outline-primary " @onclick="onDelete">حذف</button>
             </div>
         </div>
     </div>
+
+   
+
 
 </div>
 
@@ -206,10 +250,10 @@
                 }
                 else
                 {
-
+                    string _trnno =(string) arg;
                     using (var db = dbf.CreateDbContext())
                     {
-                        _hadd=db.Hadds.ToList().Where(a =>  a.StockCode == old_stockcode && a.Kind == kind && a.TrnNo == arg).FirstOrDefault();
+                        _hadd=db.Hadds.Where(a => a.TrnNo == _trnno && a.StockCode == old_stockcode &&  a.Kind == kind).Include(a=>a.Dadds).ToList().FirstOrDefault();
                         if (_hadd == null)
                         {
                             onNew();
@@ -290,6 +334,19 @@
         }
 
     }
+
+    public void onAddNewItem()
+    {
+        Dadd d = new Dadd();
+        _hadd.Dadds.Add(d);
+       
+    }
+
+
 }
+
+
+
+
 
 
