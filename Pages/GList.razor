@@ -3,7 +3,7 @@
 @using System.Reflection
 @using System.ComponentModel
 <style>
-    table > thead > tr {
+    table > thead >tr {
         position: sticky;
         top: 0;
         z-index: 2;
@@ -15,20 +15,22 @@
 else
 {
 
-<div class="input-group ">
+<div class="input-group m-0 p-0 ">
     <div class="input-group-text bg-transparent input-group-prepend">  <i class="oi oi-magnifying-glass"></i></div>
     <input class="form-control" type="search" placeholder="بحث" @bind-value="_filter" @bind-value:event="oninput" @onkeyup="myfilter" />
  </div>
                
-<div style=" height: 300px ; overflow: auto;">
-    <table class="table table-hover table-bordered table-sm">
+<div style=" height:250px ; overflow: auto; ">
+    <table class="table  table-hover table-bordered table-responsive table-sm ">
         <thead class="font-weight-bold">
             @myHeader
-            <tr style ="height:50%"class="bg-dark text-center text-white ">
-                <th style="width: 5%">م</th>
+            <tr style="height:50%" class="bg-primary text-center text-white ">
+                <th style="  width: 5%">م</th>
+                @{int k = 0; }
                 @foreach (PropertyInfo c in displayedcolumn)
                 {
-                <th @onclick="@(() => mysort(c.Name))"> @GetAttributeDisplayName(c)  </th>
+                    <th @onclick="@(() => mysort(c.Name))">@if (_colheads.Any() ) { @_colheads.ElementAt(k); k++; } else { @GetAttributeDisplayName(c); }  </th> 
+                    
                 }
             </tr>
         </thead>
@@ -37,7 +39,7 @@ else
             @{int rownum = 1; }
             @foreach (T item in data)
             {
-                <tr style="background-color:@(item== selectedrow ? "lightblue":"lightyellow" ) " class="text-right  h-50" @onclick="()=>f_Rowclicked(item)" @ondblclick="()=>f_Rowdblclicked(item)">
+                <tr style="background-color:@(item== selectedrow ? "lightblue":"lightyellow" ) " class="text-right" @onclick="()=>f_Rowclicked(item)" @ondblclick="()=>f_Rowdblclicked(item)">
                 <td style="width: 5%">@rownum</td>
                 @foreach (PropertyInfo c in displayedcolumn)
                 {<td>@c.GetValue(item, null) </td>}
@@ -55,64 +57,78 @@ else
 
 
 @code { #region declarations
+    public T selectedrow { get; set; }
+    [Parameter] public List<T> data { get; set; }
+    [Parameter] public RenderFragment myHeader { get; set; }
+    [Parameter] public RenderFragment myFooter { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public String scollist { get; set; }
+    [Parameter] public String colheads { get; set; }
+    [Parameter] public EventCallback<T> OnRowdblclicked { get; set; }
+    [Parameter] public EventCallback<T> OnRowclicked { get; set; }
+    private string _filter { get; set; } = "";
+    private List<T> orgdata { get; set; }
+    private IEnumerable<String> collist { get; set; }
+    private IEnumerable<String> _colheads  { get; set; }
+    private List<PropertyInfo> props;
+    private List<PropertyInfo> displayedcolumn = new List<PropertyInfo>();
+    #endregion
+    public void mysort(string colname)
+    {
+        data = data.OrderBy(x => x.GetType().GetProperty(colname).GetValue(x, null)).ToList();
+    }
+    public void myfilter()
+    {
+        if (_filter == null || _filter == string.Empty)
+            data = orgdata;
+        else
+            data = orgdata.Where(x => (x.GetType().GetProperties().Intersect(displayedcolumn).Where(p => x.GetType().GetProperty(p.Name).GetValue(x, null) != null)).Any(p => (x.GetType().GetProperty(p.Name).GetValue(x, null)).ToString().Contains(_filter))).ToList();
+    }
+    protected override void OnInitialized()
+    {
+
+    }
+
+    protected override void OnParametersSet() {
+
+        if ((scollist != null) && (scollist.Trim().Equals(scollist))) {
+            scollist = scollist.ToLower();
+            collist = scollist.Split(',');
+        }
+        if ((colheads != null) && (colheads.Trim().Equals(colheads))) {
+            colheads = colheads.ToLower();
+            _colheads = colheads.Split(',');
+        }
+
+        if (data == null) using (var db = dbf.CreateDbContext()) data = db.Set<T>().ToList<T>();
+        props = (data.FirstOrDefault()).GetType().GetProperties().ToList();
+        if (collist != null)
+            displayedcolumn = props.Where(p => collist.Contains(p.Name.ToLower())).ToList();
+        else
+            displayedcolumn = props.Where(p => p.PropertyType == typeof(string) || p.PropertyType.IsValueType).ToList();
 
 
-            public T selectedrow { get; set; }
-            public string _filter { get; set; } = "";
-            public List<T> orgdata { get; set; }
-            [Parameter] public List<T> data { get; set; }
-            [Parameter] public RenderFragment myHeader { get; set; }
-            [Parameter] public RenderFragment myFooter { get; set; }
-            [Parameter] public RenderFragment ChildContent { get; set; }
-            [Parameter] public String scollist { get; set; }
-            [Parameter] public EventCallback<T> OnRowdblclicked { get; set; }
-            [Parameter] public EventCallback<T> OnRowclicked { get; set; }
-            public IEnumerable<String> collist { get; set; }
-            public List<PropertyInfo> props;
-            public List<PropertyInfo> displayedcolumn = new List<PropertyInfo>();
-            #endregion
-            public void mysort(string colname)
-            {
-                data = data.OrderBy(x => x.GetType().GetProperty(colname).GetValue(x, null)).ToList();
-            }
-            public void myfilter()
-            {
-                if (_filter == null || _filter == string.Empty)
-                    data = orgdata;
-                else
-                    data = orgdata.Where(x => (x.GetType().GetProperties().Intersect(displayedcolumn).Where(p => x.GetType().GetProperty(p.Name).GetValue(x, null) != null)).Any(p => (x.GetType().GetProperty(p.Name).GetValue(x, null)).ToString().Contains(_filter))).ToList();
-            }
-            protected override void OnInitialized()
-            {
-                if ((scollist != null) && (scollist.Trim().Equals(scollist))) collist = scollist.Split(',');
-                if (data == null) using (var db = dbf.CreateDbContext()) data = db.Set<T>().ToList<T>();
+        orgdata = data;
 
-                props = (data.FirstOrDefault()).GetType().GetProperties().ToList();
-                if (collist != null)
-                    displayedcolumn = props.Where(p => collist.Contains(p.Name.ToLower())).ToList();
-                else
-                    displayedcolumn = props.Where(p => p.PropertyType == typeof(string) || p.PropertyType.IsValueType).ToList();
+    }
 
+    public void f_Rowclicked(T row)
+    {
+        selectedrow = row;
+        OnRowclicked.InvokeAsync(row);
+    }
 
-                orgdata = data;
-            }
-            public void f_Rowclicked(T row)
-            {
-                selectedrow = row;
-                OnRowclicked.InvokeAsync(row);
-            }
+    public void f_Rowdblclicked(T row)
+    {
+        selectedrow = row;
+        OnRowdblclicked.InvokeAsync(row);
+    }
 
-            public void f_Rowdblclicked(T row)
-            {
-                selectedrow = row;
-                OnRowdblclicked.InvokeAsync(row);
-            }
-
-            private string GetAttributeDisplayName(PropertyInfo property)//this method to get the display name from the model attribute displayname
-            {
-                var atts = property.GetCustomAttributes(typeof(DisplayNameAttribute), true);
-                if (atts.Length == 0) return null;
-                return (atts[0] as DisplayNameAttribute).DisplayName;
-            } }
+    private string GetAttributeDisplayName(PropertyInfo property)//this method to get the display name from the model attribute displayname
+    {
+        var atts = property.GetCustomAttributes(typeof(DisplayNameAttribute), true);
+        if (atts.Length == 0) return null;
+        return (atts[0] as DisplayNameAttribute).DisplayName;
+    } }
 
 

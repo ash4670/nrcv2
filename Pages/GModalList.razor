@@ -1,0 +1,70 @@
+﻿@typeparam T
+@inject DialogService ds
+<RadzenCard Style="margin: 0;padding:0">
+    <div class="alert alert-primary col-12 h5 text-center m-0 p-0 ">
+        @title
+        <button type="button" class="btn btn-sm close" @onclick=ModalCancel>&times;</button>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <p>@Content</p>
+            @ChildContent
+            <GList @ref="glref" T="T" scollist=@scollist colheads="@colheads" data=@data OnRowdblclicked=ModalOk />
+        </div>
+
+    </div>
+
+    <div class="alert alert-info col-12 h5 text-center m-0 p-0 ">
+             <button type="button" class="btn btn-primary btn-sm" @onclick=ModalOk>موافق</button>
+            <button type="button" class="btn btn-primary btn-sm" @onclick=ModalCancel>إلغاء</button>
+        
+    </div>
+</RadzenCard>
+
+
+
+            @*<div id="myModal" class=" modal  fade show modal-dialog  " style=" border : 3px solid #666;display: block;background-color: rgba(10,10,10,.8);">
+
+                    <div class="modal-content ">
+                        <div class="modal-header">
+                            <div class="alert alert-primary col-12 h5 text-center ">
+                                @title
+                                <button type="button" class="btn btn-sm close" @onclick=ModalCancel>&times;</button>
+                            </div>
+                        </div>
+                        <div class="modal-body">
+                            <p>@Content</p>
+                            @ChildContent
+                            <GList @ref="glref" T="T" scollist="stockcode,stockname" OnRowdblclicked=ModalOk />
+                            <div class=" alert alert-info border border-info text-center h4">
+                                <button type="button" class="btn btn-primary btn-sm" @onclick=ModalOk>موافق</button>
+                                <button type="button" class="btn btn-primary btn-sm" @onclick=ModalCancel>إلغاء</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>*@
+
+            @code {
+                    #region declarations
+                    [Parameter] public RenderFragment ChildContent { get; set; }
+                    [Parameter] public string title { get; set; }
+                    [Parameter] public string Content { get; set; }
+                    [Parameter]   public List<T> data { get; set; }
+                    [Parameter] public string scollist { get; set; }
+                    [Parameter] public string colheads { get; set; }
+                GList<T> glref;
+                #endregion
+
+
+                private void ModalCancel() { ds.Close(new Dictionary<string, object> { { "status", false } }); }
+                private void ModalOk()
+                {
+
+                    if (glref.selectedrow == null) return;
+                    ds.Close(new Dictionary<string, object> { { "status", true },
+                 { "result",new List<T> {glref.selectedrow } } });
+
+                }
+
+                //@onclick="@ModalCancel"
+            }
