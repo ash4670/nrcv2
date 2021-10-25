@@ -67,89 +67,89 @@ else
 
     @code { #region declarations
         ElementReference searchinput;
-public T selectedrow { get; set; }
-    [Parameter] public List<T> data { get; set; }
-    [Parameter] public RenderFragment myHeader { get; set; }
-    [Parameter] public RenderFragment myFooter { get; set; }
-    [Parameter] public RenderFragment ChildContent { get; set; }
-    [Parameter] public String scollist { get; set; }
-    [Parameter] public String colheads { get; set; }
-    [Parameter] public EventCallback<T> OnRowdblclicked { get; set; }
-    [Parameter] public EventCallback<T> OnRowclicked { get; set; }
-    private string _filter { get; set; } = "";
-    private List<T> orgdata { get; set; }
-    private IEnumerable<String> collist { get; set; }
-    private IEnumerable<String> _colheads { get; set; }
-    private List<PropertyInfo> props;
-    private List<PropertyInfo> displayedcolumn = new List<PropertyInfo>();
-    #endregion
-    public void mysort(string colname)
-    {
-        data = data.OrderBy(x => x.GetType().GetProperty(colname).GetValue(x, null)).ToList();
-    }
-    public void myfilter()
-    {
-        if (_filter == null || _filter == string.Empty)
-            data = orgdata;
-        else
-            data = orgdata.Where(x => (x.GetType().GetProperties().Intersect(displayedcolumn).Where(p => x.GetType().GetProperty(p.Name).GetValue(x, null) != null)).Any(p => (x.GetType().GetProperty(p.Name).GetValue(x, null)).ToString().Contains(_filter))).ToList();
-    }
-    protected override void OnInitialized()
-    {
-
-    }
-
-    protected override void OnParametersSet()
-    {
-
-        if ((scollist != null) && (scollist.Trim().Equals(scollist)))
+        public T selectedrow { get; set; }
+        [Parameter] public List<T> data { get; set; }
+        [Parameter] public RenderFragment myHeader { get; set; }
+        [Parameter] public RenderFragment myFooter { get; set; }
+        [Parameter] public RenderFragment ChildContent { get; set; }
+        [Parameter] public String scollist { get; set; }
+        [Parameter] public String colheads { get; set; }
+        [Parameter] public EventCallback<T> OnRowdblclicked { get; set; }
+        [Parameter] public EventCallback<T> OnRowclicked { get; set; }
+        private string _filter { get; set; } = "";
+        private List<T> orgdata { get; set; }
+        private IEnumerable<String> collist { get; set; }
+        private IEnumerable<String> _colheads { get; set; } = new List<string>() ;
+        private List<PropertyInfo> props;
+        private List<PropertyInfo> displayedcolumn = new List<PropertyInfo>();
+        #endregion
+        public void mysort(string colname)
         {
-            scollist = scollist.ToLower();
-            collist = scollist.Split(',');
+            data = data.OrderBy(x => x.GetType().GetProperty(colname).GetValue(x, null)).ToList();
         }
-        if ((colheads != null) && (colheads.Trim().Equals(colheads)))
+        public void myfilter()
         {
-            colheads = colheads.ToLower();
-            _colheads = colheads.Split(',');
+            if (_filter == null || _filter == string.Empty)
+                data = orgdata;
+            else
+                data = orgdata.Where(x => (x.GetType().GetProperties().Intersect(displayedcolumn).Where(p => x.GetType().GetProperty(p.Name).GetValue(x, null) != null)).Any(p => (x.GetType().GetProperty(p.Name).GetValue(x, null)).ToString().Contains(_filter))).ToList();
+        }
+        protected override void OnInitialized()
+        {
+
         }
 
-        if (data == null) using (var db = dbf.CreateDbContext()) data = db.Set<T>().ToList<T>();
-        //props = (data.FirstOrDefault()).GetType().GetProperties().ToList();
-        props = (new T()).GetType().GetProperties().ToList();
-        if (collist != null)
-            displayedcolumn = props.Where(p => collist.Contains(p.Name.ToLower())).ToList();
-        else
-            displayedcolumn = props.Where(p => p.PropertyType == typeof(string) || p.PropertyType.IsValueType).ToList();
+        protected override void OnParametersSet()
+        {
+
+            if ((scollist != null) && (scollist.Trim().Equals(scollist)))
+            {
+                scollist = scollist.ToLower();
+                collist = scollist.Split(',');
+            }
+            if ((colheads != null) && (colheads.Trim().Equals(colheads)))
+            {
+                colheads = colheads.ToLower();
+                _colheads = colheads.Split(',');
+            }
+
+            if (data == null) using (var db = dbf.CreateDbContext()) data = db.Set<T>().ToList<T>();
+            //props = (data.FirstOrDefault()).GetType().GetProperties().ToList();
+            props = (new T()).GetType().GetProperties().ToList();
+            if (collist != null)
+                displayedcolumn = props.Where(p => collist.Contains(p.Name.ToLower())).ToList();
+            else
+                displayedcolumn = props.Where(p => p.PropertyType == typeof(string) || p.PropertyType.IsValueType).ToList();
 
 
-        orgdata = data;
+            orgdata = data;
 
-    }
+        }
 
-    protected override void OnAfterRender(bool firstRender)
-    {
-        searchinput.FocusAsync();
-    }
+        protected override void OnAfterRender(bool firstRender)
+        {
+            searchinput.FocusAsync();
+        }
 
-    public async void f_Rowclicked(T row)
-    {
+        public async void f_Rowclicked(T row)
+        {
 
-        await OnRowclicked.InvokeAsync(row);
-        selectedrow = row;
-    }
+            await OnRowclicked.InvokeAsync(row);
+            selectedrow = row;
+        }
 
-    public async void f_Rowdblclicked(T row)
-    {
+        public async void f_Rowdblclicked(T row)
+        {
 
-        await OnRowdblclicked.InvokeAsync(row);
-        selectedrow = row;
-    }
+            await OnRowdblclicked.InvokeAsync(row);
+            selectedrow = row;
+        }
 
-    private string GetAttributeDisplayName(PropertyInfo property)//this method to get the display name from the model attribute displayname
-    {
-        var atts = property.GetCustomAttributes(typeof(DisplayNameAttribute), true);
-        if (atts.Length == 0) return null;
-        return (atts[0] as DisplayNameAttribute).DisplayName;
-    } }
+        private string GetAttributeDisplayName(PropertyInfo property)//this method to get the display name from the model attribute displayname
+        {
+            var atts = property.GetCustomAttributes(typeof(DisplayNameAttribute), true);
+            if (atts.Length == 0) return null;
+            return (atts[0] as DisplayNameAttribute).DisplayName;
+        } }
 
 
