@@ -11,7 +11,7 @@
         z-index: 2;
         background: white;
     }
-
+    
     label, tr, td {
         max-height: 25px;
     }
@@ -88,26 +88,52 @@
         </RadzenTemplateForm>
         
             <div style=" height:250px ;font-size:small; overflow: auto; ">
-                <table class="table table-responsive table-hover table-bordered  ">
+                <table class="table table-responsive table-hover table-bordered  table-sm   d-none d-md-block">
                     <thead class="font-weight-bold text-center alert-primary">
-                        <tr style="padding:0;margin:0;max-height:fit-content;"><th style="padding:0;margin:0;" > كود الصنف</th> <th style="padding:0;margin:0 ;"> إسم الصنف</th>  <th style="padding:0;margin:0" >الوحدة</th><th style="padding:0;margin:0" >الكمية</th> <th style="padding:0;margin:0" > السعر</th> <th > حذف</th> </tr>
+                        <tr style="padding:0;margin:0;max-height:fit-content;"><td>م</td><th style="padding:0;margin:0;" > كود الصنف</th> <th style="padding:0;margin:0 ;"> إسم الصنف</th>  <th style="padding:0;margin:0" >الوحدة</th><th style="padding:0;margin:0" >الكمية</th> <th style="padding:0;margin:0" > السعر</th> <th > حذف</th> </tr>
                     </thead>
                     <tbody>
+                        @{int r = 0; }
                         @foreach (var item in _hadd.Dadds)
                         {
-
                             <tr style="padding:0;margin:0;max-height:fit-content; background-color:lightsteelblue">
-                                <td style="padding: 0; margin: 0;" > <RadzenTextBox Style=" background-color: lemonchiffon;" class="form-control-sm" form="itemcode" @bind-Value="@item.ItemCode" /></td>
-                                <td style="padding:0;margin:0 ; " class="col-sm-5"><strong >@item.EngName</strong></td>
-                                <td style="padding: 0; margin: 0;" >  <RadzenTextBox Style="width: inherit !important; height: inherit !important;" form="unitname" class="form-control-sm" @bind-Value="@item.UnitName" /></td>
-                                <td style="padding:0;margin:0" > <RadzenNumeric TValue="double?" autoselect ShowUpDown="false" Format="0.00" Style="margin:0px ;padding:0px;" form="itemquant" class="form-control-sm" @bind-Value="@item.ItemQuant" /></td>
-                                <td style="padding:0;margin:0" > <RadzenNumeric TValue="double?" ShowUpDown="false" Format="0.00" Style="margin:0px ;padding:0px;" form="itemprice" class="form-control-sm" @bind-Value="@item.ItemPrice" /></td>
-                                <td style="padding:0;margin:0 ;text-align:center " > <button tabindex=-1 style="width: inherit;" class="btn btn-primary btn-sm" @onclick="()=> { _hadd.Dadds.Remove(item); } ">&times;</button></td>
+                                <td>@(r+1) </td>
+                                <td style="padding: 0; margin: 0;"> <RadzenTextBox Style=" background-color: lemonchiffon;" class="form-control-sm" @ondblclick="@(async ()=>await f_ondblclickdetail("itemcode", _hadd.Dadds.ToList().IndexOf(item)))" Name=itemcode form="itemcode" @bind-Value="@item.ItemCode" Change=@(args => f_onchangedetail( "itemcode",args, _hadd.Dadds.ToList().IndexOf(item))) /></td>
+                                <td style="padding:0;margin:0 ; " class="col-sm-5"><strong>@item.EngName</strong></td>
+                                <td style="padding: 0; margin: 0;">  <RadzenTextBox Style="width: inherit !important; height: inherit !important;" form="unitname" class="form-control-sm" @bind-Value="@item.UnitName" /></td>
+                                <td style="padding:0;margin:0"> <RadzenNumeric TValue="double?" ShowUpDown="false" Format="0.00" Style="margin:0px ;padding:0px;" form="itemquant" class="form-control-sm" @bind-Value="@item.ItemQuant" /></td>
+                                <td style="padding:0;margin:0"> <RadzenNumeric TValue="double?" ShowUpDown="false" Format="0.00" Style="margin:0px ;padding:0px;" form="itemprice" class="form-control-sm" @bind-Value="@item.ItemPrice" /></td>
+                                <td style="padding:0;margin:0 ;text-align:center "> <button tabindex=-1 style="width: inherit;" class="btn btn-primary btn-sm" @onclick="()=> { _hadd.Dadds.Remove(item); } ">&times;</button></td>
                             </tr>
-
+                            r++;
                         }
                     </tbody>
                 </table>
+
+                <div class="d-block d-md-none">
+                    <ul>
+                        @{ int k = 0; }
+                        @foreach (var item in _hadd.Dadds)
+                        {
+                            <li>
+                                @(k+1)
+                                <Label class="btn-outline-primary col-sm-2" @ondblclick="@(async ()=>await f_ondblclickdetail("itemcode",_hadd.Dadds.ToList().IndexOf(item)))">كود الصنف</Label>
+                                <span>
+                                    <RadzenMask Mask=@itemmask Pattern="[^0-9]" style="display: block ; background-color:lemonchiffon" Name="itemcode"
+                                                @bind-Value=item.ItemCode Change=@(args => f_onchangedetail( "itemcode",args,_hadd.Dadds.ToList().IndexOf(item)))
+                                                @ondblclick="@(async ()=>await f_ondblclickdetail("itemcode",_hadd.Dadds.ToList().IndexOf(item)))" />
+                                    <RadzenRequiredValidator Component="itemcode" Text="يجب إدخال كود الصنف" Style="position: absolute" />
+                                    <RadzenRegexValidator Component="itemcode" Text="كود الصنف 5 أرقام" Pattern="\d{5}" Style="position: absolute" />
+
+                                </span>
+                                <span>@item.EngName</span>
+                                <Label class="btn-outline-primary col-sm-2" @onclick="@(async ()=>await f_ondblclick("itemcode"))">الوحدة</Label>
+                                <RadzenTextBox Style="width: inherit !important; height: inherit !important;" form="unitname" class="form-control-sm" @bind-Value="@item.UnitName" />
+                            </li>
+                            k++;
+                        }
+                    </ul>
+                </div>
             
         </div>
 
@@ -120,18 +146,10 @@
             <button class="btn btn-primary btn col-2 mr-auto font-weight-bolder" @onclick="onNew">إضافة</button>
             <button class="btn btn-danger btn col-2 mr-auto font-weight-bolder" @onclick="onDelete">حذف</button>
         </div>*@
-
-
         <div class=" alert alert-info border border-info text-center btn-group-sm  m-2 p-2">
-            
                 <button class="btn btn-primary btn-s  col-2 mr-auto font-weight-bolder" ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Secondary" @onclick="onSave">تسجيل</button>
-            
-                <button class="btn btn-primary  col-2 mr-auto font-weight-bolder" @onclick="onAddNewItem">إضافة صنف</button>
-           
-            
-                <button class="btn btn-primary  col-2 mr-auto font-weight-bolder" @onclick="onNew">جديد</button>
-            
-           
+                 <button class="btn btn-primary  col-2 mr-auto font-weight-bolder" @onclick="onAddNewItem">إضافة صنف</button>
+                 <button class="btn btn-primary  col-2 mr-auto font-weight-bolder" @onclick="onNew">جديد</button>
                 <button class="btn btn-danger col-2 mr-auto font-weight-bolder"  @onclick="onDelete">حذف</button>
             
         </div>
@@ -144,8 +162,6 @@
 
 @code {
     #region code
-
-
     [Parameter]
     public int? id { get; set; }
     [Parameter]
@@ -153,6 +169,7 @@
     private Hadd _hadd = new Hadd();
     private string stockcode_mask = "**";
     private string trn_no_mask = "**********";
+    private string itemmask = "*****";
     private string old_stockcode;
     protected override void OnInitialized()
     {
@@ -226,6 +243,7 @@
         //  DateTime.ParseExact(DateTime.Now.ToString("MM/dd/yyyy hh:mm tt"), "", CultureInfo.InvariantCulture);
 
     }
+
     public async Task f_onchange(string name, dynamic arg)
     {
         string _value = "";
@@ -309,13 +327,6 @@
             default: break;
         }
     }
-    void OnSubmit(Hadd model)
-    {
-        Console.WriteLine(model);
-    }
-    void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
-    { }
-
     private async Task f_ondblclick(string name)
     {
         Dictionary<string, object> ret;
@@ -362,6 +373,67 @@
         _hadd.Dadds.Add(d);
 
     }
+    public async Task f_onchangedetail(string name, dynamic arg, int row)
+    {
+        string _value = "";
+        switch (name.ToLower())
+        {
+            case "itemcode":
+                _hadd.Dadds.ToList().ElementAt(row).ItemCode = "";
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _value = arg;
+                _value = _value.Substring(0, Math.Min(5, _value.Length));
+                _value = _value.PadLeft(5, '0');
+                Item item;
+                using (var db = dbf.CreateDbContext()) item = db.Items.FirstOrDefault<Item>(a => a.ItemCode == _value && a.StockCode == old_stockcode);
+                if (item != null) {
+                    _hadd.Dadds.ToList().ElementAt(row).ItemCode = item.ItemCode;
+                    _hadd.Dadds.ToList().ElementAt(row).EngName = item.EngName;
+                    _hadd.Dadds.ToList().ElementAt(row).UnitName = item.UnitName;
+                    _hadd.Dadds.ToList().ElementAt(row).ItemPrice =(double?) item.Value;
+
+                }
+                else
+                {
+                    _hadd.Dadds.ToList().ElementAt(row).ItemCode = "";
+                    ns.Notify(new NotificationMessage() { Detail = "الصنف خطأ" });
+                }
+                StateHasChanged();
+                //get units & prices
+                break;
+        }
+    }
+    private async Task f_ondblclickdetail(string name, int row)
+    {
+        Dictionary<string, object> ret;
+        List<Item> itemlist;
+        switch (name.ToLower())
+        {
+            case "itemcode":
+                using (var db = dbf.CreateDbContext()) itemlist = db.Items.Where(i => i.StockCode == _hadd.StockCode).ToList();
+
+                ret = await ds.OpenAsync<GModalList<Item>>("",new Dictionary<string, object>() { { "title", "قائمة الأصناف" }
+                    , { "scollist", "itemcode,engname" },{ "colheads", "كود الصنف,إسم الصنف" }, { "data", itemlist } }
+                    ,new DialogOptions() { ShowTitle = false, Width = "400px", Height = "400px", Resizable = true, Draggable = true });
+                if (ret != null)
+                {
+                    if (!((bool)ret["status"])) return;
+                    List<Item> val = ret["result"] as List<Item>;
+                    _hadd.Dadds.ToList().ElementAt(row).ItemCode = val[0].ItemCode;
+                    await f_onchangedetail("itemcode", val[0].ItemCode, row );
+                }
+                break;
+            default: break;
+        }
+    }
+
+    void OnSubmit(Hadd model)
+    {
+        Console.WriteLine(model);
+    }
+    void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+    { }
     #endregion
 }
 
