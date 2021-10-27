@@ -17,100 +17,109 @@
     }
 </style>
 
-<div class="card border-secondary" style="width:99% !important;">
+<div class="card border-secondary" style="width:98% !important;height:97%; font-weight:bold;">
+    
+        <div class="card-header alert alert-primary  h3 text-center m-1 p-1 ">
+            @_hadd.StockCode
+            @_hadd.Kind
+            @_hadd.TrnNo
+            @(_hadd.Kind == 1 ? "إذن إضافة" : "إذن صرف") - @(_hadd.Id == 0 ? "جديد" : "تعديل")
+        </div>
+        <div class="card-body">
+            <RadzenTemplateForm TItem="Hadd" Data=@_hadd InvalidSubmit=@OnInvalidSubmit>
 
-    <div class="card-header alert alert-primary h3 text-center m-1 p-1 ">
-        @_hadd.StockCode
-        @_hadd.Kind
-        @_hadd.TrnNo
-        @(_hadd.Kind == 1 ? "إذن إضافة" : "إذن صرف") - @(_hadd.Id == 0 ? "جديد" : "تعديل")
-    </div>
-    <div class="card-body">
-        <RadzenTemplateForm TItem="Hadd" Data=@_hadd InvalidSubmit=@OnInvalidSubmit>
+                <div class="form-group row  p-0 m-1">
+                    <Label class="btn-outline-primary col-sm-2" @onclick="@(async ()=>await f_ondblclick("stockcode"))">كود المخزن ...</Label>
+                    <span>
+                        <RadzenMask Mask=@stockcode_mask Pattern="[^0-9]" style="display: block ; background-color:lemonchiffon" Name="StockCode"
+                                    @bind-Value=@_hadd.StockCode Change=@(args => f_onchange( "stockcode",args))
+                                    @ondblclick="@(async ()=>await f_ondblclick("stockcode"))" />
+                        <RadzenRequiredValidator Component="StockCode" Text="يجب إدخال كود المخزن" Style="position: absolute" />
+                        <RadzenRegexValidator Component="StockCode" Text="كود المخزن رقمين" Pattern="\d{2}" Style="position: absolute" />
+                    </span>
 
-            <div class="form-group row  p-0 m-1" >
-                <Label class="btn-outline-primary col-sm-2" @onclick="@(async ()=>await f_ondblclick("stockcode"))">كود المخزن ...</Label>
-                <span>
-                    <RadzenMask Mask=@stockcode_mask Pattern="[^0-9]" style="display: block ; background-color:lemonchiffon" Name="StockCode"
-                                @bind-Value=@_hadd.StockCode Change=@(args => f_onchange( "stockcode",args))
-                                @ondblclick="@(async ()=>await f_ondblclick("stockcode"))" />
-                    <RadzenRequiredValidator Component="StockCode" Text="يجب إدخال كود المخزن" Style="position: absolute" />
-                    <RadzenRegexValidator Component="StockCode" Text="كود المخزن رقمين" Pattern="\d{2}" Style="position: absolute" />
-                </span>
+                </div>
 
-            </div>
+                <div class="form-group  row  p-0 m-1">
+                    <Label class="btn-outline-primary col-sm-2" @onclick="@(async ()=>await f_ondblclick("trnno"))">رقم المستند ...</Label>
+                    <span>
+                        <RadzenMask Mask=@trn_no_mask Pattern="[^0-9]" style="display: block ; background-color:lemonchiffon" Name="trn_no"
+                                    @bind-Value=@_hadd.TrnNo Change=@(args => f_onchange( "trnno",args))
+                                    @ondblclick="@(async ()=>await f_ondblclick("trnno"))" />
+                        <RadzenRequiredValidator Component="trn_no" Text="يجب إدخال رقم المستند" Style="position: absolute" />
+                        <RadzenRegexValidator Component="trn_no" Text="رقم المستند 10 أرقام" Pattern="\d{10}" Style="position: absolute" />
+                    </span>
 
-            <div class="form-group  row  p-0 m-1">
-                <Label class="btn-outline-primary col-sm-2" @onclick="@(async ()=>await f_ondblclick("trnno"))">رقم المستند ...</Label>
-                <span>
-                    <RadzenMask Mask=@trn_no_mask Pattern="[^0-9]" style="display: block ; background-color:lemonchiffon" Name="trn_no"
-                                @bind-Value=@_hadd.TrnNo Change=@(args => f_onchange( "trnno",args))
-                                @ondblclick="@(async ()=>await f_ondblclick("trnno"))" />
-                    <RadzenRequiredValidator Component="trn_no" Text="يجب إدخال رقم المستند" Style="position: absolute" />
-                    <RadzenRegexValidator Component="trn_no" Text="رقم المستند 10 أرقام" Pattern="\d{10}" Style="position: absolute" />
-                </span>
-
-            </div>
+                </div>
 
 
-            <div class="form-group row p-0 m-1">
-                <RadzenLabel Text="تاريخ المستند" class="col-sm-2" />
-                <RadzenDatePicker Name="trn_date" TValue=DateTime ShowTime="true" Value=_hadd.TrnDate HourFormat="12"
-                                  DateFormat="dd/MM/yyyy hh:mm:ss tt" Change=@(args=>f_onchange("trn_date",args )) />
-                <RadzenRegexValidator Component="trn_date" Text="يجب إدخال التاريخ بشكل سليم" Pattern="dd/MM/yyyy hh:mm:ss tt" Style="position: absolute" />
+                <div class="form-group row p-0 m-1">
+                    <RadzenLabel Text="تاريخ المستند" class="col-sm-2" />
+                    <RadzenDatePicker Name="trn_date" TValue=DateTime ShowTime="true" Value=_hadd.TrnDate HourFormat="12"
+                                      DateFormat="dd/MM/yyyy hh:mm:ss tt" Change=@(args=>f_onchange("trn_date",args )) />
+                    <RadzenRegexValidator Component="trn_date" Text="يجب إدخال التاريخ بشكل سليم" Pattern="dd/MM/yyyy hh:mm:ss tt" Style="position: absolute" />
 
-            </div>
+                </div>
 
-            <div class="form-group row p-0 m-1">
-                <label for="ghaname" class="col-sm-2">كود الجهة الطالبة</label>
-                <RadzenTextBox style="display: block" Name="ghaname" @bind-Value=@_hadd.GhaName Change=@(args => f_onchange("ghaname",args )) />
-            </div>
+                <div class="form-group row p-0 m-1">
+                    <label for="ghaname" class="col-sm-2">كود الجهة الطالبة</label>
+                    <RadzenTextBox style="display: block" Name="ghaname" @bind-Value=@_hadd.GhaName Change=@(args => f_onchange("ghaname",args )) />
+                </div>
 
-            <div class="form-group row p-0 m-1">
-                <RadzenLabel Text="إسم الجهة" class="col-sm-2" />
-                <div class="col-sm-10">
-                    <div class="row">
-                        <RadzenTextBox class="col-sm-8" style="display: block" Name="GhaMain" @bind-Value=@_hadd.GhaMain Change=@(args => f_onchange( "GhaMain",args)) />
+                <div class="form-group row p-0 m-1">
+                    <RadzenLabel Text="إسم الجهة" class="col-sm-2" />
+                    <div class="col-sm-10">
+                        <div class="row">
+                            <RadzenTextBox class="col-sm-8" style="display: block" Name="GhaMain" @bind-Value=@_hadd.GhaMain Change=@(args => f_onchange( "GhaMain",args)) />
+                        </div>
+                        <div class="row">
+                            <RadzenRequiredValidator Component="GhaMain" Text="يجب إدخال وصف المخزن" />
+                        </div>
                     </div>
-                    <div class="row">
-                        <RadzenRequiredValidator Component="GhaMain" Text="يجب إدخال وصف المخزن" />
-                    </div>
+
+
+
                 </div>
 
 
 
-            </div>
 
 
+            </RadzenTemplateForm>
 
-
-
-        </RadzenTemplateForm>
-        
-            <div style=" height:250px ;font-size:small; overflow: auto; ">
-                <table class="table table-responsive table-hover table-bordered  table-sm   d-none d-md-block">
+            <div style=" height:250px ;font-size:small; overflow: auto;">
+                <table class="table table-secondary table-responsive table-hover table-bordered  table-sm text-nowrap">
                     <thead class="font-weight-bold text-center alert-primary">
-                        <tr style="padding:0;margin:0;max-height:fit-content;"><td>م</td><th style="padding:0;margin:0;" > كود الصنف</th> <th style="padding:0;margin:0 ;"> إسم الصنف</th>  <th style="padding:0;margin:0" >الوحدة</th><th style="padding:0;margin:0" >الكمية</th> <th style="padding:0;margin:0" > السعر</th> <th > حذف</th> </tr>
+                        @if (_hadd.Dadds.Any())
+                        {
+                            <tr style="padding:0;margin:0;max-height:fit-content;"><td>م</td><th class="col-1" style="padding:0;margin:0;"> كود الصنف</th> <th class="col-3" style="padding:0;margin:0 ;"> إسم الصنف</th>  <th class="col-2" style="padding:0;margin:0">الوحدة</th><th class="col-2" style="padding:0;margin:0">الكمية</th> <th class="col-2" style="padding:0;margin:0"> السعر</th><th class="col-2" style="padding:0;margin:0">الإجمالى</th> <th> حذف</th> </tr>
+}
                     </thead>
                     <tbody>
+
                         @{int r = 0; }
                         @foreach (var item in _hadd.Dadds)
                         {
-                            <tr style="padding:0;margin:0;max-height:fit-content; background-color:lightsteelblue">
-                                <td>@(r+1) </td>
-                                <td style="padding: 0; margin: 0;"> <RadzenTextBox Style=" background-color: lemonchiffon;" class="form-control-sm" @ondblclick="@(async ()=>await f_ondblclickdetail("itemcode", _hadd.Dadds.ToList().IndexOf(item)))" Name=itemcode form="itemcode" @bind-Value="@item.ItemCode" Change=@(args => f_onchangedetail( "itemcode",args, _hadd.Dadds.ToList().IndexOf(item))) /></td>
-                                <td style="padding:0;margin:0 ; " class="col-sm-5"><strong>@item.EngName</strong></td>
-                                <td style="padding: 0; margin: 0;">  <RadzenTextBox Style="width: inherit !important; height: inherit !important;" form="unitname" class="form-control-sm" @bind-Value="@item.UnitName" /></td>
-                                <td style="padding:0;margin:0"> <RadzenNumeric TValue="double?" ShowUpDown="false" Format="0.00" Style="margin:0px ;padding:0px;" form="itemquant" class="form-control-sm" @bind-Value="@item.ItemQuant" /></td>
-                                <td style="padding:0;margin:0"> <RadzenNumeric TValue="double?" ShowUpDown="false" Format="0.00" Style="margin:0px ;padding:0px;" form="itemprice" class="form-control-sm" @bind-Value="@item.ItemPrice" /></td>
-                                <td style="padding:0;margin:0 ;text-align:center "> <button tabindex=-1 style="width: inherit;" class="btn btn-primary btn-sm" @onclick="()=> { _hadd.Dadds.Remove(item); } ">&times;</button></td>
-                            </tr>
+                        <tr style="padding:0;margin:0;max-height:fit-content; background-color:lightsteelblue">
+                            <td>@(r+1) </td>
+                            <td class="col-1" style="padding: 0; margin: 0"> <RadzenTextBox Style=" background-color: lemonchiffon; padding: 0; margin: 0;" class="col-12" @ondblclick="@(async ()=>await f_ondblclickdetail("itemcode", _hadd.Dadds.ToList().IndexOf(item)))" Name=itemcode form="itemcode" @bind-Value="@item.ItemCode" Change=@(args => f_onchangedetail( "itemcode",args, _hadd.Dadds.ToList().IndexOf(item))) /></td>
+                            <td class="col-3" style="padding:0;margin:0 ; "><RadzenTextBox style="padding:0;margin:0;" form="engname" class="col-12" @bind-Value="@item.EngName" /></td>
+                            <td class="col-2" style="padding: 0; margin: 0;">  <strong style="padding:0;margin:0;">@item.UnitName</strong></td>
+                            <td class="col-2" style="padding:0;margin:0"> <RadzenNumeric TValue="double?" ShowUpDown="false" form="itemquant" style="padding:0;margin:0;" class="col-12" @bind-Value="@item.ItemQuant" /></td>
+                            <td class="col-2" style="padding:0;margin:0"> <RadzenNumeric TValue="double?" ShowUpDown="false" Format="0.00" style="padding:0;margin:0;" class="col-12 " form="itemprice" @bind-Value="@item.ItemPrice" /></td>
+                            <td class="col-2" style="padding:0;margin:0">@String.Format("{0:0.00}", item.ItemQuant * item.ItemPrice ?? 0)</td>
+
+                            <td style="padding:0;margin:0 ;text-align:center "> <button tabindex=-1 style="width: inherit;" class="btn btn-primary btn-sm" @onclick="()=> { _hadd.Dadds.Remove(item); } ">&times;</button></td>
+                        </tr>
                             r++;
+
                         }
                     </tbody>
                 </table>
 
-                <div class="d-block d-md-none">
+
+
+                @*<div class="d-block d-md-none">
                     <ul>
                         @{ int k = 0; }
                         @foreach (var item in _hadd.Dadds)
@@ -133,28 +142,29 @@
                             k++;
                         }
                     </ul>
-                </div>
-            
+                </div>*@
+
+            </div>
+
+
         </div>
 
+        <div class="card-footer">
 
-    </div>
-    <div class="card-footer">
+            @*<div class=" alert alert-info border border-info text-center h3">
+                <button class="btn btn-primary btn  col-2 mr-auto font-weight-bolder" @onclick="onSave">تسجيل</button>
+                <button class="btn btn-primary btn col-2 mr-auto font-weight-bolder" @onclick="onNew">إضافة</button>
+                <button class="btn btn-danger btn col-2 mr-auto font-weight-bolder" @onclick="onDelete">حذف</button>
+            </div>*@
+            <div class="alert alert-primary h3 text-center     btn-group-sm  row ">
+                <button class="btn btn-primary  ml-1 ml-md-5   col-2 font-weight-bolder" ButtonType="ButtonType.Submit" @onclick="onSave">تسجيل</button>
+                <button class="btn btn-primary  ml-1 ml-md-5   col-2  font-weight-bolder" @onclick="onNew">جديد</button>
+                <button class="btn btn-primary  ml-1 ml-md-5   col-2  font-weight-bolder" @onclick="onAddNewItem">إضافة صنف</button>
+                <button class="btn btn-primary  ml-1 ml-md-5  col-2 font-weight-bolder" @onclick="onDelete">حذف</button>
 
-        @*<div class=" alert alert-info border border-info text-center h3">
-            <button class="btn btn-primary btn  col-2 mr-auto font-weight-bolder" @onclick="onSave">تسجيل</button>
-            <button class="btn btn-primary btn col-2 mr-auto font-weight-bolder" @onclick="onNew">إضافة</button>
-            <button class="btn btn-danger btn col-2 mr-auto font-weight-bolder" @onclick="onDelete">حذف</button>
-        </div>*@
-        <div class=" alert alert-info border border-info text-center btn-group-sm  m-2 p-2">
-                <button class="btn btn-primary btn-s  col-2 mr-auto font-weight-bolder" ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Secondary" @onclick="onSave">تسجيل</button>
-                 <button class="btn btn-primary  col-2 mr-auto font-weight-bolder" @onclick="onAddNewItem">إضافة صنف</button>
-                 <button class="btn btn-primary  col-2 mr-auto font-weight-bolder" @onclick="onNew">جديد</button>
-                <button class="btn btn-danger col-2 mr-auto font-weight-bolder"  @onclick="onDelete">حذف</button>
-            
+            </div>
         </div>
-    </div>
-
+    
 
 
 
@@ -411,9 +421,8 @@
         switch (name.ToLower())
         {
             case "itemcode":
-                using (var db = dbf.CreateDbContext()) itemlist = db.Items.Where(i => i.StockCode == _hadd.StockCode).ToList();
-
-                ret = await ds.OpenAsync<GModalList<Item>>("",new Dictionary<string, object>() { { "title", "قائمة الأصناف" }
+               using (var db = dbf.CreateDbContext()) itemlist = db.Items.Where(i => i.StockCode == _hadd.StockCode).ToList();
+               ret = await ds.OpenAsync<GModalList<Item>>("",new Dictionary<string, object>() { { "title", "قائمة الأصناف" }
                     , { "scollist", "itemcode,engname" },{ "colheads", "كود الصنف,إسم الصنف" }, { "data", itemlist } }
                     ,new DialogOptions() { ShowTitle = false, Width = "400px", Height = "400px", Resizable = true, Draggable = true });
                 if (ret != null)
