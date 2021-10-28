@@ -5,13 +5,34 @@
     </button>
 </div>
 
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+<div  class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <ul class="nav flex-column">
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" @onclick="()=>expandSubNav = !expandSubNav">
+                <span class="oi oi-list-rich" aria-hidden="true"></span><strong>مستندات مخزنية</strong>
+            </NavLink>
+        </li>
+       
+            @if (expandSubNav)
+            {
+                <li class="nav-item px-5">
+                    <NavLink class="nav-link" href="editstTrns/1">
+                        <span class="oi oi-plus"></span><strong>إذن إضافة</strong>
+</NavLink>
+                </li>
+                <li class="nav-item px-5">
+                    <NavLink class="nav-link" href="editstTrns/2">
+                        <span class="oi oi-list-rich"></span>إذن صرف
+                    </NavLink>
+                </li>
+
+            }
+        
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="counter">
                 <span class="oi oi-plus" aria-hidden="true"></span> Counter
@@ -46,30 +67,10 @@
 
 
 
-<RadzenPanelMenu>
-    <ChildContent>
-        <RadzenPanelMenuItem Text="General" Icon="home">
-            <RadzenPanelMenuItem Text="Buttons" Path="buttons" Icon="account_circle"></RadzenPanelMenuItem>
-            <RadzenPanelMenuItem Text="Menu" Path="menu" Icon="line_weight"></RadzenPanelMenuItem>
-            <RadzenPanelMenuItem Text="FileInput" Path="fileinput" Icon="attach_file"></RadzenPanelMenuItem>
-            <RadzenPanelMenuItem Text="Dialog" Path="dialog" Icon="perm_media"></RadzenPanelMenuItem>
-            <RadzenPanelMenuItem Text="Notification" Path="notification" Icon="announcement"></RadzenPanelMenuItem>
-        </RadzenPanelMenuItem>
-        <RadzenPanelMenuItem Text="More">
-            <RadzenPanelMenuItem Text="Item1"></RadzenPanelMenuItem>
-            <RadzenPanelMenuItem Text="Item2"></RadzenPanelMenuItem>
-            <RadzenPanelMenuItem Text="More items">
-                <RadzenPanelMenuItem Text="More sub items">
-                    <RadzenPanelMenuItem Text="Item1"></RadzenPanelMenuItem>
-                    <RadzenPanelMenuItem Text="Item2"></RadzenPanelMenuItem>
-                </RadzenPanelMenuItem>
-            </RadzenPanelMenuItem>
-        </RadzenPanelMenuItem>
-    </ChildContent>
-</RadzenPanelMenu>
+
 @code {
     private bool collapseNavMenu = true;
-
+    private bool expandSubNav = false;
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     private void ToggleNavMenu()

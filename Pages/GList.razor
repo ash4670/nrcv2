@@ -3,12 +3,17 @@
 @using System.Reflection
 @using System.ComponentModel
 <style>
-    table > thead > tr {
+    .tableFixHead thead th , thead>tr {
         position: sticky;
         top: 0;
         z-index: 2;
-        background: white;
+        overflow: auto;
     }
+
+    
+
+
+   
 </style>
 @if (data == null)
 {<p><em>Loading...</em></p> }
@@ -20,8 +25,8 @@ else
             <input @ref="searchinput" class="form-control" type="search" placeholder="بحث" @bind-value="_filter" @bind-value:event="oninput" @onkeyup="myfilter" />
         </div>
 
-        <div style=" height:250px ; overflow: auto; ">
-            <table class="table  table-hover table-bordered table-responsive table-sm ">
+        <div class="tableFixHead" style=" height:250px ; overflow: auto; ">
+            <table class="table  table-hover table-bordered  table-sm ">
                 <thead class="font-weight-bold">
                     @myHeader
                     <tr style="height:50%" class="bg-primary text-center text-white ">

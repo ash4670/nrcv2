@@ -5,16 +5,13 @@
 @inject NotificationService ns
 
 <style>
-    table > thead > tr {
-        position: sticky;
-        top: 0;
-        z-index: 2;
-        background: white;
-    }
+    .tableFixHead thead th, thead > tr, thead {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 1 !important;
+        overflow: auto !important;
+        }
     
-    label, tr, td {
-        max-height: 25px;
-    }
 </style>
 
 <div class="card border-secondary" style="width:98% !important;height:97%; font-weight:bold;">
@@ -87,12 +84,12 @@
 
             </RadzenTemplateForm>
 
-            <div style=" height:250px ;font-size:small; overflow: auto;">
-                <table class="table table-secondary table-responsive table-hover table-bordered  table-sm text-nowrap">
+            <div class="tableFixHead" style=" height: 250px; font-size: small; overflow: auto; ">
+                <table class="table  table-hover table-bordered  table-sm">
                     <thead class="font-weight-bold text-center alert-primary">
                         @if (_hadd.Dadds.Any())
                         {
-                            <tr style="padding:0;margin:0;max-height:fit-content;"><td>م</td><th class="col-1" style="padding:0;margin:0;"> كود الصنف</th> <th class="col-3" style="padding:0;margin:0 ;"> إسم الصنف</th>  <th class="col-2" style="padding:0;margin:0">الوحدة</th><th class="col-2" style="padding:0;margin:0">الكمية</th> <th class="col-2" style="padding:0;margin:0"> السعر</th><th class="col-2" style="padding:0;margin:0">الإجمالى</th> <th> حذف</th> </tr>
+                            <tr style="padding:0;margin:0;max-height:fit-content;"><th>م</th><th class="col-1" style="padding:0;margin:0;"> كود الصنف</th> <th class="col-3" style="padding:0;margin:0 ;"> إسم الصنف</th>  <th class="col-2" style="padding:0;margin:0">الوحدة</th><th class="col-2" style="padding:0;margin:0">الكمية</th> <th class="col-2" style="padding:0;margin:0"> السعر</th><th class="col-2" style="padding:0;margin:0">الإجمالى</th> <th> حذف</th> </tr>
 }
                     </thead>
                     <tbody>
@@ -176,16 +173,22 @@
     public int? id { get; set; }
     [Parameter]
     public int kind { get; set; }
-    private Hadd _hadd = new Hadd();
+    private Hadd _hadd;
     private string stockcode_mask = "**";
     private string trn_no_mask = "**********";
     private string itemmask = "*****";
     private string old_stockcode;
-    protected override void OnInitialized()
-    {
+    //protected override void OnInitialized()
+    //{
+
+
+    //}
+    protected override void OnParametersSet() {
+        kind = kind;
+        old_stockcode = "";
+        _hadd = new Hadd();
         if (id != null) using (var db = dbf.CreateDbContext()) _hadd = db.Hadds.Where(r => r.Id == id).FirstOrDefault();
         else onNew();
-
     }
     private async Task<int> onSave()
     {
@@ -243,7 +246,7 @@
             int maxno;
             using (var db = dbf.CreateDbContext())
             {
-                int.TryParse(db.Hadds.Where(a => a.StockCode == old_stockcode).OrderByDescending(a => a.TrnNo).FirstOrDefault().TrnNo, out maxno);
+                int.TryParse(db.Hadds.Where(a => a.StockCode == old_stockcode && a.Kind==kind).OrderByDescending(a => a.TrnNo).FirstOrDefault().TrnNo, out maxno);
             }
             maxno++;
             _hadd.TrnNo = maxno.ToString();
@@ -251,6 +254,7 @@
 
         _hadd.TrnDate = DateTime.Parse(DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt"));
         //  DateTime.ParseExact(DateTime.Now.ToString("MM/dd/yyyy hh:mm tt"), "", CultureInfo.InvariantCulture);
+        StateHasChanged();
 
     }
 
@@ -421,10 +425,10 @@
         switch (name.ToLower())
         {
             case "itemcode":
-               using (var db = dbf.CreateDbContext()) itemlist = db.Items.Where(i => i.StockCode == _hadd.StockCode).ToList();
-               ret = await ds.OpenAsync<GModalList<Item>>("",new Dictionary<string, object>() { { "title", "قائمة الأصناف" }
+                using (var db = dbf.CreateDbContext()) itemlist = db.Items.Where(i => i.StockCode == _hadd.StockCode).ToList();
+                ret = await ds.OpenAsync<GModalList<Item>>("",new Dictionary<string, object>() { { "title", "قائمة الأصناف" }
                     , { "scollist", "itemcode,engname" },{ "colheads", "كود الصنف,إسم الصنف" }, { "data", itemlist } }
-                    ,new DialogOptions() { ShowTitle = false, Width = "400px", Height = "400px", Resizable = true, Draggable = true });
+                     ,new DialogOptions() { ShowTitle = false, Width = "400px", Height = "400px", Resizable = true, Draggable = true });
                 if (ret != null)
                 {
                     if (!((bool)ret["status"])) return;
