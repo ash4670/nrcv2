@@ -16,14 +16,14 @@
 
 <div class="card  border-secondary" style="width:98% !important;height:97%; font-weight:normal;">
     
-        <div class="card-header alert alert-primary  h3 text-center m-1 p-1 ">
+        <div class="card-header font-weight-bold  alert-primary  h6 text-center m-1 p-1 rounded ">
             @_hadd.StockCode
             @_hadd.Kind
             @_hadd.TrnNo
             @(_hadd.Kind == 1 ? "إذن إضافة" : "إذن صرف") - @(_hadd.Id == 0 ? "جديد" : "تعديل")
         </div>
-        <div class="card-body ">
-            <div class="co-8">
+        <div class="card-body font-weight-bold ">
+            <div class="col-8">
                 <RadzenTemplateForm TItem="Hadd" Data=@_hadd InvalidSubmit=@OnInvalidSubmit>
 
                     <div class="form-group  row  p-0 m-1">
@@ -52,35 +52,44 @@
 
 
                     <div class="form-group row p-0 m-1">
-                        <label class="col-2">تاريخ المستند</label>
-                        <span class="col-8">
+                        <label for="ghaname" style="font-size:small;" class="col-2">تاريخ المستند</label>
+                        
                             <RadzenDatePicker Name="trn_date" TValue=DateTime ShowTime="true" Value=_hadd.TrnDate HourFormat="12"
                                               DateFormat="dd/MM/yyyy hh:mm:ss tt" Change=@(args=>f_onchange("trn_date",args )) />
                             <RadzenRegexValidator Component="trn_date" Text="يجب إدخال التاريخ بشكل سليم" Pattern="dd/MM/yyyy hh:mm:ss tt" Style="position: absolute" />
-                        </span>
+                       
                     </div>
 
                     <div class="form-group row p-0 m-1">
-                        <label for="ghaname" style="font-size:small;" class="col-2">كود الجهة الطالبة</label>
+                        <label for="ghaname" style="font-size:small;" class="col-2">الجهة الطالبة</label>
 
                         <RadzenDropDown AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Data=@(new List<string>() {"الادارات","رســـائـــل","أقســـــام","مزارع وجهات","خطة التكميلى MP","الخطة المصرية الإيطالية IT","محاور الخطة البحثية الثانية عشر","التكنولوجيا القادمة من الخارج TT","الخطة الرومانية RO","مشروعات الخطة البحثية الثانية عشر E" }) @bind-Value=@_hadd.GhaName
-                                        Change=@(args => f_onchange("ghaname",args )) Style="width:300px" />
+                                        Change=@(args => f_onchange("ghaname",args )) Style="width:350px ;">
+                            <Template Context="x">
+                              <strong>@x</strong>
+                            </Template>
+                        </RadzenDropDown>
                     </div>
                     <div class="form-group row p-0 m-1">
                         @if (!shownum)
                         {
                             <RadzenLabel Text="إسم الجهة" class="col-2" />
                             <RadzenDropDown AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Data=@list_tklf_main @bind-Value=@_hadd.GhaMain
-                                            TextProperty="TklfName" ValueProperty="TklfCode" Change=@(args => f_onchange("ghamain", args)) Style="width:300px" />
+                                            TextProperty="TklfName" ValueProperty="TklfCode" Change=@(args => f_onchange("ghamain", args)) Style="width:350px">
+
+                                <Template Context="x">
+                                    <strong> @((x as Tklfmain).TklfCode +" "+ (x as Tklfmain).TklfName ) </strong>
+                                </Template>
+                            </RadzenDropDown>
                         }
                         else
                         {
                             <RadzenLabel Text="رقم الجهة" class="col-2" />
                             <RadzenDropDown AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Data=@list_tklf_sub @bind-Value=@_hadd.GhaNum
-                                            TextProperty="TklfsubName" ValueProperty="TklfsubCode" Change=@(args => f_onchange("ghanum", args)) Style="width:300px ;">
+                                            TextProperty="TklfsubName" ValueProperty="TklfsubCode" Change=@(args => f_onchange("ghanum", args)) Style="width:350px ;">
 
                                 <Template Context="x">
-                                    @((x as Tklfsub).TklfsubCode+" " + (x as Tklfsub).TklfsubName+" " + (x as Tklfsub).Name1 )
+                                    <strong> @((x as Tklfsub).TklfsubCode+" " + (x as Tklfsub).TklfsubName+" " + (x as Tklfsub).Name1 )</strong>
                                 </Template>
                             </RadzenDropDown>
                         }
@@ -94,70 +103,88 @@
                 <RadzenTextBox Name="GhaMain" @bind-Value=@_hadd.GhaMain Change=@(args => f_onchange( "GhaMain",args)) />
              </span>
         </div>*@
-                <div >
+                <div>
+                    @if (kind == 1)
+                    {
+                        <div class="form-group row p-0 m-1">
+                            <label for="docno" style="font-size:small;" class="col-2">النوع</label>
+                            <RadzenDropDown AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Data=@(new List<string>() {"سلفة","ت محلى","ت اجنبى","عاجل","منحة","شهادة إدارية","عقود أجنبية","ح جارى","ارتجاع","اجهزة علمية" })
+                                            @bind-Value=@_hadd.DocNo
+                                            Change=@(args => f_onchange("docno",args )) Style="width:300px" />
+                        </div>
+                    }
+
                     <div class="form-group row p-0 m-1">
-                        <label for="docno" style="font-size:small;" class="col-2">النوع</label>
-                        <RadzenDropDown AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Data=@(new List<string>() {"سلفة","ت محلى","ت اجنبى","عاجل","منحة","شهادة إدارية","عقود أجنبية","ح جارى","ارتجاع","اجهزة علمية" })
-                                        @bind-Value=@_hadd.DocNo
-                                        Change=@(args => f_onchange("docno",args )) Style="width:300px" />
-                    </div>
-                    <div class="form-group row p-0 m-1">
-                         <label for="docnon" style="font-size:small;" class="col-2">الرقم</label>
+                        <label for="docnon" style="font-size:small;" class="col-2">
+                            @if (kind == 2)
+                            {
+                                <span> رقم إذن الإضافة</span>
+                            }
+                            else
+                            {
+                                <span> رقم أمر التوريد</span>
+                            }
+                                            </label>
                         <RadzenTextBox Name="docnon" form="docnon" @bind-Value=@_hadd.DocNoN Change=@(args => f_onchange( "docnon",args)) />
                     </div>
-                    <div class="form-group row p-0 m-1">
-                        <label for="docdate" style="font-size:small;" class="col-2">التاريخ</label>
-                        <RadzenDatePicker Name="docdate" TValue=DateTime  @bind-Value=@_hadd.DocDate 
-                                       form="docdate"  DateFormat="dd/MM/yyyy" Change=@(args=>f_onchange("docdate",args )) />
-                        <RadzenRegexValidator Component="trn_date" Text="يجب إدخال التاريخ بشكل سليم" Pattern="dd/MM/yyyy hh:mm:ss tt" Style="position: absolute" />
-                       
-                    </div>
-                    <div class="form-group row p-0 m-1">
-                        <label for="suppname" style="font-size:small;" class="col-2">المورد</label>
-                        <RadzenTextBox Name="suppname" form="suppname" @bind-Value=@_hadd.SuppName Change=@(args => f_onchange( "suppname",args)) />
-                    </div>
-                    <div class="form-group row p-0 m-1">
-                        <label for="incdec" style="font-size:small;" class="col-2">نوع الضرائب</label>
-                       
 
-                        <RadzenRadioButtonList id="incdec" Name="incdec" TValue="int" Value="@(_hadd.IncDec==null?0:_hadd.IncDec.Value)" Change=@(args => f_onchange( "incdec",args))>
-                            <Items>
-                                <RadzenRadioButtonListItem Text="خصم" Value="1" />
-                                <RadzenRadioButtonListItem Text="إضافة" Value="2" />
-                            </Items>
-                        </RadzenRadioButtonList>
+                    @*<div class="form-group row p-0 m-1">
+            <label for="docdate" style="font-size:small;" class="col-2">التاريخ</label>
+            <RadzenDatePicker Name="docdate" TValue=DateTime Value=@_hadd.DocDate ShowTime="false"
+                              form="docdate" DateFormat="dd/MM/yyyy  hh:mm:ss tt" Change=@(args=>f_onchange("docdate",args )) />
+            <RadzenRegexValidator Component="trn_date" Text="يجب إدخال التاريخ بشكل سليم" Pattern="dd/MM/yyyy hh:mm:ss tt" Style="position: absolute" />
+        </div>*@
+                    @if (kind == 1)
+                    {
+                        <div class="form-group row p-0 m-1">
+                            <label for="suppname" style="font-size:small;" class="col-2">المورد</label>
+                            <RadzenTextBox Name="suppname" form="suppname" @bind-Value=@_hadd.SuppName Change=@(args => f_onchange( "suppname",args)) />
+                        </div>
+                        <div class="form-group row p-0 m-1">
+                            <label for="incdec" style="font-size:small;" class="col-2">نوع الضرائب</label>
+                            <RadzenRadioButtonList id="incdec" Name="incdec" TValue="int" Value="@(_hadd.IncDec==null?0:_hadd.IncDec.Value)" Change=@(args => f_onchange( "incdec",args))>
+                                <Items>
+                                    <RadzenRadioButtonListItem Text="خصم" Value="1" />
+                                    <RadzenRadioButtonListItem Text="إضافة" Value="2" />
+                                </Items>
+                            </RadzenRadioButtonList>
+                        </div>
+                        <div class="form-group row p-0 m-1">
+                            <label for="perc" style="font-size:small;" class="col-2">النسبـة</label>
+                            <RadzenNumeric Name=perc TValue="double?" form="perc" @bind-Value=@_hadd.Perc Change=@(args => f_onchange( "perc",args.Value )) />
+                        </div>
+                    }
 
-                    </div>
-                    <div class="form-group row p-0 m-1">
-                        <label for="perc" style="font-size:small;" class="col-2">النسبـة</label>
-                        <RadzenNumeric Name=perc TValue="double?" form="perc"@bind-Value=@_hadd.Perc Change=@(args => f_onchange( "perc",args.Value )) />
-                    </div>
+                    @if (kind == 2)
+                    {
+                        <div class="form-group row p-0 m-1">
+                            <label for="outcode" style="font-size:small;" class="col-2">بنــود الصــرف</label>
+                            <RadzenTextBox Name=outcode form="outcode" @bind-Value=@_hadd.OutCode Change=@(args => f_onchange( "outcode",args )) />
+                        </div>
 
-                    <div class="form-group row p-0 m-1">
-                        <label for="outcode" style="font-size:small;" class="col-2">بنــود الصــرف</label>
-                        <RadzenTextBox Name=outcode form="outcode" @bind-Value=@_hadd.OutCode Change=@(args => f_onchange( "outcode",args )) />
-                    </div>
+                        <div class="form-group row p-0 m-1">
+                            <label for="arname" style="font-size:small;" class="col-2">إســـم المستـــلم</label>
+                            <RadzenTextBox Name=arname form="arname" @bind-Value=@_hadd.ArName Change=@(args => f_onchange( "arname",args )) />
+                        </div>
 
-                    <div class="form-group row p-0 m-1">
-                        <label for="arname" style="font-size:small;" class="col-2">أســـم المستـــلم</label>
-                        <RadzenTextBox Name=arname form="arname" @bind-Value=@_hadd.ArName Change=@(args => f_onchange( "arname",args )) />
-                    </div>
+                        <div class="form-group row p-0 m-1">
+                            <label for="tanazol" style="font-size:small;" class="col-2">التنازل</label>
+                            <RadzenNumeric TValue="decimal?" ShowUpDown="false"  Format="0.00" Name=tanazol form="tanazol" @bind-Value=@_hadd.Tanazol Change=@( args => f_onchange( "tanazol",args.Value )) />
+                        </div>
+                    }
 
-                    <div class="form-group row p-0 m-1">
-                        <label for="tanazol" style="font-size:small;" class="col-2">التنازل</label>
-                        <RadzenNumeric TValue="decimal?" Name=tanazol form="tanazol" @bind-Value=@_hadd.Tanazol Change=@( args => f_onchange( "tanazol",args.Value )) />
-                    </div>
 
                 </div>
                 </RadzenTemplateForm>
             </div>
-            
+
                 <div class="tableFixHead" style=" height: 250px; font-size: small; overflow: auto; ">
                     <table class="table  table-hover table-bordered  table-sm">
                         <thead class="font-weight-bold text-center alert-primary">
                             @if (_hadd.Dadds.Any())
                             {
-                                <tr style="padding:0;margin:0;max-height:fit-content;"><th>م</th><th class="col-1" style="padding:0;margin:0;"> كود الصنف</th> <th class="col-3" style="padding:0;margin:0 ;"> إسم الصنف</th>  <th class="col-2" style="padding:0;margin:0">الوحدة</th><th class="col-2" style="padding:0;margin:0">الكمية</th> <th class="col-2" style="padding:0;margin:0"> السعر</th><th class="col-2" style="padding:0;margin:0">الإجمالى</th> <th> حذف</th> </tr>
+                               
+                            <tr style="padding:0;margin:0;max-height:fit-content;"><th>م</th><th class="col-1" style="padding:0;margin:0;"> كود الصنف</th> <th class="col-3" style="padding:0;margin:0 ;">  إسم الصنف</th>  <th class="col-2" style="padding:0;margin:0">الوحدة</th><th class="col-2" style="padding:0;margin:0">الكمية</th> <th class="col-2" style="padding:0;margin:0"> السعر</th><th class="col-2" style="padding:0;margin:0">الإجمالى</th> <th> حذف</th> </tr>
                             }
                         </thead>
                         <tbody>
@@ -171,7 +198,7 @@
                                     <td class="col-3" style="padding:0;margin:0 ; "><RadzenTextBox style="padding:0;margin:0;" form="engname" class="col-12" @bind-Value="@item.EngName" /></td>
                                     <td class="col-2" style="padding: 0; margin: 0;">  <strong style="padding:0;margin:0;">@item.UnitName</strong></td>
                                     <td class="col-2" style="padding:0;margin:0"> <RadzenNumeric TValue="double?" ShowUpDown="false" form="itemquant" style="padding:0;margin:0;" class="col-12" @bind-Value="@item.ItemQuant" /></td>
-                                    <td class="col-2" style="padding:0;margin:0"> <RadzenNumeric TValue="double?" ShowUpDown="false" Format="0.00" style="padding:0;margin:0;" class="col-12 " form="itemprice" @bind-Value="@item.ItemPrice" /></td>
+                                    <td class="col-2" style="padding:0;margin:0"> <RadzenNumeric TValue="double?" ShowUpDown="false" Format="0.00" style="padding:0;margin:0;" class="col-12" readonly="@(kind==2)" form="itemprice" @bind-Value="@item.ItemPrice" /></td>
                                     <td class="col-2" style="padding:0;margin:0">@String.Format("{0:0.00}", item.ItemQuant * item.ItemPrice ?? 0)</td>
 
                                     <td style="padding:0;margin:0 ;text-align:center "> <button tabindex=-1 style="width: inherit;" class="btn btn-primary btn-sm" @onclick="()=> { _hadd.Dadds.Remove(item); } ">&times;</button></td>
@@ -210,7 +237,7 @@
             </div>*@
 
                 </div>
-            
+
         </div>
 
         <div class="card-footer">
@@ -220,23 +247,23 @@
                 <button class="btn btn-primary btn col-2 mr-auto font-weight-bolder" @onclick="onNew">إضافة</button>
                 <button class="btn btn-danger btn col-2 mr-auto font-weight-bolder" @onclick="onDelete">حذف</button>
             </div>*@
-            <div class="alert alert-primary h3 text-center     btn-group-sm  row ">
-                <button class="btn btn-primary  ml-1 ml-md-5   col-2 font-weight-bolder" ButtonType="ButtonType.Submit" @onclick="onSave">تسجيل</button>
-                <button class="btn btn-primary  ml-1 ml-md-5   col-2  font-weight-bolder" @onclick="onNew">جديد</button>
-                <button class="btn btn-primary  ml-1 ml-md-5   col-2  font-weight-bolder" @onclick="onAddNewItem">إضافة صنف</button>
-                <button class="btn btn-primary  ml-1 ml-md-5  col-2 font-weight-bolder" @onclick="onDelete">حذف</button>
+                                <div class="alert alert-primary h6 text-center     btn-group-sm  row ">
+                                    <button class="btn btn-primary  ml-1 ml-md-5   col-2 font-weight-bolder" ButtonType="ButtonType.Submit" @onclick="onSave">تسجيل</button>
+                                    <button class="btn btn-primary  ml-1 ml-md-5   col-2  font-weight-bolder" @onclick="onNew">جديد</button>
+                                    <button class="btn btn-primary  ml-1 ml-md-5   col-2  font-weight-bolder" @onclick="onAddNewItem">إضافة صنف</button>
+                                    <button class="btn btn-primary  ml-1 ml-md-5  col-2 font-weight-bolder" @onclick="onDelete">حذف</button>
 
-            </div>
-        </div>
+                                </div>
+</div>
 
 </div>
 
 @code {
-        #region code
-        [Parameter]
-        public int? id { get; set; }
-        [Parameter]
-        public int kind { get; set; }
+    #region code
+    [Parameter]
+    public int? id { get; set; }
+    [Parameter]
+    public int kind { get; set; }
     private Hadd _hadd;
     private string stockcode_mask = "**";
     private string trn_no_mask = "**********";
@@ -388,7 +415,12 @@
                             _hadd.GhaMain = "";
                             _hadd.GhaNum = "";
                         }
-                        // await f_onchange("ghaname", _hadd.GhaName);
+                        else
+                        {
+                            list_tklf_main = db.Tklfmains.Where(a => a.KindCode == _hadd.GhaCode).ToList();
+                            list_tklf_sub = db.Tklfsubs.Where(a => a.KindCode == _hadd.GhaCode).ToList();
+                            shownum = !(_hadd.GhaCode == "01" || (_hadd.GhaCode == "02" && _hadd.GhaName == "أقســـــام"));
+                        }
                     }
                 }
                 break;
@@ -501,6 +533,7 @@
     public void onAddNewItem()
     {
         Dadd d = new Dadd();
+        if (kind == 2) d.ItemPrice = 0;//initialization
         _hadd.Dadds.Add(d);
     }
     public async Task f_onchangedetail(string name, dynamic arg, int row)
