@@ -1,0 +1,136 @@
+﻿@inject DialogService ds
+@inject IDbContextFactory<nrcwebContext> dbf
+    <style>
+    .tableFixHead thead th , thead>tr {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        overflow: auto;
+    }
+
+</style>
+
+    <RadzenCard Style="margin: 0;padding:0 ; z-index:15000;">
+        <div class="alert alert-primary col-12 h5 text-center m-0 p-0 ">
+            قائمة مستندات
+            مخزن @stock_code
+            <button type="button" class="btn btn-sm close" @onclick=ModalCancel>&times;</button>
+        </div>
+       
+        @if (data == null)
+        {<p><em>Loading...</em></p> }
+        else
+        {
+            <div class="input-group m-0 p-0 ">
+                <div class="input-group-text bg-transparent input-group-prepend">  <i class="oi oi-magnifying-glass"></i></div>
+                <input @ref="searchinput" class="form-control" type="search" placeholder="بحث" @bind-value="_filter" @bind-value:event="oninput" @onkeyup="myfilter" />
+            </div>
+            <div class="tableFixHead" style=" height:250px ; overflow: auto; ">
+                <table class="table  table-hover table-bordered  table-sm ">
+                    <thead class="font-weight-bold">
+                        <tr style="height:50%" class="bg-primary text-center text-white ">
+                            <th style="  width: 5%">م</th>
+                            <th @onclick="@(() =>{ data.OrderBy(d => d.TrnNo); })"> الرقم </th>
+                            <th @onclick="@(() =>{ data.OrderBy(d => d.TrnDate); })"> التاريخ </th>
+                            <th @onclick="@(() =>{ data.OrderBy(d => d.GhaName); })"> الجهة </th>
+                            @if (trns_kind == "1") {
+                                <th @onclick="@(() =>{ data.OrderBy(d => d.SuppName); })"> المورد </th>
+                                <th @onclick="@(() =>{ data.OrderBy(d => d.DocNoN); })"> أمر التوريد </th>
+                            }
+                            @if (trns_kind == "2"){<th @onclick="@(() => { data.OrderBy(d => d.ArName); })">مستلم العهدة </th>}
+                            <th >إجمالى الإذن </th>
+
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @{int rownum = 1; }
+                        @foreach (Hadd item in data)
+                        {
+                        <tr   style="padding: 0; margin: 0; max-height: fit-content; background-color: @(item== selectedrow ? "lightblue":"lightyellow" ) " class="text-right" @onclick="()=>f_Rowclicked(item)" @ondblclick="()=>f_Rowdblclicked(item)">
+                            <td style="width: 5%">@rownum</td>
+                            <td>@item.TrnNo </td>
+                            <td>@item.TrnDate </td>
+                            <td>@item.GhaName </td>
+                            @if (trns_kind == "1")
+                            {
+                                <td>@item.SuppName </td>
+                                <td>@item.DocNoN </td>
+                            }
+                            @if (trns_kind == "2")  {<td>@item.ArName </td> }
+                            <td>@item.Dadds.Sum(d=>d.ItemPrice * d.ItemQuant) </td>
+                        </tr>
+                            rownum++;
+                        }
+
+                    </tbody>
+                   
+                </table>
+            </div>
+        }
+        <div class="alert alert-info col-12 h5 text-center m-0 p-0 ">
+            <button type="button" class="btn btn-primary btn-sm" @onclick=ModalOk>موافق</button>
+            <button type="button" class="btn btn-primary btn-sm" @onclick=ModalCancel>إلغاء</button>
+        </div>
+    </RadzenCard>
+
+@code {
+    #region declarations
+
+    [Parameter]    public String stock_code { get; set; }
+    [Parameter] public String trns_kind { get; set; }
+    ElementReference searchinput;
+    private string _filter { get; set; } = "";
+    public List<Hadd> data { get; set; }
+    public Hadd selectedrow { get; set; }
+    private List<Hadd> orgdata { get; set; }
+    //[Parameter] public EventCallback<Hadd> OnRowdblclicked { get; set; }
+    //[Parameter] public EventCallback<Hadd> OnRowclicked { get; set; }
+    #endregion
+
+    private void ModalCancel() { ds.Close(new Dictionary<string, object> { { "status", false } }); }
+
+    private void ModalOk()
+    {
+        if (selectedrow == null) return;
+        ds.Close(new Dictionary<string, object> { { "status", true },{ "result",selectedrow  } });
+    }
+
+    //public void mysort(Func<Hadd,bool> arg)
+    //{
+    //    data = data.OrderBy(arg).ToList();
+    //}
+
+    public void myfilter()
+    {
+        if (_filter == null || _filter == string.Empty)
+            data = orgdata;
+        else
+            data = orgdata.Where(r =>r.TrnNo.Contains(_filter) || r.TrnDate.ToString().Contains(_filter) ||
+            r.GhaName.Contains(_filter) ||
+            (trns_kind=="1" && ( r.SuppName.Contains(_filter) || r.DocNoN.Contains(_filter)) )||
+            (trns_kind == "2" && r.ArName.Contains(_filter))
+            ).ToList();
+    }
+
+    protected override void OnParametersSet()
+    {
+        using (var db = dbf.CreateDbContext()) data = db.Hadds.Where(h=>h.StockCode.Equals(stock_code) && trns_kind.Equals( h.Kind.ToString())).ToList();
+        orgdata = data;
+    }
+
+    protected override void OnAfterRender(bool firstRender)    {  searchinput.FocusAsync();  }
+
+    public async void f_Rowclicked(Hadd row)
+    {
+        //   await OnRowclicked.InvokeAsync(row);
+        selectedrow = row;
+    }
+
+    public async void f_Rowdblclicked(Hadd row)
+    {
+        //    await OnRowdblclicked.InvokeAsync(row);
+        selectedrow = row;
+        ModalOk();
+    }
+}
