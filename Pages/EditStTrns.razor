@@ -170,14 +170,20 @@
                     <div class="form-group row bo  p-0 m-1">
                         <label for="arname" style="font-size:small;" class="col-4">كود المستـــلم</label>
                         <RadzenTextBox Name=arname form="arname" @bind-Value=@_hadd.ArName Change=@(args => f_onchange( "arname",args )) />
+                    </div>
                         @if (!string.IsNullOrWhiteSpace(_hadd.ArName))
                         {
-                            <label for="arname" style="font-size:small;" class="col-4">إســـم المستـــلم</label>
-                            <span>@(gt.GetAll<Arname>(a=>a.ArCode == _hadd.ArName).FirstOrDefault().ArName1) </span>
-                            <label for="arname" style="font-size:small;" class="col-4">الرقم القومى</label>
-                            <span>@(gt.GetAll<Arname>(a=>a.ArCode == _hadd.ArName).FirstOrDefault().Nid) </span>
-                        }
+                            
+                    <div class="form-group row bo  p-0 m-1">
+                        <label for="arname" style="font-size:small;" class="col-4">إســـم المستـــلم</label>
+                        <span>@(gt.GetAll<Arname>(a=>a.ArCode == _hadd.ArName).FirstOrDefault().ArName1) </span>
                     </div>
+                    <div class="form-group row bo  p-0 m-1">
+                        <label for="arname" style="font-size:small;" class="col-4">الرقم القومى</label>
+                        <span>@(gt.GetAll<Arname>(a=>a.ArCode == _hadd.ArName).FirstOrDefault().Nid) </span>
+                    </div>
+                        }
+                    
 
                     <div class="form-group row p-0 m-1">
                         <label class="col-4"> </label>
@@ -442,9 +448,11 @@
                         }
                         else
                         {
+
                             list_tklf_main = db.Tklfmains.Where(a => a.KindCode == _hadd.GhaCode).ToList();
                             list_tklf_sub = db.Tklfsubs.Where(a => a.KindCode == _hadd.GhaCode).ToList();
                             shownum = !(_hadd.GhaCode == "01" || (_hadd.GhaCode == "02" && _hadd.GhaName == "أقســـــام"));
+                            LGHA_CODE = _hadd.GhaCode;
                         }
                     }
                 }
@@ -487,7 +495,7 @@
                 break;
             case "ghanum":
                 string ls_geha_main;
-                ls_geha_main = list_tklf_sub.Find(a => a.KindCode == LGHA_CODE && a.TklfsubCode == arg).TklfCode;
+                ls_geha_main = list_tklf_sub.Where(a => a.KindCode == LGHA_CODE && a.TklfsubCode == arg).FirstOrDefault().TklfCode;
                 _hadd.GhaMain = ls_geha_main;
                 break;
             //case "stockname":
@@ -555,7 +563,7 @@
 
                 ret = await ds.OpenAsync<ModaltrnsList>("",
                     new Dictionary<string, object>() { { "stock_code", _hadd.StockCode }, { "trns_kind", _hadd.Kind.ToString() } },
-                     new DialogOptions() { ShowTitle = false, Width = "700px", Height = "400px", Resizable = true, Draggable = true });
+                     new DialogOptions() { ShowTitle = false, Width = "900px", Height = "400px", Resizable = true, Draggable = true });
 
 
                 if (ret != null)

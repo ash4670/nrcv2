@@ -13,6 +13,14 @@
     <RadzenCard Style="margin: 0;padding:0 ; z-index:15000;">
         <div class="alert alert-primary col-12 h5 text-center m-0 p-0 ">
             قائمة مستندات
+            @if (trns_kind == "1")
+            {
+                <span> إضافة </span>
+            }
+            else
+            {
+                <span> صرف </span>
+            }
             مخزن @stock_code
             <button type="button" class="btn btn-sm close" @onclick=ModalCancel>&times;</button>
         </div>
@@ -31,7 +39,7 @@
                         <tr style="height:50%" class="bg-primary text-center text-white ">
                             <th style="  width: 5%">م</th>
                             <th @onclick="@(() =>{ data.OrderBy(d => d.TrnNo); })"> الرقم </th>
-                            <th @onclick="@(() =>{ data.OrderBy(d => d.TrnDate); })"> التاريخ </th>
+                            <th @onclick="@(() =>{ data.OrderBy(d => d.TrnDate ); })"> التاريخ </th>
                             <th @onclick="@(() =>{ data.OrderBy(d => d.GhaName); })"> الجهة </th>
                             @if (trns_kind == "1") {
                                 <th @onclick="@(() =>{ data.OrderBy(d => d.SuppName); })"> المورد </th>
@@ -50,7 +58,7 @@
                         <tr   style="padding: 0; margin: 0; max-height: fit-content; background-color: @(item== selectedrow ? "lightblue":"lightyellow" ) " class="text-right" @onclick="()=>f_Rowclicked(item)" @ondblclick="()=>f_Rowdblclicked(item)">
                             <td style="width: 5%">@rownum</td>
                             <td>@item.TrnNo </td>
-                            <td>@item.TrnDate </td>
+                            <td>@String.Format("{0:dd/MM/yyyy}",item.TrnDate) </td>
                             <td>@item.GhaName </td>
                             @if (trns_kind == "1")
                             {
@@ -58,7 +66,7 @@
                                 <td>@item.DocNoN </td>
                             }
                             @if (trns_kind == "2")  {<td>@item.ArName </td> }
-                            <td>@item.Dadds.Sum(d=>d.ItemPrice * d.ItemQuant) </td>
+                        <td>@String.Format("{0:0.00}",item.Dadds.Sum(d=>d.ItemQuant * d.ItemPrice)) </td>
                         </tr>
                             rownum++;
                         }
@@ -115,7 +123,7 @@
 
     protected override void OnParametersSet()
     {
-        using (var db = dbf.CreateDbContext()) data = db.Hadds.Where(h=>h.StockCode.Equals(stock_code) && trns_kind.Equals( h.Kind.ToString())).ToList();
+        using (var db = dbf.CreateDbContext()) data = db.Hadds.Where(h=>h.StockCode.Equals(stock_code) && trns_kind.Equals( h.Kind.ToString())).Include(a=>a.Dadds).ToList();
         orgdata = data;
     }
 
