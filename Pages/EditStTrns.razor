@@ -5,6 +5,8 @@
 @inject NotificationService ns
 @inject Gtools gt
 
+
+
 <style>
     .tableFixHead thead th, thead > tr, thead {
         position: sticky !important;
@@ -127,7 +129,7 @@
                         <label for="docnon" style="font-size:small;" class="col-4">
                             <span> رقم أمر التوريد</span>
                         </label>
-                        <RadzenTextBox Name="docnon" form="docnon" @bind-Value=@_hadd.DocNoN Change=@(args => f_onchange( "docnon",args)) />
+                        <RadzenTextBox style="background-color:burlywood" Name="docnon" form="docnon" @bind-Value=@_hadd.DocNoN Change=@(args => f_onchange( "docnon",args)) />
                     </div>
                     <div class="form-group row p-0 m-1">
                         <label for="suppname" style="font-size:small;" class="col-4">المورد</label>
@@ -168,8 +170,8 @@
                     </div>
 
                     <div class="form-group row bo  p-0 m-1">
-                        <label for="arname" style="font-size:small;" class="col-4">كود المستـــلم</label>
-                        <RadzenTextBox Name=arname form="arname" @bind-Value=@_hadd.ArName Change=@(args => f_onchange( "arname",args )) />
+                        <label for="arname"  style=" font-size:small;" class="col-4">كود المستـــلم</label>
+                        <RadzenTextBox Name=arname style="background-color: lemonchiffon;" form="arname" @bind-Value=@_hadd.ArName Change=@(args => f_onchange( "arname",args )) @ondblclick="@(async ()=>await f_ondblclick("arcode"))" />
                     </div>
                         @if (!string.IsNullOrWhiteSpace(_hadd.ArName))
                         {
@@ -531,6 +533,20 @@
         Dictionary<string, object> ret;
         switch (name.ToLower())
         {
+            case "arcode":
+                //ret = await ds.OpenAsync<ModaltrnsList>("",
+                //   new Dictionary<string, object>() { { "stock_code", _hadd.StockCode }, { "trns_kind", _hadd.Kind.ToString() } },
+                //    new DialogOptions() { ShowTitle = false, Width = "900px", Height = "400px", Resizable = true, Draggable = true });
+
+
+                //if (ret != null)
+                //{
+                //    if (!((bool)ret["status"])) return;
+                //    Hadd val = ret["result"] as Hadd;
+                //    _hadd.TrnNo = val.TrnNo;
+                //    await f_onchange("trnno", _hadd.TrnNo);
+                //}
+                break;
             case "stockcode":
                 ret = await ds.OpenAsync<GModalList<Stock>>("",
             new Dictionary<string, object>() { { "title", "قائمة المخازن" }, { "scollist", "stockcode,stockname" }, { "colheads", "كود المخزن ,إسم المخزن" } },
@@ -644,8 +660,26 @@
 
     void on_cbTaxClicked()
     { }
-    void on_cbOhdaClicked()
-    { }
+    async Task on_cbOhdaClicked()
+    {
+        if (!String.IsNullOrWhiteSpace(_hadd.ArName)) {
+            var   ret = await ds.OpenAsync<ModalManOhda>("",
+                      new Dictionary<string, object>() { { "arg_arcode", _hadd.ArName} },
+                       new DialogOptions() { ShowTitle = false, Width = "900px", Height = "400px", Resizable = true, Draggable = true });
+
+
+            if (ret != null)
+            {
+                if (!((bool)ret["status"])) return;
+                List<Arquant> val = ret["result"] as List<Arquant>;
+                if (val.Any()) ns.Notify(new NotificationMessage() { Detail = val.Count().ToString() });
+
+            }
+
+
+        }
+
+    }
     void OnSubmit(Hadd model)
     {
         Console.WriteLine(model);

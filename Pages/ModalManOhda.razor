@@ -13,16 +13,7 @@
 
     <RadzenCard Style="margin: 0;padding:0 ; z-index:15000;">
         <div class="alert alert-primary col-12 h5 text-center m-0 p-0 ">
-            قائمة مستندات
-            @if (trns_kind == "1")
-            {
-                <span> إضافة </span>
-            }
-            else
-            {
-                <span> صرف </span>
-            }
-            مخزن @stock_code
+            عهدة فرد @arg_arcode  @arnamelist.Where(a => a.ArCode == arg_arcode).FirstOrDefault().ArName1   @arnamelist.Where(a => a.ArCode == arg_arcode).FirstOrDefault().Work
             <button type="button" class="btn btn-sm close" @onclick=ModalCancel>&times;</button>
         </div>
        
@@ -39,35 +30,39 @@
                     <thead class="font-weight-bold">
                         <tr style="height:50%" class="bg-primary text-center text-white ">
                             <th style="  width: 5%">م</th>
-                            <th @onclick="@(() =>{ data.OrderBy(d => d.TrnNo); })"> الرقم </th>
-                            <th @onclick="@(() =>{ data.OrderBy(d => d.TrnDate ); })"> التاريخ </th>
-                            <th @onclick="@(() =>{ data.OrderBy(d => d.GhaName); })"> الجهة </th>
-                            @if (trns_kind == "1") {
-                                <th @onclick="@(() =>{ data.OrderBy(d => d.SuppName); })"> المورد </th>
-                                <th @onclick="@(() =>{ data.OrderBy(d => d.DocNoN); })"> أمر التوريد </th>
-                            }
-                            @if (trns_kind == "2"){<th @onclick="@(() => { data.OrderBy(d => d.ArName); })">مستلم العهدة </th>}
-                            <th >إجمالى الإذن </th>
 
+
+                            <th @onclick="@(() =>{ data.OrderBy(d => d.ItemCode); })">كود الصنف </th>
+                            <th @onclick="@(() =>{ data.OrderBy(d => d.EngName); })">وصف الصنف</th>
+                            <th @onclick="@(() =>{ data.OrderBy(d => d.ItemQuant); })">الكمية</th>
+                            <th @onclick="@(() =>{ data.OrderBy(d => d.ItemPrice); })">السعر</th>
+                            <th @onclick="@(() =>{ data.OrderBy(d => d.UnitName); })">الوحدة</th>
+                            <th @onclick="@(() =>{ data.OrderBy(d => d.TrnNo); })">رقم المستند</th>
+                            <th @onclick="@(() =>{ data.OrderBy(d => d.TrnDate); })">التاريخ</th>
+                            <th @onclick="@(() =>{ data.OrderBy(d => d.StockCode); })">المخزن</th>
+                            <th @onclick="@(() =>{ data.OrderBy(d => d.StockCode); })">إختيار</th>
+
+
+                           
                         </tr>
                     </thead>
 
                     <tbody>
                         @{int rownum = 1; }
-                        @foreach (Hadd item in data)
+                        @foreach (Arquant item in data)
                         {
-                        <tr   style="padding: 0; margin: 0; max-height: fit-content; background-color: @(item== selectedrow ? "lightblue":"lightyellow" ) " class="text-right" @onclick="()=>f_Rowclicked(item)" @ondblclick="()=>f_Rowdblclicked(item)">
+                        <tr style="padding: 0; margin: 0; max-height: fit-content; background-color: @(item== selectedrow ? "lightblue":"lightyellow" ) " class="text-right" @onclick="()=>f_Rowclicked(item)" @ondblclick="()=>f_Rowdblclicked(item)">
                             <td style="width: 5%">@rownum</td>
+                            <td>@item.ItemCode </td>
+                            <td>@item.EngName </td>
+                            <td>@item.ItemQuant </td>
+                            <td>@item.ItemPrice </td>
+                            <td>@item.UnitName </td>
                             <td>@item.TrnNo </td>
                             <td>@String.Format("{0:dd/MM/yyyy}",item.TrnDate) </td>
-                            <td>@item.GhaName </td>
-                            @if (trns_kind == "1")
-                            {
-                                <td>@item.SuppName </td>
-                                <td>@item.DocNoN </td>
-                            }
-                            @if (trns_kind == "2")  {<td> @(item.ArName + arnamelist.Where(a=>a.ArCode == item.ArName).FirstOrDefault().ArName1)   </td>   }
-                        <td>@String.Format("{0:0.00}",item.Dadds.Sum(d=>d.ItemQuant * d.ItemPrice)) </td>
+                            <td>@item.StockCode </td>
+                            <td><input type="checkbox"  @bind-value="list_selected[rownum -1]" /> </td>
+
                         </tr>
                             rownum++;
                         }
@@ -86,16 +81,14 @@
 @code {
     #region declarations
 
-    [Parameter]    public String stock_code { get; set; }
-    [Parameter] public String trns_kind { get; set; }
+    [Parameter]    public String arg_arcode { get; set; }
     ElementReference searchinput;
     private string _filter { get; set; } = "";
-    public List<Hadd> data { get; set; }
+    public List<Arquant> data { get; set; }
+    List<bool> list_selected { get; set; } =new  List<bool>();
     public List<Arname> arnamelist { get; set; }
-    public Hadd selectedrow { get; set; }
-    private List<Hadd> orgdata { get; set; }
-    //[Parameter] public EventCallback<Hadd> OnRowdblclicked { get; set; }
-    //[Parameter] public EventCallback<Hadd> OnRowclicked { get; set; }
+    public Arquant selectedrow { get; set; }
+    private List<Arquant> orgdata { get; set; }
     #endregion
 
     private void ModalCancel() { ds.Close(new Dictionary<string, object> { { "status", false } }); }
@@ -106,7 +99,7 @@
         ds.Close(new Dictionary<string, object> { { "status", true },{ "result",selectedrow  } });
     }
 
-    //public void mysort(Func<Hadd,bool> arg)
+    //public void mysort(Func<Arquant,bool> arg)
     //{
     //    data = data.OrderBy(arg).ToList();
     //}
@@ -116,10 +109,7 @@
         if (_filter == null || _filter == string.Empty)
             data = orgdata;
         else
-            data = orgdata.Where(r =>r.TrnNo.Contains(_filter) || r.TrnDate.ToString().Contains(_filter) ||
-            r.GhaName.Contains(_filter) ||
-            (trns_kind=="1" && ( r.SuppName.Contains(_filter) || r.DocNoN.Contains(_filter)) )||
-            (trns_kind == "2" && r.ArName.Contains(_filter))
+            data = orgdata.Where(r =>r.EngName.Contains(_filter)
             ).ToList();
     }
 
@@ -127,7 +117,8 @@
     {
         using (var db = dbf.CreateDbContext())
         {
-            data = db.Hadds.Where(h => h.StockCode.Equals(stock_code) && trns_kind.Equals(h.Kind.ToString())).Include(a => a.Dadds).ToList();
+            data = db.Arquants.Where(q=>q.ArName==arg_arcode).ToList();
+            list_selected = data.Select(a => false).ToList() ;
             arnamelist = db.Arnames.ToList();
         }
         orgdata = data;
@@ -135,13 +126,13 @@
 
     protected override void OnAfterRender(bool firstRender)    {  searchinput.FocusAsync();  }
 
-    public  void f_Rowclicked(Hadd row)
+    public  void f_Rowclicked(Arquant row)
     {
         //   await OnRowclicked.InvokeAsync(row);
         selectedrow = row;
     }
 
-    public void f_Rowdblclicked(Hadd row)
+    public void f_Rowdblclicked(Arquant row)
     {
         //    await OnRowdblclicked.InvokeAsync(row);
         selectedrow = row;
