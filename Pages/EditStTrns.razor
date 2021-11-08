@@ -658,10 +658,9 @@
         }
     }
 
-    void on_cbTaxClicked()
-    { }
-    async Task on_cbOhdaClicked()
-    {
+    void on_cbTaxClicked(){ 
+    }
+    async Task on_cbOhdaClicked(){
         if (!String.IsNullOrWhiteSpace(_hadd.ArName)) {
             var   ret = await ds.OpenAsync<ModalManOhda>("",
                       new Dictionary<string, object>() { { "arg_arcode", _hadd.ArName} },
