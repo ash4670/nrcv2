@@ -14,9 +14,10 @@
         z-index: 1 !important;
         overflow: auto !important;
     }
+    
 </style>
 
-<div class="card  border-secondary" style="width:98% !important;height:97%; font-weight:normal;">
+<div class="card  border-secondary" style="width:98% !important;height:97%; font-weight:bolder;">
 
     <div class="card-header font-weight-bold  alert-primary  h6 text-center m-1 p-1 rounded ">
         @_hadd.StockCode
@@ -171,7 +172,7 @@
 
                     <div class="form-group row bo  p-0 m-1">
                         <label for="arname"  style=" font-size:small;" class="col-4">كود المستـــلم</label>
-                        <RadzenTextBox Name=arname style="background-color: lemonchiffon;" form="arname" @bind-Value=@_hadd.ArName Change=@(args => f_onchange( "arname",args )) @ondblclick="@(async ()=>await f_ondblclick("arcode"))" />
+                        <RadzenTextBox Name=arname style="background-color: lemonchiffon;" form="arname" @bind-Value=@_hadd.ArName Change=@(args => f_onchange( "arname",args )) @ondblclick="@(async ()=>await f_ondblclick("arname"))" />
                     </div>
                         @if (!string.IsNullOrWhiteSpace(_hadd.ArName))
                         {
@@ -524,6 +525,28 @@
                     _hadd.IncDec = (byte)arg;
                 }
                 break;
+            case "arname":
+                _hadd.ArName = "";
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _value = arg;
+                _value = _value.Substring(0, Math.Min(5, _value.Length));
+                _value = _value.PadLeft(5, '0');
+                Arname ar;
+                using (var db = dbf.CreateDbContext()) ar = db.Arnames.FirstOrDefault<Arname>(a => a.ArCode == _value);
+
+                if (ar != null)
+                {
+                    _hadd.ArName = _value;
+                }
+                else{
+                    ns.Notify(new NotificationMessage() { Detail = "كود الموظف خطأ" });
+                    return;
+                }
+
+                StateHasChanged();
+                break;
+
             default: break;
 
         }
@@ -533,19 +556,17 @@
         Dictionary<string, object> ret;
         switch (name.ToLower())
         {
-            case "arcode":
-                //ret = await ds.OpenAsync<ModaltrnsList>("",
-                //   new Dictionary<string, object>() { { "stock_code", _hadd.StockCode }, { "trns_kind", _hadd.Kind.ToString() } },
-                //    new DialogOptions() { ShowTitle = false, Width = "900px", Height = "400px", Resizable = true, Draggable = true });
-
-
-                //if (ret != null)
-                //{
-                //    if (!((bool)ret["status"])) return;
-                //    Hadd val = ret["result"] as Hadd;
-                //    _hadd.TrnNo = val.TrnNo;
-                //    await f_onchange("trnno", _hadd.TrnNo);
-                //}
+            case "arname":
+                ret = await ds.OpenAsync<GModalList<Arname>>("",
+             new Dictionary<string, object>() { { "title","قائمة الأفراد" }, { "scollist", "arcode,arname1,nid,work" }, { "colheads", "الكود,الإسم,الرقم القومى,العمل" } },
+             new DialogOptions() { ShowTitle = false, Width = "950px", Height = "400px", Resizable = true, Draggable = true });
+                if (ret != null)
+                {
+                    if (!((bool)ret["status"])) return;
+                    List<Arname> val = ret["result"] as List<Arname>;
+                    _hadd.ArName = val[0].ArCode;
+                    await f_onchange("arname", val[0].ArCode);
+                }
                 break;
             case "stockcode":
                 ret = await ds.OpenAsync<GModalList<Stock>>("",
@@ -658,7 +679,7 @@
         }
     }
 
-    void on_cbTaxClicked(){ 
+    void on_cbTaxClicked(){
     }
     async Task on_cbOhdaClicked(){
         if (!String.IsNullOrWhiteSpace(_hadd.ArName)) {
@@ -671,7 +692,7 @@
             {
                 if (!((bool)ret["status"])) return;
                 List<Arquant> val = ret["result"] as List<Arquant>;
-                if (val.Any()) ns.Notify(new NotificationMessage() { Detail = val.Count().ToString() });
+                // if (val.Any()) ns.Notify(new NotificationMessage() { Detail = val.Count().ToString() });
 
             }
 

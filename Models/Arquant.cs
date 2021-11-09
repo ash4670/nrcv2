@@ -84,5 +84,8 @@ namespace nrcv2.Models
         [Key]
         [Column("ID")]
         public int Id { get; set; }
+
+        [NotMapped]
+        public bool flag { get; set; }
     }
 }

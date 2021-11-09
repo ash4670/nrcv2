@@ -122,7 +122,13 @@ else
             //props = (data.FirstOrDefault()).GetType().GetProperties().ToList();
             props = (new T()).GetType().GetProperties().ToList();
             if (collist != null)
-                displayedcolumn = props.Where(p => collist.Contains(p.Name.ToLower())).ToList();
+                //displayedcolumn =props.Where(p => collist.Contains(p.Name.ToLower())).ToList();
+                //   displayedcolumn = props.Where(p => collist.Contains(p.Name.ToLower())).ToList();
+
+                displayedcolumn= (from s in collist
+                                  join p in props
+                                     on s.ToLower() equals p.Name.ToLower()
+                                  select p).ToList() ;
             else
                 displayedcolumn = props.Where(p => p.PropertyType == typeof(string) || p.PropertyType.IsValueType).ToList();
 

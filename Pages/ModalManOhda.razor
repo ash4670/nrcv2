@@ -17,10 +17,7 @@
             <button type="button" class="btn btn-sm close" @onclick=ModalCancel>&times;</button>
         </div>
        
-        @if (!vmlist.Any())
-        {<p><em>Loading...</em></p> }
-        else
-        {
+       
             <div class="input-group m-0 p-0 ">
                 <div class="input-group-text bg-transparent input-group-prepend">  <i class="oi oi-magnifying-glass"></i></div>
                 <input @ref="searchinput" class="form-control" type="search" placeholder="بحث" @bind-value="_filter" @bind-value:event="oninput" @onkeyup="myfilter" />
@@ -32,50 +29,56 @@
                             <th style="  width: 5%">م</th>
 
 
-                            <th @onclick="@(() =>{ vmlist.OrderBy(d => d.item.ItemCode); })">كود الصنف </th>
-                            <th @onclick="@(() =>{ vmlist.OrderBy(d => d.item.EngName); })">وصف الصنف</th>
-                            <th @onclick="@(() =>{ vmlist.OrderBy(d => d.item.ItemQuant); })">الكمية</th>
-                            <th @onclick="@(() =>{ vmlist.OrderBy(d => d.item.ItemPrice); })">السعر</th>
-                            <th @onclick="@(() =>{ vmlist.OrderBy(d => d.item.UnitName); })">الوحدة</th>
-                            <th @onclick="@(() =>{ vmlist.OrderBy(d => d.item.TrnNo); })">رقم المستند</th>
-                            <th @onclick="@(() =>{ vmlist.OrderBy(d => d.item.TrnDate); })">التاريخ</th>
-                            <th @onclick="@(() =>{ vmlist.OrderBy(d => d.item.StockCode); })">المخزن</th>
-                            <th @onclick="@(() =>{ vmlist.OrderBy(d => d.item.ArNameto); })">محول من</th>
-                            <th @onclick="@(() =>{ vmlist.OrderBy(d => d.item.Notes); })">ملاحظات</th>
-                            <th @onclick="@(() =>{ vmlist.OrderBy(d => d.flag); })">إختيار</th>
+                            <th @onclick="@(() =>{ data=data.OrderBy(d => d.ItemCode).ToList(); })">كود الصنف </th>
+                            <th @onclick="@(() =>{ data=data.OrderBy(d => d.EngName).ToList(); })">وصف الصنف</th>
+                            <th @onclick="@(() =>{ data=data.OrderBy(d => d.ItemQuant).ToList(); })">الكمية</th>
+                            <th @onclick="@(() =>{ data=data.OrderBy(d => d.ItemPrice).ToList(); })">السعر</th>
+                            <th @onclick="@(() =>{ data=data.OrderBy(d => d.UnitName).ToList(); })">الوحدة</th>
+                            <th @onclick="@(() =>{ data=data.OrderBy(d => d.TrnNo).ToList(); })">رقم المستند</th>
+                            <th @onclick="@(() =>{ data=data.OrderBy(d => d.TrnDate).ToList(); })">التاريخ</th>
+                            <th @onclick="@(() =>{ data=data.OrderBy(d => d.StockCode).ToList(); })">المخزن</th>
 
-
-
+                            <th @onclick="@(() =>{ data=data.OrderBy(d => d.flag).ToList(); })">إختيار</th>
+                            <th @onclick="@(() =>{ data=data.OrderBy(d => d.ArNameto).ToList(); })">محول من</th>
+                            <th @onclick="@(() =>{ data=data.OrderBy(d => d.Notes).ToList(); })">ملاحظات</th>
                         </tr>
+                        
                     </thead>
+                    @if (!data.Any())
+                    {
+                        <p><em>No Data...</em></p>
+                    }
+                    else
+                    {
+                        <tbody>
+                            @{int rownum = 1; }
+                            @foreach (Arquant item in data)
+                            {
+                            <tr style="padding: 0; margin: 0; max-height: fit-content; background-color: @(item == selectedrow ? "lightblue" : "lightyellow" ) " class="text-right" @onclick="() => f_Rowclicked(item)" @ondblclick="() => f_Rowdblclicked(item)">
+                                <td style="width: 5%">@rownum</td>
+                                <td>@item.ItemCode </td>
+                                <td>@item.EngName </td>
+                                <td>@item.ItemQuant </td>
+                                <td>@String.Format("{0:0.00}", item.ItemPrice) </td>
+                                <td>@item.UnitName </td>
+                                <td>@item.TrnNo </td>
+                                <td>@String.Format("{0:dd/MM/yyyy}", item.TrnDate) </td>
+                                <td>@item.StockCode </td>
+                                <td><input type="checkbox" @bind="@item.flag" /> </td>
+                                <td>@arnamelist.Where(a => a.ArCode.Equals(item.ArNameto)).FirstOrDefault()?.ArName1  </td>
+                                <td>@item.Notes  </td>
+                            </tr>
+                            
+                           
+                                rownum++;
+                            }
 
-                    <tbody>
-                        @{int rownum = 1; }
-                        @foreach (vm item in vmlist)
-                        {
-                        <tr style="padding: 0; margin: 0; max-height: fit-content; background-color: @(item.item== selectedrow ? "lightblue":"lightyellow" ) " class="text-right" @onclick="()=>f_Rowclicked(item.item)" @ondblclick="()=>f_Rowdblclicked(item.item)">
-                            <td style="width: 5%">@rownum</td>
-                            <td>@item.item.ItemCode </td>
-                            <td>@item.item.EngName </td>
-                            <td>@item.item.ItemQuant </td>
-                            <td>@String.Format("{0:0.00}", item.item.ItemPrice) </td>
-                            <td>@item.item.UnitName </td>
-                            <td>@item.item.TrnNo </td>
-                            <td>@String.Format("{0:dd/MM/yyyy}", item.item.TrnDate) </td>
-                            <td>@item.item.StockCode </td>
-                            <td>@arnamelist.Where(a => a.ArCode.Equals(item.item.ArNameto)).FirstOrDefault()?.ArName1  </td>
-                            <td>@item.item.Notes </td>
-                            <td><input type="checkbox" @bind-value="item.flag" /> </td>
+                        </tbody>
+                                }
 
-                        </tr>
-                            rownum++;
-                        }
-
-                    </tbody>
-                   
-                </table>
+                    </table>
             </div>
-        }
+       
         <div class="alert alert-info col-12 h5 text-center m-0 p-0 ">
             <button type="button" class="btn btn-primary btn-sm" @onclick=ModalOk>موافق</button>
             <button type="button" class="btn btn-primary btn-sm" @onclick=ModalCancel>إلغاء</button>
@@ -89,25 +92,25 @@
     ElementReference searchinput;
     private string _filter { get; set; } = "";
     public List<Arquant> data { get; set; }
-    List<vm> vmlist= new List<vm>();
+
     public List<Arname> arnamelist { get; set; }
     public Arquant selectedrow { get; set; }
     private List<Arquant> orgdata { get; set; }
     #endregion
 
-    public class vm {
-        public Arquant item { get; set; }
-        public bool flag { get; set; }
-    }
+    //public class vm:Arquant {
+
+    //    public bool flag { get; set; }
+    //}
     private void ModalCancel() { ds.Close(new Dictionary<string, object> { { "status", false } }); }
 
     private void ModalOk()
     {
-        if (!vmlist.Where(a => a.flag).Any()) {
+        if (!data.Where(a => a.flag).Any()) {
             ModalCancel();
         }
         else
-            ds.Close(new Dictionary<string, object> { { "status", true },{ "result", vmlist.Where(a => a.flag).Select(a=>a.item).ToList()  } });
+            ds.Close(new Dictionary<string, object> { { "status", true },{ "result", data.Where(a => a.flag).ToList()  } });
     }
 
     //public void mysort(Func<Arquant,bool> arg)
@@ -120,16 +123,18 @@
         if (_filter == null || _filter == string.Empty)
             data = orgdata;
         else
-            data = orgdata.Where(r =>r.EngName.Contains(_filter)
+            data = orgdata.Where(r =>r.EngName.Contains(_filter)|| r.ItemCode.Contains(_filter)||r.ArName.Contains(_filter)||
+            ((r.ArNameto??"").Contains(_filter)) ||r.ItemQuant.ToString().Contains(_filter)||(r.UnitName??"").Contains(_filter)||(r.Notes??"").Contains(_filter)||
+            r.StockCode.Contains(_filter)||r.ItemPrice.ToString().Contains(_filter)||r.TrnNo.Contains(_filter)||r.TrnDate.ToString().Contains(_filter)
             ).ToList();
+
     }
 
     protected override void OnParametersSet()
     {
         using (var db = dbf.CreateDbContext())
         {
-            data = db.Arquants.Where(q=>q.ArName.Equals(arg_arcode)).ToList();
-            vmlist = (List<vm>) data.Select(a =>new vm() { item = a, flag = false } ).OrderBy(a => a.item.ItemCode).ToList();
+            data = db.Arquants.Where(q=>q.ArName.Equals(arg_arcode)).OrderBy(a => a.ItemCode).ToList();
             arnamelist = db.Arnames.ToList();
         }
         orgdata = data;
@@ -140,13 +145,13 @@
     public  void f_Rowclicked(Arquant row)
     {
         //   await OnRowclicked.InvokeAsync(row);
-        selectedrow = row;
+        //    selectedrow = row;
     }
 
     public void f_Rowdblclicked(Arquant row)
     {
         //    await OnRowdblclicked.InvokeAsync(row);
-        selectedrow = row;
+        //   selectedrow = row;
         ModalOk();
     }
 }
