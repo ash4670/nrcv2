@@ -2,8 +2,17 @@
 @inject IDbContextFactory<nrcwebContext> dbf
 @inject Gtools gtool
 @inject DialogService _ds
-
-    <div class="  text-center  alert alert-info border border-info h4   ">  @(_item.Id==0? "جديد" : "تعديل")</div>
+<style>
+    .form-group, input {
+        padding: 0px;
+        margin: 1px;
+        font-weight:bold;
+        font-size:small;
+        height:75%;
+    }
+    
+</style>
+    <div class="  text-center  alert alert-info border border-info h5  m-1 p-1   ">  @(_item.Id==0? "جديد" : "تعديل")</div>
     <EditForm Model=_item OnValidSubmit="HandleValidSubmit">
         <div class="container">
 
@@ -23,116 +32,125 @@
             <div class="row form-group form-inline">
                 <label class="col-sm-2" for="ItemCode">كود الصنف</label>
                 <input style="background-color:lemonchiffon" id="ItemCode" @ondblclick="@(async ()=>await f_ondblclick("itemcode"))" value=@_item.ItemCode @onchange="@((a)=>f_onchange("itemcode",a.Value))" class="form-control col-sm-2" />
-
+                <span class="col-sm-2"></span>
+                <label class="col-sm-2" for="OpenbalDate">تاريخ التعريف</label>
+                <input @bind="_item.OpenbalDate" id="vdate" TValue="DateTime?" ParsingErrorMessage="التاريخ غير صحيح" class="form-control col-2" />
 
             </div>
             <ValidationMessage For="() => _item.ItemCode" />
+
             <div class="row form-group form-inline">
                 <label class="col-sm-2" for="EngName">وصف</label>
-                <InputText id="EngName" @bind-Value="_item.EngName" class="form-control col-sm-7" />
-                </div>
-                <ValidationMessage For="() => _item.EngName" />
+                <InputText id="EngName" @bind-Value="_item.EngName" class="form-control col-sm-4" />
+                <span class="col-sm-1"></span>
+                <label class="col-sm-1" for="EngName">الوحدة</label>
+                <InputText id="EngName" @bind-Value="_item.UnitName" class="form-control col-sm-2" />
+            </div>
+            <ValidationMessage For="() => _item.EngName" />
 
-                <div class="form-group form-inline">
-                    <label class="col-sm-2" for="EngName">الوحدة</label>
-                    <InputText id="EngName" @bind-Value="_item.UnitName" class="form-control col-sm-2" />
-                    <span class="col-sm-2"></span>
-                    <label class="col-sm-2" for="OpenbalQuant">الرصيد الإفتتاحى</label>
-                    <InputNumber id="OpenbalQuant" @bind-Value="_item.OpenbalQuant" class="form-control col-sm-2" />
-                    <ValidationMessage For="() => _item.OpenbalDate" />
-                </div>
-
-                <div class="form-group form-inline">
-                    <label class="col-sm-2" for="OpenbalDate">تاريخ التعريف</label>
-                    <input @bind="_item.OpenbalDate" id="vdate" TValue="DateTime?" ParsingErrorMessage="التاريخ غير صحيح" class="form-control col-2" />
-                    <span class="col-sm-2"></span>
-                    <label class="col-sm-2" for="ItemOrderlimit">حد الطلب</label>
-                    <InputNumber id="ItemOrderlimit" @bind-Value="_item.ItemOrderlimit" class="form-control col-sm-2" />
-                </div>
+            <div class="row form-group   form-inline">
 
 
-                <div class="form-group form-inline">
-                    <label class="col-sm-2" for="FactQuant">الكمية من واقع الجرد</label>
-                    <InputNumber id="FactQuant" style="background-color:aqua;" @bind-Value="_item.FactQuant" class="form-control col-sm-2" />
-                    <span class="col-sm-2"></span>
-                    <label class="col-sm-2" for="OpenQuant">الرصيد الحالى</label>
-                    <InputNumber id="OpenQuant" @bind-Value="_item.OpenQuant" class="form-control col-sm-2" />
+                <label class="col-sm-2" for="OpenbalQuant">الرصيد الإفتتاحى</label>
+                <InputNumber id="OpenbalQuant" @bind-Value="_item.OpenbalQuant" class="form-control col-sm-2" />
+                <span class="col-sm-2"></span>
+                <label class="col-sm-2" for="OpenQuant">الرصيد الحالى</label>
+                <InputNumber id="OpenQuant" disabled @bind-Value="_item.OpenQuant" class="form-control col-sm-2" />
+                <ValidationMessage For="() => _item.OpenbalDate" />
+            </div>
+
+            <div class="row form-group  form-inline">
+                <label class="col-sm-2" for="ItemOrderlimit">حد الطلب</label>
+                <InputNumber id="ItemOrderlimit" @bind-Value="_item.ItemOrderlimit" class="form-control col-sm-2" />
+                <span class="col-sm-2"></span>
+                <label class="col-sm-2" for="FactQuant">الكمية من الجرد</label>
+                <InputNumber id="FactQuant" style="background-color:aqua;" @bind-Value="_item.FactQuant" class="form-control col-sm-2" />
+            </div>
 
 
-                </div>
-
-                <div class="form-group form-inline">
-                    <label class="col-sm-2" for="OpenbalQuant">نوع الصنف</label>
-                    <InputNumber id="OpenbalQuant" @bind-Value="_item.OpenbalQuant" class="form-control col-sm-2" />
-                    <span class="col-sm-2"></span>
-                    <label class="col-sm-2" for="OpenbalQuant">التصنيف</label>
-                    <InputNumber id="OpenbalQuant" @bind-Value="_item.OpenbalQuant" class="form-control col-sm-2" />
-                </div>
-
-                <div class="form-group form-inline">
-                    <label class="col-sm-2" for="OpenPrice">سعر الوحدة</label>
-                    <InputNumber id="OpenPrice" @bind-Value="_item.OpenPrice" class="form-control col-sm-2" />
-                    <span class="col-sm-2"></span>
-                    <label class="col-sm-2" for="Value">أخر سعر وحدة</label>
-                    <InputNumber id="Value" @bind-Value="_item.Value" class="form-control col-sm-2" />
-                </div>
-
-
-                <div class="form-group form-inline">
-                    <label class="col-sm-2" for="Cas">رقم CAS</label>
-                    <InputText id="Cas" @bind-Value="_item.Cas" class="form-control col-sm-2" />
-                    <span class="col-sm-2"></span>
-                    <label class="col-sm-2" for="Cas">درجة الخطورة</label>
-                    <InputNumber id="Cas" @bind-Value="_item.CurrentBalance" class="form-control col-sm-2" />
+            <div class="row form-group form-inline">
+                <label class="col-sm-2" for="OpenPrice">سعر الوحدة</label>
+                <InputNumber id="OpenPrice" @bind-Value="_item.OpenPrice" class="form-control col-sm-2" />
+                <span class="col-sm-2"></span>
+                <label class="col-sm-2" for="Value">أخر سعر وحدة</label>
+                <InputNumber id="Value" disabled @bind-Value="_item.Value" class="form-control col-sm-2" />
+            </div>
 
 
 
-                </div>
-                <div class="row form-group form-inline">
-                    <label class="col-sm-2" for="AlternativeName4">مجموعة أجهزة</label>
-                    <InputText id="AlternativeName4" @bind-Value="_item.AlternativeName4" class="form-control col-sm-2" />
-                </div>
-                <div class="row form-group form-inline">
-                    <label class="col-sm-2" for="AlternativeName1">البديل العلمى</label>
-                    <InputText id="AlternativeName1" @bind-Value="_item.AlternativeName1" class="form-control col-sm-8" />
-                </div>
-                <div class="row form-group form-inline">
-                    <label class="col-sm-2" for="AlternativeName2">البديل الأول</label>
-                    <InputText id="AlternativeName2" @bind-Value="_item.AlternativeName2" class="form-control col-sm-8" />
-                </div>
-                <div class="row form-group form-inline">
-                    <label class="col-sm-2" for="AlternativeName3">البديل الثانى</label>
-                    <InputText id="AlternativeName3" @bind-Value="_item.AlternativeName3" class="form-control col-sm-8" />
-                </div>
-                <div class="row form-group form-inline">
-                    <label class="col-sm-2" for="AlternativeName4">البديل الثالث</label>
-                    <InputText id="AlternativeName4" @bind-Value="_item.AlternativeName4" class="form-control col-sm-8" />
-                </div>
+            <div class="row form-group  form-inline">
+                <label class="col-sm-2" for="ItemDesc">نوع الصنف</label>"1-mostadeem 2- mostahlak"
+                <InputNumber id="ItemDesc" @bind-Value="_item.ItemDesc" class="form-control col-sm-2" />
+                <span class="col-sm-2"></span>
+                <label class="col-sm-2" for="ItemDtype">التصنيف</label> @*"1  عادى"*@
+                @*"2 تاريخ صلاحية"*@
+                <InputNumber id="ItemDtype" @bind-Value="_item.ItemDtype" class="form-control col-sm-2" />
+            </div>
+
+
+
+
+            <div class="row form-group form-inline">
+                <label class="col-sm-2" for="Cas">رقم CAS</label>
+                <InputText id="Cas" @bind-Value="_item.Cas" class="form-control col-sm-2" /> @*1,0*@
+                <span class="col-sm-2"></span>
+                <label class="col-sm-2" for="Isinstrument">مجموعة أجهزة</label>
+                <InputNumber id="Isinstrument" @bind-Value="_item.Isinstrument" class="form-control col-sm-2" />
+
 
             </div>
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            <div class=" alert alert-info border border-info text-center h3">
-                <button class="btn btn-primary btn  col-2 mr-auto font-weight-bolder" @onclick="onSave">تسجيل</button>
-                <button class="btn btn-primary btn col-2 mr-auto font-weight-bolder" @onclick="onNew">إضافة</button>
-                <button class="btn btn-danger btn col-2 mr-auto font-weight-bolder" @onclick="onDelete">حذف</button>
+            <div class="row form-group form-inline">
+                @*<label class="col-sm-2" for="SeriousLevel">درجة الخطورة</label>
+                <InputNumber id="SeriousLevel" @bind-Value="_item.SeriousLevel" class="form-control col-sm-2" />*@
             </div>
-</EditForm>
+            <div class="row form-group form-inline">
+                <label class="col-sm-2" for="ScientificName">البديل العلمى</label>
+                <InputText id="ScientificName" @bind-Value="_item.ScientificName" class="form-control col-sm-3" />
+
+
+            </div>
+            <div class="row form-group form-inline">
+                <label class="col-sm-2" for="AlternativeName1">البديل الأول</label>
+                <InputText id="AlternativeName1" @bind-Value="_item.AlternativeName1" class="form-control col-sm-3" />
+
+                <label class="col-sm-2" for="AlternativeName2">البديل الثانى</label>
+                <InputText id="AlternativeName2" @bind-Value="_item.AlternativeName2" class="form-control col-sm-3" />
+
+
+            </div>
+
+            <div class="row form-group form-inline">
+                <label class="col-sm-2" for="AlternativeName3">البديل الثالث</label>
+                <InputText id="AlternativeName3" @bind-Value="_item.AlternativeName3" class="form-control col-sm-3" />
+
+                <label class="col-sm-2" for="AlternativeName4">البديل الرابع</label>
+                <InputText id="AlternativeName4" @bind-Value="_item.AlternativeName4" class="form-control col-sm-3" />
+            </div>
+
+        </div>
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <div class="  text-center  alert alert-info border border-info h5  m-1 p-1  btn-group-sm ">
+
+            @*<div class="row  alert alert-info border  btn-group-sm   border-info text-center h6">*@
+            <button class="btn btn-primary btn  col-2 mr-auto font-weight-bolder" @onclick="onSave">تسجيل</button>
+            <button class="btn btn-primary btn col-2 mr-auto font-weight-bolder" @onclick="onNew">إضافة</button>
+            <button class="btn btn-danger btn col-2 mr-auto font-weight-bolder" @onclick="onDelete">حذف</button>
+        </div>
+    </EditForm>
         
     
 
