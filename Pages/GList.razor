@@ -144,16 +144,16 @@ else
 
         public async void f_Rowclicked(T row)
         {
-
-            await OnRowclicked.InvokeAsync(row);
             selectedrow = row;
+            await OnRowclicked.InvokeAsync(row);
+
         }
 
         public async void f_Rowdblclicked(T row)
         {
-
-            await OnRowdblclicked.InvokeAsync(row);
             selectedrow = row;
+            await OnRowdblclicked.InvokeAsync(row);
+
         }
 
         private string GetAttributeDisplayName(PropertyInfo property)//this method to get the display name from the model attribute displayname

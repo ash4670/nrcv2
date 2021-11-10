@@ -61,8 +61,7 @@
                 {
 
                     if (glref.selectedrow == null) return;
-                    ds.Close(new Dictionary<string, object> { { "status", true },
-                 { "result",new List<T> {glref.selectedrow } } });
+                    ds.Close(new Dictionary<string, object> { { "status", true }, { "result",new List<T> {glref.selectedrow } } });
 
                 }
 

@@ -1,0 +1,274 @@
+﻿@page "/edititem"
+@inject IDbContextFactory<nrcwebContext> dbf
+@inject Gtools gtool
+@inject DialogService _ds
+
+    <div class="  text-center  alert alert-info border border-info h4   ">  @(_item.Id==0? "جديد" : "تعديل")</div>
+    <EditForm Model=_item OnValidSubmit="HandleValidSubmit">
+        <div class="container">
+
+            <div class="row form-group form-inline">
+                <label class="col-sm-2" for="StockCode">كود المخزن</label>
+                <select class="form-control" @bind="_item.StockCode">
+                    <option>--select--</option>
+                    @foreach (var item in _stockist)
+                    {
+                        <option value="@item.StockCode">@item.StockName</option>
+                    }
+                </select>
+            </div>
+            <ValidationMessage For="() => _item.StockCode" />
+
+
+            <div class="row form-group form-inline">
+                <label class="col-sm-2" for="ItemCode">كود الصنف</label>
+                <input style="background-color:lemonchiffon" id="ItemCode" @ondblclick="@(async ()=>await f_ondblclick("itemcode"))" value=@_item.ItemCode @onchange="@((a)=>f_onchange("itemcode",a.Value))" class="form-control col-sm-2" />
+
+
+            </div>
+            <ValidationMessage For="() => _item.ItemCode" />
+            <div class="row form-group form-inline">
+                <label class="col-sm-2" for="EngName">وصف</label>
+                <InputText id="EngName" @bind-Value="_item.EngName" class="form-control col-sm-7" />
+                </div>
+                <ValidationMessage For="() => _item.EngName" />
+
+                <div class="form-group form-inline">
+                    <label class="col-sm-2" for="EngName">الوحدة</label>
+                    <InputText id="EngName" @bind-Value="_item.UnitName" class="form-control col-sm-2" />
+                    <span class="col-sm-2"></span>
+                    <label class="col-sm-2" for="OpenbalQuant">الرصيد الإفتتاحى</label>
+                    <InputNumber id="OpenbalQuant" @bind-Value="_item.OpenbalQuant" class="form-control col-sm-2" />
+                    <ValidationMessage For="() => _item.OpenbalDate" />
+                </div>
+
+                <div class="form-group form-inline">
+                    <label class="col-sm-2" for="OpenbalDate">تاريخ التعريف</label>
+                    <input @bind="_item.OpenbalDate" id="vdate" TValue="DateTime?" ParsingErrorMessage="التاريخ غير صحيح" class="form-control col-2" />
+                    <span class="col-sm-2"></span>
+                    <label class="col-sm-2" for="ItemOrderlimit">حد الطلب</label>
+                    <InputNumber id="ItemOrderlimit" @bind-Value="_item.ItemOrderlimit" class="form-control col-sm-2" />
+                </div>
+
+
+                <div class="form-group form-inline">
+                    <label class="col-sm-2" for="FactQuant">الكمية من واقع الجرد</label>
+                    <InputNumber id="FactQuant" style="background-color:aqua;" @bind-Value="_item.FactQuant" class="form-control col-sm-2" />
+                    <span class="col-sm-2"></span>
+                    <label class="col-sm-2" for="OpenQuant">الرصيد الحالى</label>
+                    <InputNumber id="OpenQuant" @bind-Value="_item.OpenQuant" class="form-control col-sm-2" />
+
+
+                </div>
+
+                <div class="form-group form-inline">
+                    <label class="col-sm-2" for="OpenbalQuant">نوع الصنف</label>
+                    <InputNumber id="OpenbalQuant" @bind-Value="_item.OpenbalQuant" class="form-control col-sm-2" />
+                    <span class="col-sm-2"></span>
+                    <label class="col-sm-2" for="OpenbalQuant">التصنيف</label>
+                    <InputNumber id="OpenbalQuant" @bind-Value="_item.OpenbalQuant" class="form-control col-sm-2" />
+                </div>
+
+                <div class="form-group form-inline">
+                    <label class="col-sm-2" for="OpenPrice">سعر الوحدة</label>
+                    <InputNumber id="OpenPrice" @bind-Value="_item.OpenPrice" class="form-control col-sm-2" />
+                    <span class="col-sm-2"></span>
+                    <label class="col-sm-2" for="Value">أخر سعر وحدة</label>
+                    <InputNumber id="Value" @bind-Value="_item.Value" class="form-control col-sm-2" />
+                </div>
+
+
+                <div class="form-group form-inline">
+                    <label class="col-sm-2" for="Cas">رقم CAS</label>
+                    <InputText id="Cas" @bind-Value="_item.Cas" class="form-control col-sm-2" />
+                    <span class="col-sm-2"></span>
+                    <label class="col-sm-2" for="Cas">درجة الخطورة</label>
+                    <InputNumber id="Cas" @bind-Value="_item.CurrentBalance" class="form-control col-sm-2" />
+
+
+
+                </div>
+                <div class="row form-group form-inline">
+                    <label class="col-sm-2" for="AlternativeName4">مجموعة أجهزة</label>
+                    <InputText id="AlternativeName4" @bind-Value="_item.AlternativeName4" class="form-control col-sm-2" />
+                </div>
+                <div class="row form-group form-inline">
+                    <label class="col-sm-2" for="AlternativeName1">البديل العلمى</label>
+                    <InputText id="AlternativeName1" @bind-Value="_item.AlternativeName1" class="form-control col-sm-8" />
+                </div>
+                <div class="row form-group form-inline">
+                    <label class="col-sm-2" for="AlternativeName2">البديل الأول</label>
+                    <InputText id="AlternativeName2" @bind-Value="_item.AlternativeName2" class="form-control col-sm-8" />
+                </div>
+                <div class="row form-group form-inline">
+                    <label class="col-sm-2" for="AlternativeName3">البديل الثانى</label>
+                    <InputText id="AlternativeName3" @bind-Value="_item.AlternativeName3" class="form-control col-sm-8" />
+                </div>
+                <div class="row form-group form-inline">
+                    <label class="col-sm-2" for="AlternativeName4">البديل الثالث</label>
+                    <InputText id="AlternativeName4" @bind-Value="_item.AlternativeName4" class="form-control col-sm-8" />
+                </div>
+
+            </div>
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <div class=" alert alert-info border border-info text-center h3">
+                <button class="btn btn-primary btn  col-2 mr-auto font-weight-bolder" @onclick="onSave">تسجيل</button>
+                <button class="btn btn-primary btn col-2 mr-auto font-weight-bolder" @onclick="onNew">إضافة</button>
+                <button class="btn btn-danger btn col-2 mr-auto font-weight-bolder" @onclick="onDelete">حذف</button>
+            </div>
+</EditForm>
+        
+    
+
+    
+
+
+
+
+@code {
+
+    private Item _item = new Item();
+    private List<Stock> _stockist { get; set; }
+
+    protected override void OnInitialized()
+    {
+        using (var db = dbf.CreateDbContext()) _stockist = db.Stocks.ToList();
+    }
+    private async Task<int> onSave()
+    {
+        if (!on_presave()) return -1;
+        try
+        {
+            using (var db = dbf.CreateDbContext())
+            {
+                if (_item.Id == 0)
+                    await db.AddAsync(_item);
+                else
+                    db.Update(_item);
+                await db.SaveChangesAsync();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        return 0;
+    }
+    private void onDelete()
+    {
+        try
+        {
+            using (var db = dbf.CreateDbContext())
+                if (_item.Id != 0)
+                {
+                    db.Remove(_item);
+                    if (db.SaveChanges() > 0) onNew();
+                }
+
+        }
+        catch (DbUpdateException e)
+        {
+
+            throw e;
+        }
+
+    }
+    private void onNew()
+    {
+        _item = new Item();
+        _item.OpenbalDate =DateTime.Parse( DateTime.Now.ToString("dd/MM/yyyy hh:mm tt")) ;
+        //  DateTime.ParseExact(DateTime.Now.ToString("MM/dd/yyyy hh:mm tt"), "", CultureInfo.InvariantCulture);
+
+    }
+    private void HandleValidSubmit() { }
+    public async Task f_onchange(string name ,dynamic arg)
+    {
+        string _value = "";
+        switch (name.ToLower())
+        {
+            case "itemcode":
+                if (string.IsNullOrEmpty(_item.StockCode) || string.IsNullOrWhiteSpace(_item.StockCode))    gtool.Mynotify("خطأ", "كود المخزن غير معرف");
+
+                _item.ItemCode = "";
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _value =(string) arg;
+                _value = _value.PadLeft(5, '0');
+                using (var db = dbf.CreateDbContext())
+                {
+                    Item it;
+                    it = db.Items.FirstOrDefault<Item>(a => a.StockCode.Equals(_item.StockCode) && a.ItemCode.Equals(_value));
+                    if (it != null)
+                        _item = it;
+                    else
+                    {
+                        var _oldstockcode=_item.StockCode ;
+                        onNew();
+                        _item.StockCode = _oldstockcode;
+                        _item.ItemCode = _value;
+
+                    }
+                }
+                StateHasChanged();
+                break;
+
+            //case "name1":
+            //    if (string.IsNullOrEmpty(arg.Value.ToString()))
+            //    {
+            //        //  _notifi.Notify((new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "", Detail = "يجب إدخال الإسم", Duration = -1 }));
+            //    }
+            //    break;
+
+            default: break;
+        }
+    }
+    private bool on_presave()
+    {
+        if (String.IsNullOrWhiteSpace(_item .StockCode)) { gtool.Mynotify("خطأ", "كود المخزن غير معرف"); return false; }
+        if (String.IsNullOrWhiteSpace(_item.ItemCode)) { gtool.Mynotify("خطأ", "كود الصنف خطأ"); return false; }
+        if (String.IsNullOrWhiteSpace(_item.EngName)) { gtool.Mynotify("خطأ", "يجب إدخال إسم الصنف"); return false; }
+        if ((!_item.OpenbalDate.HasValue) || String.IsNullOrWhiteSpace(_item.OpenbalDate.ToString())) { gtool.Mynotify("خطأ", "ادخل تاريخ التعريف"); return false; }
+        return true;
+    }
+    private async Task f_ondblclick(string name)
+    {
+        Dictionary<string, object> ret;
+        List<Item> itemlist;
+        switch (name.ToLower())
+        {
+            case "itemcode":
+                using (var db = dbf.CreateDbContext()) itemlist = db.Items.Where(i => i.StockCode == _item.StockCode).ToList();
+                ret = await _ds.OpenAsync<GModalList<Item>>("", new Dictionary<string, object>() { { "title", "قائمة الأصناف" }
+                    , { "scollist", "itemcode,engname" },{ "colheads", "كود الصنف,إسم الصنف" }, { "data", itemlist } }
+                     , new DialogOptions() { ShowTitle = false, Width = "400px", Height = "400px", Resizable = true, Draggable = true });
+                if (ret != null)
+                {
+                    if (!((bool)ret["status"])) return;
+                    List<Item> val = ret["result"] as List<Item>;
+                    _item.ItemCode = val[0].ItemCode;
+                    await f_onchange("itemcode", val[0].ItemCode);
+                }
+                break;
+            default:  break;
+        }
+
+    }
+
+}
+
