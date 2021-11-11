@@ -10,6 +10,8 @@
         font-size:small;
         height:75%;
     }
+
+      
     
 </style>
     <div class="  text-center  alert alert-info border border-info h5  m-1 p-1   ">  @(_item.Id==0? "جديد" : "تعديل")</div>
@@ -18,7 +20,7 @@
 
             <div class="row form-group form-inline">
                 <label class="col-sm-2" for="StockCode">كود المخزن</label>
-                <select class="form-control" @bind="_item.StockCode">
+                <select class="form-control" value="@_item.StockCode"  @onchange="@((a)=>f_onchange("StockCode",a.Value))">
                     <option>--select--</option>
                     @foreach (var item in _stockist)
                     {
@@ -34,7 +36,7 @@
                 <input style="background-color:lemonchiffon" id="ItemCode" @ondblclick="@(async ()=>await f_ondblclick("itemcode"))" value=@_item.ItemCode @onchange="@((a)=>f_onchange("itemcode",a.Value))" class="form-control col-sm-2" />
                 <span class="col-sm-2"></span>
                 <label class="col-sm-2" for="OpenbalDate">تاريخ التعريف</label>
-                <input @bind="_item.OpenbalDate" id="vdate" TValue="DateTime?" ParsingErrorMessage="التاريخ غير صحيح" class="form-control col-2" />
+                <input @bind="_item.OpenbalDate" type = "date" id="vdate" TValue="DateTime?" ParsingErrorMessage="التاريخ غير صحيح" class="form-control col-2" />
 
             </div>
             <ValidationMessage For="() => _item.ItemCode" />
@@ -79,12 +81,28 @@
 
 
             <div class="row form-group  form-inline">
-                <label class="col-sm-2" for="ItemDesc">نوع الصنف</label>"1-mostadeem 2- mostahlak"
-                <InputNumber id="ItemDesc" @bind-Value="_item.ItemDesc" class="form-control col-sm-2" />
+                <label class="col-sm-2" for="ItemDesc">نوع الصنف</label>
+                <select id="ItemDesc" @bind="_item.ItemDesc" name="ItemDesc" class="form-control col-sm-2">
+                    <option value="1">مستديم</option>
+                    <option value="2">مستهلك</option>
+                </select>
+
+
+
+
+
                 <span class="col-sm-2"></span>
                 <label class="col-sm-2" for="ItemDtype">التصنيف</label> @*"1  عادى"*@
                 @*"2 تاريخ صلاحية"*@
-                <InputNumber id="ItemDtype" @bind-Value="_item.ItemDtype" class="form-control col-sm-2" />
+
+                <select id="ItemDtype" @bind="_item.ItemDtype" name="ItemDtype" class="form-control col-sm-2">
+                    <option value="1">عادى</option>
+                    <option value="2">تاريخ صلاحية</option>
+                </select>
+
+
+
+               
             </div>
 
 
@@ -94,8 +112,9 @@
                 <label class="col-sm-2" for="Cas">رقم CAS</label>
                 <InputText id="Cas" @bind-Value="_item.Cas" class="form-control col-sm-2" /> @*1,0*@
                 <span class="col-sm-2"></span>
-                <label class="col-sm-2" for="Isinstrument">مجموعة أجهزة</label>
-                <InputNumber id="Isinstrument" @bind-Value="_item.Isinstrument" class="form-control col-sm-2" />
+                @*<label class="col-sm-2" for="Isinstrument">مجموعة أجهزة</label>
+                <InputCheckbox   @bind-Value="Convert.ToBoolean(_item.Isinstrument) " class="form-control col-sm-2" />*@
+                @*<InputNumber id="Isinstrument" @bind-Value="_item.Isinstrument" class="form-control col-sm-2" />*@
 
 
             </div>
@@ -220,8 +239,32 @@
         string _value = "";
         switch (name.ToLower())
         {
+            case "stockcode":
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                var _stockcode = (string)arg;
+
+                if (string.IsNullOrEmpty(_stockcode) || string.IsNullOrWhiteSpace(_stockcode))
+                {
+                    gtool.Mynotify("خطأ", "كود المخزن غير معرف");
+                    return;
+                }
+                using (var db = dbf.CreateDbContext())
+                {
+                    Stock st;
+                    st = db.Stocks.FirstOrDefault<Stock>(a => a.StockCode.Equals(_stockcode) );
+                    if (st == null) {
+                        gtool.Mynotify("خطأ", "كود المخزن غير معرف");
+                        return;
+                    }
+                }
+
+                onNew();
+                _item.StockCode = _stockcode;
+
+                break;
             case "itemcode":
-                if (string.IsNullOrEmpty(_item.StockCode) || string.IsNullOrWhiteSpace(_item.StockCode))    gtool.Mynotify("خطأ", "كود المخزن غير معرف");
+
 
                 _item.ItemCode = "";
                 await Task.Delay(1); //Magic!
@@ -273,8 +316,8 @@
             case "itemcode":
                 using (var db = dbf.CreateDbContext()) itemlist = db.Items.Where(i => i.StockCode == _item.StockCode).ToList();
                 ret = await _ds.OpenAsync<GModalList<Item>>("", new Dictionary<string, object>() { { "title", "قائمة الأصناف" }
-                    , { "scollist", "itemcode,engname" },{ "colheads", "كود الصنف,إسم الصنف" }, { "data", itemlist } }
-                     , new DialogOptions() { ShowTitle = false, Width = "400px", Height = "400px", Resizable = true, Draggable = true });
+                    , { "scollist", "itemcode,engname,cas,scientificname,alternativename1" },{ "colheads", "كود الصنف,إسم الصنف,cas,الإسم العلمى,البديل الأول" }, { "data", itemlist } }
+                     , new DialogOptions() { ShowTitle = false, Width = "800px", Height = "400px", Resizable = true, Draggable = true });
                 if (ret != null)
                 {
                     if (!((bool)ret["status"])) return;
