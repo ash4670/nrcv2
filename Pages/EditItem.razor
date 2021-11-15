@@ -215,13 +215,15 @@
     }
     private void onDelete()
     {
+        if (!on_predelete()) return;
+        
         try
         {
             using (var db = dbf.CreateDbContext())
                 if (_item.Id != 0)
                 {
                     db.Remove(_item);
-                    if (db.SaveChanges() > 0) onNew();
+                    if (db.SaveChanges() > 0) onNew() ;
                 }
 
         }
@@ -234,8 +236,19 @@
     }
     private void onNew()
     {
+        string old_stock;
+        old_stock = _item.StockCode;
         _item = new Item();
+        _item.StockCode = old_stock;
         _item.OpenbalDate =DateTime.Parse( DateTime.Now.ToString("dd/MM/yyyy hh:mm tt")) ;
+        using (var db = dbf.CreateDbContext()) {
+            string max= db.Items.Where(i=>i.StockCode== old_stock).Max(i => i.ItemCode);
+            int o;
+            int.TryParse(max,out o);
+            o++;
+            _item.ItemCode = o.ToString().PadLeft(5);
+        }
+
         //  DateTime.ParseExact(DateTime.Now.ToString("MM/dd/yyyy hh:mm tt"), "", CultureInfo.InvariantCulture);
 
     }
@@ -340,12 +353,6 @@
                 _item.Isinstrument =x ;
                 StateHasChanged();
                 break;
-            //case "name1":
-            //    if (string.IsNullOrEmpty(arg.Value.ToString()))
-            //    {
-            //        //  _notifi.Notify((new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "", Detail = "يجب إدخال الإسم", Duration = -1 }));
-            //    }
-            //    break;
 
             default: break;
         }
@@ -356,6 +363,21 @@
         if (String.IsNullOrWhiteSpace(_item.ItemCode)) { gtool.Mynotify("خطأ", "كود الصنف خطأ"); return false; }
         if (String.IsNullOrWhiteSpace(_item.EngName)) { gtool.Mynotify("خطأ", "يجب إدخال إسم الصنف"); return false; }
         if ((!_item.OpenbalDate.HasValue) || String.IsNullOrWhiteSpace(_item.OpenbalDate.ToString())) { gtool.Mynotify("خطأ", "ادخل تاريخ التعريف"); return false; }
+        return true;
+    }
+
+    private bool on_predelete()
+    {
+        if (String.IsNullOrWhiteSpace(_item.StockCode)) { gtool.Mynotify("خطأ", "كود المخزن غير معرف"); return false; }
+        if (String.IsNullOrWhiteSpace(_item.ItemCode)) { gtool.Mynotify("خطأ", "كود الصنف خطأ"); return false; }
+        if (String.IsNullOrWhiteSpace(_item.EngName)) { gtool.Mynotify("خطأ", "يجب إدخال إسم الصنف"); return false; }
+        using (var db = dbf.CreateDbContext())
+        {
+            if (db.Dadds.Where(d => d.StockCode == _item.StockCode && d.ItemCode == _item.ItemCode).Any()) {
+                gtool.Mynotify("خطأ", "هذا الصنف تم إستخدامه فى المستندات و لا يمكن حذفه"); return false;
+            }
+
+        }
         return true;
     }
     private async Task f_ondblclick(string name)
