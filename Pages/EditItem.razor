@@ -36,8 +36,8 @@
                 <input style="background-color:lemonchiffon" id="ItemCode" @ondblclick="@(async ()=>await f_ondblclick("itemcode"))" value=@_item.ItemCode @onchange="@((a)=>f_onchange("itemcode",a.Value))" class="form-control col-sm-2" />
                 <span class="col-sm-2"></span>
                 <label class="col-sm-2" for="OpenbalDate">تاريخ التعريف</label>
-                <input @bind="_item.OpenbalDate" type = "date" id="vdate" TValue="Date?"  ParsingErrorMessage="التاريخ غير صحيح" class="form-control col-3" />
-
+                @*<input value="@_item.OpenbalDate" type = "datetime" id="OpenbalDate" TValue="Datetime?"  ParsingErrorMessage="التاريخ غير صحيح" class="form-control col-3" @onchange="@(async (a)=>await f_onchange("openbaldate",a.Value))" />*@
+                <RadzenDatePicker Value="@_item.OpenbalDate" type="datetime" id="OpenbalDate" TValue="DateTime?" ParsingErrorMessage="التاريخ غير صحيح" class="form-control col-3" @onchange="@(async (a)=>await f_onchange("openbaldate",a.Value))" />
             </div>
             <ValidationMessage For="() => _item.ItemCode" />
 
@@ -125,13 +125,13 @@
         </label>*@
             </div>
             <div class="row form-group form-inline">
-                @*<label class="col-sm-2" for="SeriousLevel">درجة الخطورة</label>
-                <InputNumber id="SeriousLevel" @bind-Value="_item.SeriousLevel" class="form-control col-sm-2" />*@
+             
             </div>
             <div class="row form-group form-inline">
                 <label class="col-sm-2" for="ScientificName">البديل العلمى</label>
                 <InputText id="ScientificName" @bind-Value="_item.ScientificName" class="form-control col-sm-3" />
-
+                @*<label class="col-sm-2" for="SeriousLevel">درجة الخطورة</label>
+                <InputNumber id="SeriousLevel" @bind-Value="_item.SeriousLevel" class="form-control col-sm-2" />*@
 
             </div>
             <div class="row form-group form-inline">
@@ -188,11 +188,42 @@
 
     private Item _item = new Item();
     private List<Stock> _stockist { get; set; }
-
+    private string curr_stockcode { get; set; }
     protected override void OnInitialized()
     {
         using (var db = dbf.CreateDbContext()) _stockist = db.Stocks.ToList();
     }
+
+    private void onNew()
+    {
+        //string old_stock;
+        //old_stock = _item.StockCode;
+        _item = new Item();
+        _item.StockCode = curr_stockcode;
+        _item.OpenbalDate =DateTime.Parse( DateTime.Now.ToString("dd/MM/yyyy hh:mm tt")) ;
+        using (var db = dbf.CreateDbContext()) {
+            string max= db.Items.Where(i=>i.StockCode== curr_stockcode).Max(i => i.ItemCode);
+            int o;
+            int.TryParse(max,out o);
+            o++;
+            _item.ItemCode = o.ToString().PadLeft(5);
+        }
+
+        //  DateTime.ParseExact(DateTime.Now.ToString("MM/dd/yyyy hh:mm tt"), "", CultureInfo.InvariantCulture);
+
+    }
+
+
+    private bool on_presave()
+    {
+
+        if (String.IsNullOrWhiteSpace(_item .StockCode)) { gtool.Mynotify("خطأ", "كود المخزن غير معرف"); return false; }
+        if (String.IsNullOrWhiteSpace(_item.ItemCode)) { gtool.Mynotify("خطأ", "كود الصنف خطأ"); return false; }
+        if (String.IsNullOrWhiteSpace(_item.EngName)) { gtool.Mynotify("خطأ", "يجب إدخال إسم الصنف"); return false; }
+        if ((!_item.OpenbalDate.HasValue) || String.IsNullOrWhiteSpace(_item.OpenbalDate.ToString())) { gtool.Mynotify("خطأ", "ادخل تاريخ التعريف"); return false; }
+        return true;
+    }
+
     private async Task<int> onSave()
     {
         if (!on_presave()) return -1;
@@ -213,17 +244,35 @@
         }
         return 0;
     }
+
+    private bool on_predelete()
+    {
+        if (_item.Id == 0) { gtool.Mynotify("خطأ", "يجب التسجيل قبل الحذف"); return false; }
+        if (String.IsNullOrWhiteSpace(_item.StockCode)) { gtool.Mynotify("خطأ", "كود المخزن غير معرف"); return false; }
+        if (String.IsNullOrWhiteSpace(_item.ItemCode)) { gtool.Mynotify("خطأ", "كود الصنف خطأ"); return false; }
+        if (String.IsNullOrWhiteSpace(_item.EngName)) { gtool.Mynotify("خطأ", "يجب إدخال إسم الصنف"); return false; }
+        using (var db = dbf.CreateDbContext())
+        {
+            if (db.Dadds.Where(d => d.StockCode == _item.StockCode && d.ItemCode == _item.ItemCode).Any())
+            {
+                gtool.Mynotify("خطأ", "هذا الصنف تم إستخدامه فى المستندات و لا يمكن حذفه"); return false;
+            }
+
+        }
+        return true;
+    }
+
     private void onDelete()
     {
         if (!on_predelete()) return;
-        
+
         try
         {
             using (var db = dbf.CreateDbContext())
                 if (_item.Id != 0)
                 {
                     db.Remove(_item);
-                    if (db.SaveChanges() > 0) onNew() ;
+                    if (db.SaveChanges() > 0) onNew();
                 }
 
         }
@@ -234,26 +283,8 @@
         }
 
     }
-    private void onNew()
-    {
-        string old_stock;
-        old_stock = _item.StockCode;
-        _item = new Item();
-        _item.StockCode = old_stock;
-        _item.OpenbalDate =DateTime.Parse( DateTime.Now.ToString("dd/MM/yyyy hh:mm tt")) ;
-        using (var db = dbf.CreateDbContext()) {
-            string max= db.Items.Where(i=>i.StockCode== old_stock).Max(i => i.ItemCode);
-            int o;
-            int.TryParse(max,out o);
-            o++;
-            _item.ItemCode = o.ToString().PadLeft(5);
-        }
 
-        //  DateTime.ParseExact(DateTime.Now.ToString("MM/dd/yyyy hh:mm tt"), "", CultureInfo.InvariantCulture);
-
-    }
-    private void HandleValidSubmit() { }
-    public async Task f_onchange(string name ,dynamic arg)
+    public async Task f_onchange(string name, dynamic arg)
     {
         string _value = "";
         switch (name.ToLower())
@@ -271,15 +302,17 @@
                 using (var db = dbf.CreateDbContext())
                 {
                     Stock st;
-                    st = db.Stocks.FirstOrDefault<Stock>(a => a.StockCode.Equals(_stockcode) );
-                    if (st == null) {
+                    st = db.Stocks.FirstOrDefault<Stock>(a => a.StockCode.Equals(_stockcode));
+                    if (st == null)
+                    {
                         gtool.Mynotify("خطأ", "كود المخزن غير معرف");
                         return;
                     }
                 }
+                curr_stockcode = _stockcode;
 
                 onNew();
-                _item.StockCode = _stockcode;
+
 
                 break;
             case "itemcode":
@@ -288,7 +321,7 @@
                 _item.ItemCode = "";
                 await Task.Delay(1); //Magic!
                 StateHasChanged();
-                _value =(string) arg;
+                _value = (string)arg;
                 _value = _value.PadLeft(5, '0');
                 using (var db = dbf.CreateDbContext())
                 {
@@ -298,9 +331,8 @@
                         _item = it;
                     else
                     {
-                        var _oldstockcode=_item.StockCode ;
+
                         onNew();
-                        _item.StockCode = _oldstockcode;
                         _item.ItemCode = _value;
 
                     }
@@ -310,10 +342,10 @@
             case "openprice":
                 _value = (string)arg;
                 decimal newprice;
-                decimal.TryParse(_value,out newprice);
+                decimal.TryParse(_value, out newprice);
                 using (var db = dbf.CreateDbContext())
                 {
-                    bool lb_check=db.Dadds.Any(d => d.StockCode.Equals(_item.StockCode) && d.ItemCode.Equals(_item.ItemCode));
+                    bool lb_check = db.Dadds.Any(d => d.StockCode.Equals(_item.StockCode) && d.ItemCode.Equals(_item.ItemCode));
                     if (_item.Value == 0 || _item.Value == null || !lb_check)
                         _item.Value = newprice;
                 }
@@ -350,36 +382,42 @@
                 StateHasChanged();
                 int x;
                 int.TryParse(_value, out x);
-                _item.Isinstrument =x ;
+                _item.Isinstrument = x;
                 StateHasChanged();
                 break;
 
             default: break;
+
+            case "openbaldate":
+                DateTime dt, olddt;
+                olddt = (DateTime)_item.OpenbalDate;
+                if (DateTime.TryParse(arg.ToString(), out dt))
+                {
+                    _item.OpenbalDate = new DateTime();
+                    await Task.Delay(3000); //Magic!
+                    StateHasChanged();
+
+                    using (var db = dbf.CreateDbContext())
+                    {
+                        if (dt.Date > (db.GlobVars.FirstOrDefault().Yearend).Value.Date || dt.Date < (db.GlobVars.FirstOrDefault().Yearstart).Value.Date)
+                        {
+
+
+                            // gtool.Mynotify("خطأ", "التاريخ خارج نطاق السنة المالية");
+                            _item.OpenbalDate = olddt;
+
+                        }
+                        else _item.OpenbalDate = dt;
+
+                    }
+
+                    await InvokeAsync(StateHasChanged);
+                }
+                break;
+
         }
     }
-    private bool on_presave()
-    {
-        if (String.IsNullOrWhiteSpace(_item .StockCode)) { gtool.Mynotify("خطأ", "كود المخزن غير معرف"); return false; }
-        if (String.IsNullOrWhiteSpace(_item.ItemCode)) { gtool.Mynotify("خطأ", "كود الصنف خطأ"); return false; }
-        if (String.IsNullOrWhiteSpace(_item.EngName)) { gtool.Mynotify("خطأ", "يجب إدخال إسم الصنف"); return false; }
-        if ((!_item.OpenbalDate.HasValue) || String.IsNullOrWhiteSpace(_item.OpenbalDate.ToString())) { gtool.Mynotify("خطأ", "ادخل تاريخ التعريف"); return false; }
-        return true;
-    }
 
-    private bool on_predelete()
-    {
-        if (String.IsNullOrWhiteSpace(_item.StockCode)) { gtool.Mynotify("خطأ", "كود المخزن غير معرف"); return false; }
-        if (String.IsNullOrWhiteSpace(_item.ItemCode)) { gtool.Mynotify("خطأ", "كود الصنف خطأ"); return false; }
-        if (String.IsNullOrWhiteSpace(_item.EngName)) { gtool.Mynotify("خطأ", "يجب إدخال إسم الصنف"); return false; }
-        using (var db = dbf.CreateDbContext())
-        {
-            if (db.Dadds.Where(d => d.StockCode == _item.StockCode && d.ItemCode == _item.ItemCode).Any()) {
-                gtool.Mynotify("خطأ", "هذا الصنف تم إستخدامه فى المستندات و لا يمكن حذفه"); return false;
-            }
-
-        }
-        return true;
-    }
     private async Task f_ondblclick(string name)
     {
         Dictionary<string, object> ret;
@@ -403,6 +441,9 @@
         }
 
     }
+
+
+    private void HandleValidSubmit() { }
 
 }
 

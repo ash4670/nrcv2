@@ -326,6 +326,11 @@
         if (id != null) using (var db = dbf.CreateDbContext()) _hadd = db.Hadds.Where(r => r.Id == id).FirstOrDefault();
         else onNew();
     }
+
+    private bool on_presave()
+    {
+        return true;
+    }
     private async Task<int> onSave()
     {
         if (!on_presave()) return -1;
@@ -347,10 +352,7 @@
         return 0;
 
     }
-    private bool on_presave()
-    {
-        return true;
-    }
+
     private void onDelete()
     {
         try
@@ -516,15 +518,34 @@
             //    StateHasChanged();
             //    break;
             case "trn_date":
-                DateTime dt;
-                if (DateTime.TryParse(arg.ToString(), out dt)) { _hadd.TrnDate = dt; }
-                break;
-            case "incdec":
-                if (arg != null && !string.IsNullOrEmpty(arg))
-                {
-                    _hadd.IncDec = (byte)arg;
+                DateTime dt,olddt;
+                olddt=(DateTime) _hadd.TrnDate;
+                if (DateTime.TryParse(arg.ToString(), out dt)) {
+
+                    using (var db = dbf.CreateDbContext())
+                    {
+                        if (dt.Date > (db.GlobVars.FirstOrDefault().Yearend).Value.Date || dt.Date < (db.GlobVars.FirstOrDefault().Yearstart).Value.Date)
+                        {
+                            await Task.Delay(1); //Magic!
+                            StateHasChanged();
+
+                          //  gt.Mynotify("خطأ", "التاريخ خارج نطاق السنة المالية");
+                            _hadd.TrnDate = olddt;
+
+                        }
+                        else  _hadd.TrnDate = dt;
+                        await Task.Delay(1); //Magic!
+                        StateHasChanged();
+                    }
+
+
                 }
                 break;
+
+            case "incdec":
+                if (arg != null ) _hadd.IncDec = (byte)arg;
+                break;
+
             case "arname":
                 _hadd.ArName = "";
                 await Task.Delay(1); //Magic!
