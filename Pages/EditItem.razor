@@ -36,8 +36,8 @@
                 <input style="background-color:lemonchiffon" id="ItemCode" @ondblclick="@(async ()=>await f_ondblclick("itemcode"))" value=@_item.ItemCode @onchange="@((a)=>f_onchange("itemcode",a.Value))" class="form-control col-sm-2" />
                 <span class="col-sm-2"></span>
                 <label class="col-sm-2" for="OpenbalDate">تاريخ التعريف</label>
-                @*<input value="@_item.OpenbalDate" type = "datetime" id="OpenbalDate" TValue="Datetime?"  ParsingErrorMessage="التاريخ غير صحيح" class="form-control col-3" @onchange="@(async (a)=>await f_onchange("openbaldate",a.Value))" />*@
-                <RadzenDatePicker Value="@_item.OpenbalDate" type="datetime" id="OpenbalDate" TValue="DateTime?" ParsingErrorMessage="التاريخ غير صحيح" class="form-control col-3" @onchange="@(async (a)=>await f_onchange("openbaldate",a.Value))" />
+                @*<input value="@_item.OpenbalDate" type = "date"  id="OpenbalDate" TValue="Datetime?"  ParsingErrorMessage="التاريخ غير صحيح" class="form-control col-3" @onchange="@(async (a)=>await f_onchange("openbaldate",a.Value))" />*@
+                <RadzenDatePicker Value=_item.OpenbalDate DateFormat="dd/MM/yyyy" ShowTime="false" id="OpenbalDate" TValue=DateTime class="form-control col-sm-3  p-0 m-1" @onchange="@(async (a)=>await f_onchange("openbaldate",a.Value))" />
             </div>
             <ValidationMessage For="() => _item.ItemCode" />
 
@@ -92,8 +92,8 @@
 
 
                 <span class="col-sm-2"></span>
-                <label class="col-sm-2" for="ItemDtype">التصنيف</label> @*"1  عادى"*@
-                @*"2 تاريخ صلاحية"*@
+                <label class="col-sm-2" for="ItemDtype">التصنيف</label> 
+               
 
                 <select id="ItemDtype" @bind="_item.ItemDtype" name="ItemDtype" class="form-control col-sm-2">
                     <option value="1">عادى</option>
@@ -130,8 +130,8 @@
             <div class="row form-group form-inline">
                 <label class="col-sm-2" for="ScientificName">البديل العلمى</label>
                 <InputText id="ScientificName" @bind-Value="_item.ScientificName" class="form-control col-sm-3" />
-                @*<label class="col-sm-2" for="SeriousLevel">درجة الخطورة</label>
-                <InputNumber id="SeriousLevel" @bind-Value="_item.SeriousLevel" class="form-control col-sm-2" />*@
+                <label class="col-sm-2" for="SeriousLevel">درجة الخطورة</label>
+                <InputText id="SeriousLevel" @bind-Value="_item.SeriousLevel" class="form-control col-sm-3" />
 
             </div>
             <div class="row form-group form-inline">

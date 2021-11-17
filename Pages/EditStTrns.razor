@@ -329,6 +329,75 @@
 
     private bool on_presave()
     {
+        if (string.IsNullOrWhiteSpace(_hadd.TrnNo)) {
+            gt.Mynotify("خطأ","يجب إدخال رقم المستند بشكل سليم");
+            return false;
+        }
+        if (string.IsNullOrWhiteSpace(_hadd.GhaCode))
+        {
+            gt.Mynotify("خطأ","كود الجهة خطأ");
+            return false;
+        }
+
+        if (_hadd.IncDec == null) { _hadd.IncDec = 0; }
+        if (_hadd.Perc == null) { _hadd.Perc = 0; }
+        using (var db = dbf.CreateDbContext())
+        {
+            if ((_hadd.TrnDate)?.Date > (db.GlobVars.FirstOrDefault().Yearend).Value.Date || (_hadd.TrnDate)?.Date < (db.GlobVars.FirstOrDefault().Yearstart).Value.Date)
+            {
+                gt.Mynotify("خطأ", "التاريخ خارج نطاق السنة المالية");
+                return false;
+            }
+        }
+        if (kind == 2) {
+            if (!gt.gf_check_arcode_status(_hadd.ArName)) {
+                return false;
+            }
+        }
+
+        //remove unneeded rows
+        List<Dadd> _l_dadd=_hadd.Dadds.Where(d => string.IsNullOrWhiteSpace(d.ItemCode)).ToList();
+        foreach (Dadd item in _l_dadd)
+        {
+            _hadd.Dadds.Remove(item);
+        }
+
+        using (var db = dbf.CreateDbContext())
+        {
+            foreach (Dadd row in _hadd.Dadds)
+            {
+
+                if (!db.Items.Any(i => i.ItemCode.Equals(row.ItemCode) && i.StockCode.Equals(row.StockCode)))
+                {
+                    gt.Mynotify("خطأ",row.ItemCode+" " + "الصنف غير معرف فى ملف الأصناف");
+                    return false;
+                }
+
+                if (row.ItemPrice == 0) {
+                    gt.Mynotify("خطأ", row.ItemCode+" " +"سعر الصنف خطأ");
+                    return false;
+                }
+
+                if (row.ItemQuant == 0)
+                {
+                    gt.Mynotify("خطأ", row.ItemCode + " " + "كمية الصنف خطأ");
+                    return false;
+                }
+                row.Kind = (byte)kind;
+                row.TrnNo = _hadd.TrnNo;
+                row.TrnDate = _hadd.TrnDate;
+                row.StockCode = _hadd.StockCode;
+                row.IncDec = _hadd.IncDec;
+                row.Perc = _hadd.Perc;
+            }
+
+            if (!_hadd.Dadds.Any()) {
+                gt.Mynotify("خطأ", "لم يتم إدخال أصناف المستند");
+                return false;
+            }
+            return true;
+        }
+
         return true;
     }
     private async Task<int> onSave()
@@ -529,7 +598,7 @@
                             await Task.Delay(1); //Magic!
                             StateHasChanged();
 
-                          //  gt.Mynotify("خطأ", "التاريخ خارج نطاق السنة المالية");
+                            gt.Mynotify("خطأ", "التاريخ خارج نطاق السنة المالية");
                             _hadd.TrnDate = olddt;
 
                         }
@@ -642,7 +711,15 @@
     {
         Dadd d = new Dadd();
         if (kind == 2) d.ItemPrice = 0;//initialization
+        d.Kind = (byte)kind;
+        d.TrnNo = _hadd.TrnNo;
+        d.TrnDate = _hadd.TrnDate;
+        d.StockCode = _hadd.StockCode;
+        d.IncDec = _hadd.IncDec;
+        d.Perc = _hadd.Perc;
         _hadd.Dadds.Add(d);
+
+
     }
     public async Task f_onchangedetail(string name, dynamic arg, int row)
     {

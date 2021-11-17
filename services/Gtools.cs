@@ -54,6 +54,40 @@ namespace nrcv2.services
              ;
         }
 
+        public bool gf_check_arcode_status(string as_arcode) {
+            Arname _arname;
+            using (var db = dbf.CreateDbContext())
+            {
+                if (!db.Arnames.Where(a => a.ArCode.Equals(as_arcode)).Any()) {
+                    Mynotify("", "كود الموظف غير معرف");
+                        return false;
+                }
+                _arname = db.Arnames.Where(a => a.ArCode.Equals(as_arcode)).FirstOrDefault();
+
+            }
+
+            if (string.IsNullOrWhiteSpace(_arname.Status)) return true;
+            switch (_arname.Status.ToLower())
+            {
+               case  "s" :
+                 Mynotify("خطأ", _arname.ArName1 + "بالمعاش");
+                    return false;
+                case "d":
+                    Mynotify("خطأ", _arname.ArName1 + "متوفى");
+                    return false;
+                case "h":
+                    Mynotify("خطأ", _arname.ArName1 + "أجازة بدون اجر");
+                    return false;
+                case "x":
+                    Mynotify("خطأ", _arname.ArName1 + "مستقيل");
+                    return false;
+                default:
+                    break;
+            }
+            
+            return true;
+        }
+
     }
 
     //public interface IGtools
