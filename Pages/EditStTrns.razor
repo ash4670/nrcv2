@@ -466,6 +466,100 @@
 
     }
 
+    public async Task<int> f_MasterValidate(string name, dynamic arg) {
+        string _value = "";
+        switch (name.ToLower())
+        {
+            case "trnsno":
+                if (string.IsNullOrEmpty(_hadd.StockCode))
+                {
+                    await Task.Delay(1); //Magic!
+                    StateHasChanged();
+                    gt.Mynotify("خطأ", "يجب إختيار المخزن أولاً");
+                    _hadd.TrnNo = "";
+                    StateHasChanged();
+                    return -1;
+                }
+                break;
+
+            case "ghaname":
+                if (string.IsNullOrEmpty((arg)) && kind == 2)
+                {
+                    gt.Mynotify("خطأ", "يجب إختيار الجهة بشكل سليم");
+                    return -1 ;
+                }
+                break;
+
+            case "arname":
+                _hadd.ArName = "";
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _value = arg;
+                _value = _value.Substring(0, Math.Min(5, _value.Length));
+                _value = _value.PadLeft(5, '0');
+                Arname ar;
+                using (var db = dbf.CreateDbContext()) ar = db.Arnames.FirstOrDefault<Arname>(a => a.ArCode == _value);
+
+                if (ar == null) {
+                    gt.Mynotify("خطأ", "كود الموظف خطأ");
+                    return -1;
+                }
+                _hadd.ArName = _value;
+
+
+                break;
+            case "trndate":
+                DateTime dt, olddt;
+                olddt = (DateTime)_hadd.TrnDate;
+                if (DateTime.TryParse(arg.ToString(), out dt))
+                {
+                    using (var db = dbf.CreateDbContext())
+                    {
+                        if (dt.Date > (db.GlobVars.FirstOrDefault().Yearend).Value.Date || dt.Date < (db.GlobVars.FirstOrDefault().Yearstart).Value.Date)
+                        {
+                            await Task.Delay(1); //Magic!
+                            StateHasChanged();
+                            gt.Mynotify("خطأ", "التاريخ خارج نطاق السنة المالية");
+                            _hadd.TrnDate = olddt;
+                            return -1;
+                        }
+                    }
+                }
+
+                break;
+
+            case "docnon":
+
+                if (string.IsNullOrEmpty(_hadd.StockCode))
+                {
+                    await Task.Delay(1); //Magic!
+                    StateHasChanged();
+                    gt.Mynotify("خطأ", "يجب إختيار المخزن أولاً");
+                    _hadd.DocNoN = "";
+                    StateHasChanged();
+                    return -1;
+                }
+
+                string _docnon = (string)arg;
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _docnon = _docnon.Substring(0, Math.Min(10, _docnon.Length));
+                _docnon = _docnon.PadLeft(10, '0');
+                using (var db = dbf.CreateDbContext())
+                {
+                    if (!db.Hadds.Where(a => a.TrnNo == _docnon && a.StockCode == old_stockcode && a.Kind == 1).Any())
+                    {
+                        gt.Mynotify("خطأ", "رقم مستند غير موجود ");
+                        return -1;
+                    }
+                }
+                _hadd.DocNoN = _docnon;
+                break;
+            default: break;
+        }
+        return 0;
+    }
+
     public async Task f_onchange(string name, dynamic arg)
     {
         string _value = "";
@@ -491,52 +585,43 @@
                 }
                 StateHasChanged();
                 break;
-            case "trnno":
-                if (string.IsNullOrEmpty(_hadd.StockCode))
-                {
-                    await Task.Delay(1); //Magic!
-                    StateHasChanged();
-                    ns.Notify(new NotificationMessage() { Detail = "يجب إختيار المخزن أولاً" });
-                    _hadd.TrnNo = "";
-                    StateHasChanged();
-                }
-                else
-                {
-                    string _trnno = (string)arg;
-                    await Task.Delay(1); //Magic!
-                    StateHasChanged();
-                    _trnno = _trnno.Substring(0, Math.Min(10, _trnno.Length));
-                    _trnno = _trnno.PadLeft(10, '0');
-                    using (var db = dbf.CreateDbContext())
-                    {
-                        _hadd = db.Hadds.Where(a => a.TrnNo == _trnno && a.StockCode == old_stockcode && a.Kind == kind).Include(a => a.Dadds).ToList().FirstOrDefault();
-                        if (_hadd == null)
-                        {
-                            onNew();
-                            _hadd.StockCode = old_stockcode;
-                            _hadd.TrnNo = arg;
-                            _hadd.GhaCode = "01";
-                            _hadd.GhaName = "الادارات";
-                            _hadd.GhaMain = "";
-                            _hadd.GhaNum = "";
-                        }
-                        else
-                        {
 
-                            list_tklf_main = db.Tklfmains.Where(a => a.KindCode == _hadd.GhaCode).ToList();
-                            list_tklf_sub = db.Tklfsubs.Where(a => a.KindCode == _hadd.GhaCode).ToList();
-                            shownum = !(_hadd.GhaCode == "01" || (_hadd.GhaCode == "02" && _hadd.GhaName == "أقســـــام"));
-                            LGHA_CODE = _hadd.GhaCode;
-                        }
+            case "trnno":
+                if (await f_MasterValidate(name,arg) < 0 ) return;
+                string _trnno = (string)arg;
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _trnno = _trnno.Substring(0, Math.Min(10, _trnno.Length));
+                _trnno = _trnno.PadLeft(10, '0');
+                using (var db = dbf.CreateDbContext())
+                {
+                    _hadd = db.Hadds.Where(a => a.TrnNo == _trnno && a.StockCode == old_stockcode && a.Kind == kind).Include(a => a.Dadds).ToList().FirstOrDefault();
+                    if (_hadd == null) {
+                        onNew();
+                        _hadd.StockCode = old_stockcode;
+                        _hadd.TrnNo = arg;
+                        _hadd.GhaCode = "01";
+                        _hadd.GhaName = "الادارات";
+                        _hadd.GhaMain = "";
+                        _hadd.GhaNum = "";
+                    }
+                    else {
+                        list_tklf_main = db.Tklfmains.Where(a => a.KindCode == _hadd.GhaCode).ToList();
+                        list_tklf_sub = db.Tklfsubs.Where(a => a.KindCode == _hadd.GhaCode).ToList();
+                        shownum = !(_hadd.GhaCode == "01" || (_hadd.GhaCode == "02" && _hadd.GhaName == "أقســـــام"));
+                        LGHA_CODE = _hadd.GhaCode;
                     }
                 }
+
                 break;
+
+            case "docnon":
+                if (kind != 2) return;
+                if (await f_MasterValidate(name, arg) < 0) return;
+                break;
+
             case "ghaname":
-                if (string.IsNullOrEmpty((arg)) && kind == 2)
-                {
-                    ns.Notify(new NotificationMessage() { Detail = "يجب إختيار الجهة بشكل سليم" });
-                    return;
-                }
+                if (await f_MasterValidate(name, arg) < 0) return;
                 switch (arg)
                 {
                     case "الادارات": LGHA_CODE = "01"; shownum = false; break;
@@ -556,14 +641,12 @@
                 _hadd.GhaCode = LGHA_CODE;
                 _hadd.GhaMain = "";
                 _hadd.GhaNum = "";
-                //list_tklf_main = list_tklf_main.Where(a=>a.KindCode== LGHA_CODE).ToList();
-                //list_tklf_sub = list_tklf_sub.Where(a=>a.KindCode== LGHA_CODE).ToList();
-                using (var db = dbf.CreateDbContext())
-                {
+                using (var db = dbf.CreateDbContext()) {
                     list_tklf_main = db.Tklfmains.Where(a => a.KindCode == LGHA_CODE).ToList();
                     list_tklf_sub = db.Tklfsubs.Where(a => a.KindCode == LGHA_CODE).ToList();
                 }
                 break;
+
             case "ghamain":
                 _hadd.GhaNum = "";
                 break;
@@ -572,75 +655,23 @@
                 ls_geha_main = list_tklf_sub.Where(a => a.KindCode == LGHA_CODE && a.TklfsubCode == arg).FirstOrDefault().TklfCode;
                 _hadd.GhaMain = ls_geha_main;
                 break;
-            //case "stockname":
-            //    _stock.StockName = "";
-            //    await Task.Delay(1); //Magic!
-            //    StateHasChanged();
-            //    _value = arg;
-            //    if (string.IsNullOrEmpty(_value.ToString()))
-            //    {
-            //        // _notifi.Notify((new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "", Detail = "يجب إدخال الإسم", Duration = -1 }));
-            //        //  gtool.Mynotify("خطأ", "يجب إدخال وصف المخزن");
-            //    }
-            //    _value = _value.Substring(0, Math.Min(50, _value.Length));
-            //    _stock.StockName = _value;
-            //    StateHasChanged();
-            //    break;
             case "trn_date":
-                DateTime dt,olddt;
-                olddt=(DateTime) _hadd.TrnDate;
-                if (DateTime.TryParse(arg.ToString(), out dt)) {
-
-                    using (var db = dbf.CreateDbContext())
-                    {
-                        if (dt.Date > (db.GlobVars.FirstOrDefault().Yearend).Value.Date || dt.Date < (db.GlobVars.FirstOrDefault().Yearstart).Value.Date)
-                        {
-                            await Task.Delay(1); //Magic!
-                            StateHasChanged();
-
-                            gt.Mynotify("خطأ", "التاريخ خارج نطاق السنة المالية");
-                            _hadd.TrnDate = olddt;
-
-                        }
-                        else  _hadd.TrnDate = dt;
-                        await Task.Delay(1); //Magic!
-                        StateHasChanged();
-                    }
-
-
-                }
+                if (await f_MasterValidate(name, arg) < 0) return;
+                DateTime dt;
+                if (DateTime.TryParse(arg.ToString(), out dt)) _hadd.TrnDate = dt;
                 break;
-
             case "incdec":
                 if (arg != null ) _hadd.IncDec = (byte)arg;
                 break;
-
             case "arname":
-                _hadd.ArName = "";
-                await Task.Delay(1); //Magic!
-                StateHasChanged();
-                _value = arg;
-                _value = _value.Substring(0, Math.Min(5, _value.Length));
-                _value = _value.PadLeft(5, '0');
-                Arname ar;
-                using (var db = dbf.CreateDbContext()) ar = db.Arnames.FirstOrDefault<Arname>(a => a.ArCode == _value);
-
-                if (ar != null)
-                {
-                    _hadd.ArName = _value;
-                }
-                else{
-                    ns.Notify(new NotificationMessage() { Detail = "كود الموظف خطأ" });
-                    return;
-                }
-
+                if (await f_MasterValidate(name, arg) < 0) return;
                 StateHasChanged();
                 break;
-
             default: break;
 
         }
     }
+
     private async Task f_ondblclick(string name)
     {
         Dictionary<string, object> ret;
@@ -693,22 +724,31 @@
                      new DialogOptions() { ShowTitle = false, Width = "900px", Height = "400px", Resizable = true, Draggable = true });
 
 
-                if (ret != null)
-                {
+                if (ret != null)   {
                     if (!((bool)ret["status"])) return;
                     Hadd val = ret["result"] as Hadd;
                     _hadd.TrnNo = val.TrnNo;
                     await f_onchange("trnno", _hadd.TrnNo);
                 }
+                break;
 
+            case "docno":
+                ret = await ds.OpenAsync<ModaltrnsList>("",
+                new Dictionary<string, object>() { { "stock_code", _hadd.StockCode }, { "trns_kind", "1" } },
+                new DialogOptions() { ShowTitle = false, Width = "900px", Height = "400px", Resizable = true, Draggable = true });
+                if (ret != null) {
+                    if (!((bool)ret["status"])) return;
+                    Hadd val = ret["result"] as Hadd;
+                    _hadd.DocNo = val.TrnNo;
+                    await f_onchange("docno", _hadd.DocNo);
+                }
                 break;
             default: break;
         }
 
     }
 
-    public void onAddNewItem()
-    {
+    public void onAddNewItem(){
         Dadd d = new Dadd();
         if (kind == 2) d.ItemPrice = 0;//initialization
         d.Kind = (byte)kind;
@@ -718,11 +758,9 @@
         d.IncDec = _hadd.IncDec;
         d.Perc = _hadd.Perc;
         _hadd.Dadds.Add(d);
-
-
     }
-    public async Task f_onchangedetail(string name, dynamic arg, int row)
-    {
+
+    public async Task f_onchangedetail(string name, dynamic arg, int row){
         string _value = "";
         switch (name.ToLower())
         {
@@ -734,37 +772,30 @@
                 _value = _value.Substring(0, Math.Min(5, _value.Length));
                 _value = _value.PadLeft(5, '0');
                 Item item;
-                using (var db = dbf.CreateDbContext()) item = db.Items.FirstOrDefault<Item>
-                    (a => a.ItemCode == _value && a.StockCode == old_stockcode);
-                if (item != null) {
-                    _hadd.Dadds.ToList().ElementAt(row).ItemCode = item.ItemCode;
-                    _hadd.Dadds.ToList().ElementAt(row).EngName = item.EngName;
-                    _hadd.Dadds.ToList().ElementAt(row).UnitName = item.UnitName;
-                    _hadd.Dadds.ToList().ElementAt(row).ItemPrice =(double?) item.Value;
-                }
-                else
-                {
+                using (var db = dbf.CreateDbContext()) item = db.Items.FirstOrDefault<Item>(a => a.ItemCode == _value && a.StockCode == old_stockcode);
+                if (item == null) {
                     _hadd.Dadds.ToList().ElementAt(row).ItemCode = "";
                     ns.Notify(new NotificationMessage() { Detail = "الصنف خطأ" });
+                    return;
                 }
+                _hadd.Dadds.ToList().ElementAt(row).ItemCode = item.ItemCode;
+                _hadd.Dadds.ToList().ElementAt(row).EngName = item.EngName;
+                _hadd.Dadds.ToList().ElementAt(row).UnitName = item.UnitName;
+                _hadd.Dadds.ToList().ElementAt(row).ItemPrice =(double?) item.Value;
                 StateHasChanged();
-                //get units & prices
                 break;
         }
     }
-    private async Task f_ondblclickdetail(string name, int row)
-    {
-        Dictionary<string, object>       ret;
+    private async Task f_ondblclickdetail(string name, int row){
+        Dictionary<string, object> ret;
         List<Item>   itemlist;
-        switch (name.ToLower())
-        {
+        switch (name.ToLower()){
             case "itemcode":
                 using (var db = dbf.CreateDbContext()) itemlist = db.Items.Where(i => i.StockCode == _hadd.StockCode).ToList();
                 ret = await ds.OpenAsync<GModalList<Item>>("",new Dictionary<string, object>() { { "title", "قائمة الأصناف" }
-                    , { "scollist", "itemcode,engname" },{ "colheads", "كود الصنف,إسم الصنف" }, { "data", itemlist } }
-                     ,new DialogOptions() { ShowTitle = false, Width = "400px", Height = "400px", Resizable = true, Draggable = true });
-                if (ret != null)
-                {
+                , { "scollist", "itemcode,engname" },{ "colheads", "كود الصنف,إسم الصنف" }, { "data", itemlist } }
+                ,new DialogOptions() { ShowTitle = false, Width = "400px", Height = "400px", Resizable = true, Draggable = true });
+                if (ret != null){
                     if (!((bool)ret["status"])) return;
                     List<Item> val = ret["result"] as List<Item>;
                     _hadd.Dadds.ToList().ElementAt(row).ItemCode = val[0].ItemCode;
@@ -777,31 +808,23 @@
 
     void on_cbTaxClicked(){
     }
+   
     async Task on_cbOhdaClicked(){
         if (!String.IsNullOrWhiteSpace(_hadd.ArName)) {
             var   ret = await ds.OpenAsync<ModalManOhda>("",
-                      new Dictionary<string, object>() { { "arg_arcode", _hadd.ArName} },
-                       new DialogOptions() { ShowTitle = false, Width = "900px", Height = "400px", Resizable = true, Draggable = true });
-
-
-            if (ret != null)
-            {
+            new Dictionary<string, object>() { { "arg_arcode", _hadd.ArName} },
+            new DialogOptions() { ShowTitle = false, Width = "900px", Height = "400px", Resizable = true, Draggable = true });
+            if (ret != null){
                 if (!((bool)ret["status"])) return;
                 List<Arquant> val = ret["result"] as List<Arquant>;
-                // if (val.Any()) ns.Notify(new NotificationMessage() { Detail = val.Count().ToString() });
-
             }
-
-
         }
-
     }
-    void OnSubmit(Hadd model)
-    {
+
+    void OnSubmit(Hadd model){
         Console.WriteLine(model);
     }
-    void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
-    { }
+    void OnInvalidSubmit(FormInvalidSubmitEventArgs args){ }
     #endregion
 }
 
