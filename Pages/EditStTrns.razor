@@ -130,7 +130,7 @@
                         <label for="docnon" style="font-size:small;" class="col-4">
                             <span> رقم أمر التوريد</span>
                         </label>
-                        <RadzenTextBox style="background-color:burlywood" Name="docnon" form="docnon" @bind-Value=@_hadd.DocNoN Change=@(args => f_onchange( "docnon",args)) />
+                        <RadzenTextBox  Name="docnon" form="docnon" @bind-Value=@_hadd.DocNoN Change=@(args => f_onchange( "docnon",args)) />
                     </div>
                     <div class="form-group row p-0 m-1">
                         <label for="suppname" style="font-size:small;" class="col-4">المورد</label>
@@ -227,11 +227,11 @@
                     <tr style="padding:0;margin:0;max-height:fit-content; background-color:lightsteelblue">
                         <td>@(r+1) </td>
                         <td class="col-1" style="padding: 0; margin: 0"> <RadzenTextBox Style=" background-color: lemonchiffon; padding: 0; margin: 0;" class="col-12" @ondblclick="@(async ()=>await f_ondblclickdetail("itemcode", _hadd.Dadds.ToList().IndexOf(item)))" Name=itemcode form="itemcode" @bind-Value="@item.ItemCode" Change=@(args => f_onchangedetail( "itemcode",args, _hadd.Dadds.ToList().IndexOf(item))) /></td>
-                        <td class="col-3" style="padding:0;margin:0 ; "><RadzenTextBox style="padding:0;margin:0;" form="engname" class="col-12" @bind-Value="@item.EngName" /></td>
+                        <td class="col-3" style="padding:0;margin:0 ; "><RadzenTextBox style="padding:0;margin:0;" form="engname" class="col-12" @bind-Value="@item.EngName"  readonly /></td>
                         <td class="col-2" style="padding: 0; margin: 0;">  <strong style="padding:0;margin:0;">@item.UnitName</strong></td>
-                        <td class="col-2" style="padding:0;margin:0"> <RadzenNumeric TValue="double?" ShowUpDown="false" form="itemquant" style="padding:0;margin:0;" class="col-12" @bind-Value="@item.ItemQuant" /></td>
-                        <td class="col-2" style="padding:0;margin:0"> <RadzenNumeric TValue="double?" ShowUpDown="false" Format="0.00" style="padding:0;margin:0;" class="col-12" readonly="@(kind==2)" form="itemprice" @bind-Value="@item.ItemPrice" /></td>
-                        <td class="col-2" style="padding:0;margin:0">@String.Format("{0:0.00}", item.ItemQuant * item.ItemPrice ?? 0)</td>
+                        <td class="col-2" style="padding:0;margin:0"> <RadzenNumeric TValue="double?" ShowUpDown="false" form="itemquant" style="padding:0;margin:0;" class="col-12" @bind-Value="@item.ItemQuant"  Change=@(args => f_onchangedetail( "itemquant",args, _hadd.Dadds.ToList().IndexOf(item))) /></td>
+                        <td class="col-2" style="padding:0;margin:0"> <RadzenNumeric TValue="double?" ShowUpDown="false" Format="0.000" style="padding:0;margin:0;" class="col-12" readonly="@(kind==2)" form="itemprice" @bind-Value="@item.ItemPrice"  Change=@(args => f_onchangedetail( "itemprice",args, _hadd.Dadds.ToList().IndexOf(item))) /></td>
+                        <td class="col-2" style="padding:0;margin:0">@String.Format("{0:0.000}", item.ItemQuant * item.ItemPrice ?? 0)</td>
 
                         <td style="padding:0;margin:0 ;text-align:center "> <button tabindex=-1 style="width: inherit;" class="btn btn-primary btn-sm" @onclick="()=> { _hadd.Dadds.Remove(item); } ">&times;</button></td>
                     </tr>
@@ -300,7 +300,7 @@
     private string stockcode_mask = "**";
     private string trn_no_mask = "**********";
     private string itemmask = "*****";
-    private string old_stockcode;
+    private string curr_stockcode;
     string LGHA_CODE = "01";
     private List<Gha> lgehat = new List<Gha>();
     private List<Tklfmain> list_tklf_main = new List<Tklfmain>();
@@ -310,13 +310,11 @@
     protected override void OnInitialized()
     {
         list_outs = gt.GetAll<Out>().ToList();
-
-
     }
     protected override void OnParametersSet()
     {
-        kind = kind;
-        old_stockcode = "";
+
+        curr_stockcode = "";
         _hadd = new Hadd();
         using (var db = dbf.CreateDbContext())
         {
@@ -355,7 +353,7 @@
             }
         }
 
-        //remove unneeded rows
+
         List<Dadd> _l_dadd=_hadd.Dadds.Where(d => string.IsNullOrWhiteSpace(d.ItemCode)).ToList();
         foreach (Dadd item in _l_dadd)
         {
@@ -385,6 +383,7 @@
                 }
                 row.Kind = (byte)kind;
                 row.TrnNo = _hadd.TrnNo;
+                row.TrnYear = _hadd.TrnYear;
                 row.TrnDate = _hadd.TrnDate;
                 row.StockCode = _hadd.StockCode;
                 row.IncDec = _hadd.IncDec;
@@ -400,6 +399,7 @@
 
         return true;
     }
+
     private async Task<int> onSave()
     {
         if (!on_presave()) return -1;
@@ -407,15 +407,58 @@
         {
             using (var db = dbf.CreateDbContext())
             {
-                if (_hadd.Id == 0)
-                    await db.AddAsync(_hadd);
-                else
-                    db.Update(_hadd);
+
+
+
+                if(kind==2){
+                    //remove ohda//year
+                    var x = db.Arquants.Where(a => a.TrnNo.Equals(_hadd.TrnNo) && a.StockCode.Equals(curr_stockcode) && a.Kind.Equals("0"))
+               .FirstOrDefault();
+                    if (x != null) { db.Arquants.Remove(x); }
+                    foreach (var item in _hadd.Dadds)
+                    {
+                        if (item.ItemDesc == 1) {
+                            Arquant arq = new Arquant();
+                            arq.Kind = 0;
+                            arq.TrnNo = item.TrnNo;
+                            arq.TrnDate = item.TrnDate;
+                            arq.TrnYear = item.TrnYear;
+                            arq.StockCode = curr_stockcode;
+                            arq.EngName = item.EngName;
+                            arq.ItemCode = item.ItemCode;
+                            arq.ArName = _hadd.ArName;
+                            arq.ExpDate = item.ExpDate;
+                            arq.ItemQuant = item.ItemQuant;
+                            arq.ItemPrice = item.ItemPrice;
+                            arq.UnitName = item.UnitName;
+                            arq.ItemDtype = item.ItemDtype;
+                            arq.ItemDesc = item.ItemDesc;
+                            arq.GhaCode = _hadd.GhaCode;
+                            arq.GhaMain = _hadd.GhaMain;
+                            arq.GhaNum = _hadd.GhaNum;
+                            arq.Transfer = false;
+                            arq.Perc = _hadd.Perc;
+                            arq.IncDec = _hadd.IncDec;
+                            arq.TempPrice = 0;
+                            arq.Notes = "";
+                            db.Arquants.Add(arq);
+                            _hadd.Transfer = true;
+                        }
+
+                    }
+
+                }
+
+
+                if (_hadd.Id == 0)    await db.AddAsync(_hadd);
+                else   db.Update(_hadd);
+
                 await db.SaveChangesAsync();
             }
         }
         catch (Exception)
         {
+            _hadd.Transfer = false;
             throw;
         }
         return 0;
@@ -444,23 +487,27 @@
     {
         _hadd = new Hadd();
         _hadd.Kind = (byte)kind;
-        _hadd.StockCode = old_stockcode;
+        _hadd.StockCode = curr_stockcode;
         _hadd.GhaCode = "01";
         _hadd.GhaName = "الادارات";
         _hadd.GhaMain = "";
         _hadd.GhaNum = "";
-        if (!string.IsNullOrEmpty(old_stockcode))
+        _hadd.IncDec = 2;
+        _hadd.Perc = 0;
+        _hadd.TrnYear = DateTime.Now.Year.ToString().PadLeft(4,'0');//gt.get_current_year
+        if (!string.IsNullOrEmpty(curr_stockcode))
         {
-            _hadd.StockCode = old_stockcode;
+            _hadd.StockCode = curr_stockcode;
             int maxno;
             using (var db = dbf.CreateDbContext())
             {
-                int.TryParse(db.Hadds.Where(a => a.StockCode == old_stockcode && a.Kind == kind).OrderByDescending(a => a.TrnNo).FirstOrDefault().TrnNo, out maxno);
+                int.TryParse(db.Hadds.Where(a => a.StockCode == curr_stockcode && a.Kind == kind).OrderByDescending(a => a.TrnNo).FirstOrDefault().TrnNo, out maxno);
             }
             maxno++;
-            _hadd.TrnNo = maxno.ToString();
+            _hadd.TrnNo = maxno.ToString().PadLeft(10,'0');
         }
         _hadd.TrnDate = DateTime.Parse(DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt"));
+
         //  DateTime.ParseExact(DateTime.Now.ToString("MM/dd/yyyy hh:mm tt"), "", CultureInfo.InvariantCulture);
         StateHasChanged();
 
@@ -547,7 +594,7 @@
                 _docnon = _docnon.PadLeft(10, '0');
                 using (var db = dbf.CreateDbContext())
                 {
-                    if (!db.Hadds.Where(a => a.TrnNo == _docnon && a.StockCode == old_stockcode && a.Kind == 1).Any())
+                    if (!db.Hadds.Where(a => a.TrnNo == _docnon && a.StockCode == curr_stockcode && a.Kind == 1 && a.TrnYear==_hadd.TrnYear).Any())
                     {
                         gt.Mynotify("خطأ", "رقم مستند غير موجود ");
                         return -1;
@@ -578,7 +625,7 @@
                     st = db.Stocks.FirstOrDefault<Stock>(a => a.StockCode == _value);
                     if (st != null)
                     {
-                        old_stockcode = _value;
+                        curr_stockcode = _value;
                         onNew();
                         _hadd.StockCode = _value;
                     }
@@ -593,12 +640,13 @@
                 StateHasChanged();
                 _trnno = _trnno.Substring(0, Math.Min(10, _trnno.Length));
                 _trnno = _trnno.PadLeft(10, '0');
+                string _trnyear = _hadd.TrnYear;
                 using (var db = dbf.CreateDbContext())
                 {
-                    _hadd = db.Hadds.Where(a => a.TrnNo == _trnno && a.StockCode == old_stockcode && a.Kind == kind).Include(a => a.Dadds).ToList().FirstOrDefault();
+                    _hadd = db.Hadds.Where(a => a.TrnNo == _trnno && a.StockCode == curr_stockcode && a.Kind == kind && a.TrnYear==_trnyear ).Include(a => a.Dadds).ToList().FirstOrDefault();
                     if (_hadd == null) {
                         onNew();
-                        _hadd.StockCode = old_stockcode;
+                        _hadd.StockCode = curr_stockcode;
                         _hadd.TrnNo = arg;
                         _hadd.GhaCode = "01";
                         _hadd.GhaName = "الادارات";
@@ -728,6 +776,7 @@
                     if (!((bool)ret["status"])) return;
                     Hadd val = ret["result"] as Hadd;
                     _hadd.TrnNo = val.TrnNo;
+                    _hadd.TrnYear = val.TrnYear;
                     await f_onchange("trnno", _hadd.TrnNo);
                 }
                 break;
@@ -753,10 +802,12 @@
         if (kind == 2) d.ItemPrice = 0;//initialization
         d.Kind = (byte)kind;
         d.TrnNo = _hadd.TrnNo;
+        d.TrnYear = _hadd.TrnYear;
         d.TrnDate = _hadd.TrnDate;
         d.StockCode = _hadd.StockCode;
         d.IncDec = _hadd.IncDec;
         d.Perc = _hadd.Perc;
+
         _hadd.Dadds.Add(d);
     }
 
@@ -772,17 +823,92 @@
                 _value = _value.Substring(0, Math.Min(5, _value.Length));
                 _value = _value.PadLeft(5, '0');
                 Item item;
-                using (var db = dbf.CreateDbContext()) item = db.Items.FirstOrDefault<Item>(a => a.ItemCode == _value && a.StockCode == old_stockcode);
+                using (var db = dbf.CreateDbContext()) item = db.Items.FirstOrDefault<Item>(a => a.ItemCode == _value && a.StockCode == curr_stockcode);
                 if (item == null) {
                     _hadd.Dadds.ToList().ElementAt(row).ItemCode = "";
-                    ns.Notify(new NotificationMessage() { Detail = "الصنف خطأ" });
+                    gt.Mynotify("خطأ","الصنف غير معرف");
                     return;
                 }
+                //check repeatation of items
+                for (int i = 0; i < _hadd.Dadds.Count(); i++)
+                {
+                    if (i == row) continue;
+                    if (_hadd.Dadds.ToList().ElementAt(i).ItemCode.Equals(_value)) {
+
+                        gt.Mynotify("خطأ", "سبق إدخال الصنف غير مسموح بتكرار الصنف");
+                        _hadd.Dadds.ToList().RemoveAt(row);
+                        return;
+                    }
+                }
+                //
+                //adjust price according to add  docono
+                if (kind == 2) {
+                    if (!string.IsNullOrWhiteSpace(_hadd.DocNoN)) {
+                        double? ld_addprice;
+                        using (var db = dbf.CreateDbContext())
+                        {
+                            ld_addprice = db.Hadds.
+                                Where(h => h.Kind == 1 && h.TrnNo.Equals(_hadd.DocNoN) && h.StockCode.Equals(curr_stockcode)).
+                               FirstOrDefault().Dadds.ToList().
+                               Where(d => d.ItemCode.Equals(_value)).FirstOrDefault().ItemPrice;
+
+                        }
+                        _hadd.Dadds.ToList().ElementAt(row).ItemPrice = ld_addprice;
+                    }
+                    else {//get the avg before time
+                        double? ld_cost ;
+                        ld_cost = gt.get_avg_b4_time(_value, curr_stockcode, _hadd.TrnDate);
+                        _hadd.Dadds.ToList().ElementAt(row).ItemPrice = ld_cost;
+
+
+                    }
+                }
+                //
                 _hadd.Dadds.ToList().ElementAt(row).ItemCode = item.ItemCode;
                 _hadd.Dadds.ToList().ElementAt(row).EngName = item.EngName;
                 _hadd.Dadds.ToList().ElementAt(row).UnitName = item.UnitName;
-                _hadd.Dadds.ToList().ElementAt(row).ItemPrice =(double?) item.Value;
+                _hadd.Dadds.ToList().ElementAt(row).ItemDesc =(byte?) item.ItemDesc;
+                _hadd.Dadds.ToList().ElementAt(row).ItemDtype =(byte?) item.ItemDtype;
+                _hadd.Dadds.ToList().ElementAt(row).ExpDate = item.ExpDate;
+                _hadd.Dadds.ToList().ElementAt(row).ItemQuant = 0;
+                _hadd.Dadds.ToList().ElementAt(row).Transfer = false ;
+
                 StateHasChanged();
+                break;
+
+
+            case "itemquant":
+                decimal? curr_bal=0m,org_qty=0m,diff=0m ;
+
+                using (var db = dbf.CreateDbContext()) {
+                    curr_bal = db.Items.Where(i => i.StockCode.Equals(curr_stockcode) && i.ItemCode.Equals(_hadd.Dadds.ToList().ElementAt(row).ItemCode)).First().OpenbalQuant;
+                    if (curr_bal == null) curr_bal = 0;
+                    Hadd h = db.Hadds.Where(h => h.Kind == kind && h.TrnNo.Equals(_hadd.TrnNo) && h.StockCode.Equals(curr_stockcode)).Include(a=>a.Dadds).FirstOrDefault();
+                    if (h != null) {
+                        Dadd d = h.Dadds.Where(d => d.ItemCode.Equals(_hadd.Dadds.ToList().ElementAt(row).ItemCode)).FirstOrDefault();
+                        if (d!=null) org_qty= (decimal?) d.ItemQuant;
+                    }
+                    if (org_qty==null) org_qty = 0;
+
+                    diff = Convert.ToDecimal( arg) - org_qty;
+                    if (kind == 1 && ((curr_bal + diff) < 0 ) ) {
+                        gt.Mynotify("خطأ", "بتسجيل المستند سوف يصبح الرصيد سالب"+ "الصنف:"
+                            +_hadd.Dadds.ElementAt(row).ItemCode +" الرصيد السابق "+curr_bal.ToString() );
+
+                    }
+                    if (kind == 2 && ((curr_bal - diff) < 0))
+                    {
+                        gt.Mynotify("خطأ", "بتسجيل المستند سوف يصبح الرصيد سالب" + "الصنف:"
+                            + _hadd.Dadds.ElementAt(row).ItemCode + " الرصيد السابق " + curr_bal.ToString());
+                    }
+                }
+                break;
+
+            case "itemprice":
+                if (Convert.ToDecimal(arg) == 0) {
+                    gt.Mynotify("خطأ", "أدخل السعر بشكل سليم");
+                    return;
+                }
                 break;
         }
     }
@@ -807,8 +933,47 @@
     }
 
     void on_cbTaxClicked(){
+        if (_hadd.IncDec == null) {
+            gt.Mynotify("خطأ", "أعد إدخال نوع الضريبة بشكل سليم");
+            return;
+        }
+        if (_hadd.Perc == null)
+        {
+            gt.Mynotify("خطأ", "أعد إدخال نسبة الضريبة بشكل سليم");
+            return;
+        }
+
+        foreach (var item in _hadd.Dadds)
+        {
+            if (item.ItemQuant == 0 || item.ItemQuant == null) {
+                gt.Mynotify("خطأ", "ادخل الكمية" + " "+ "الصنف :"+item.ItemCode);
+                return;
+            }
+
+            if (item.ItemPrice == 0 || item.ItemPrice == null)
+            {
+                gt.Mynotify("خطأ", "ادخل السعر" + " " + "الصنف :" + item.ItemCode);
+                return;
+            }
+            double? adeduc=0d;
+            if (_hadd.IncDec == 1) {
+                adeduc = (_hadd.Perc / 100) *  item.ItemPrice ;
+                item.ItemPrice = item.ItemPrice - adeduc;
+
+            }
+
+            if (_hadd.IncDec == 2)
+            {
+                adeduc = (_hadd.Perc / 100) * item.ItemPrice;
+                item.ItemPrice = item.ItemPrice + adeduc;
+            }
+
+
+
+        }
+
     }
-   
+
     async Task on_cbOhdaClicked(){
         if (!String.IsNullOrWhiteSpace(_hadd.ArName)) {
             var   ret = await ds.OpenAsync<ModalManOhda>("",

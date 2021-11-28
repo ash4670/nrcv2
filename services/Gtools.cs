@@ -17,22 +17,17 @@ namespace nrcv2.services
 
         [Inject]
         IDbContextFactory<nrcwebContext> dbf { get; set; }
-
         public Gtools()
         {
         }
-
         public Gtools(NotificationService Nt, IDbContextFactory<nrcwebContext> dbfact )
         {
             _NotificationService = Nt;
             dbf = dbfact;
         }
-
         public  void Mynotify(string title = "", string content = "") {
             _NotificationService.Notify(NotificationSeverity.Error, title, content, -1);
         }
-
-
         public IEnumerable<T> GetAll<T>() where T : class, new()
         {
             IEnumerable<T> temp;
@@ -53,7 +48,6 @@ namespace nrcv2.services
             }
              ;
         }
-
         public bool gf_check_arcode_status(string as_arcode) {
             Arname _arname;
             using (var db = dbf.CreateDbContext())
@@ -88,6 +82,25 @@ namespace nrcv2.services
             return true;
         }
 
+        public double? get_avg_b4_time(string as_itemcode,string as_stock, DateTime? as_dt) {
+            using (var db = dbf.CreateDbContext())
+            {
+                decimal? ld_openprice, ld_cost;
+                ld_openprice = (from it in db.Items where it.ItemCode.Equals(as_itemcode) && it.StockCode.Equals(as_stock) select it.OpenPrice).First();
+                if (ld_openprice == null) ld_openprice = 0;
+                if (db.Dadds.Where(d => d.Kind == 1 && d.ItemCode.Equals(as_itemcode) && d.StockCode.Equals(as_stock)
+                            && d.TrnDate < as_dt).Count() > 0)
+                {
+                    ld_cost = (from d in db.Dadds
+                               where d.Kind == 1 && d.ItemCode.Equals(as_itemcode) && d.StockCode.Equals(as_stock)
+                               && d.TrnDate < as_dt
+                               orderby d.TrnDate descending
+                               select d.Cost).First();
+                    return (double?)ld_cost;
+                }
+                else return (double?)ld_openprice;
+            }
+        }
     }
 
     //public interface IGtools
