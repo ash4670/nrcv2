@@ -101,6 +101,18 @@ namespace nrcv2.services
                 else return (double?)ld_openprice;
             }
         }
+   
+    
+        public double? getbal(string as_stockcode, string as_itemcode,string as_year ) {
+            double? trns_qty;
+            using (var db = dbf.CreateDbContext()) {
+                trns_qty= db.Dadds.Where(d => d.TrnYear.Equals(as_year) && d.ItemCode.Equals(as_itemcode) && d.StockCode.Equals(as_stockcode)).ToList().Sum(r=>r.ItemQuant);
+                //trns_qty = (from t in db.Dadds where t.TrnYear.Equals(as_year) && t.ItemCode.Equals(as_itemcode) && t.StockCode.Equals(as_stockcode)
+                //                select t).ToList().Sum(r => r.Kind == 1 ? r.ItemQuant : -1 * r.ItemQuant);
+                if (trns_qty == null) trns_qty=0 ;
+            }
+           return trns_qty;
+        }
     }
 
     //public interface IGtools

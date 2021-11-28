@@ -403,66 +403,102 @@
     private async Task<int> onSave()
     {
         if (!on_presave()) return -1;
-        try
+        bool is_ok=true;
+        using (var db = dbf.CreateDbContext())
         {
-            using (var db = dbf.CreateDbContext())
+            using (var transaction = db.Database.BeginTransaction())
             {
-
-
-
-                if(kind==2){
-                    //remove ohda//year
-                    var x = db.Arquants.Where(a => a.TrnNo.Equals(_hadd.TrnNo) && a.StockCode.Equals(curr_stockcode) && a.Kind.Equals("0"))
-               .FirstOrDefault();
-                    if (x != null) { db.Arquants.Remove(x); }
-                    foreach (var item in _hadd.Dadds)
+                try
+                {
+                    if (kind == 2)
                     {
-                        if (item.ItemDesc == 1) {
-                            Arquant arq = new Arquant();
-                            arq.Kind = 0;
-                            arq.TrnNo = item.TrnNo;
-                            arq.TrnDate = item.TrnDate;
-                            arq.TrnYear = item.TrnYear;
-                            arq.StockCode = curr_stockcode;
-                            arq.EngName = item.EngName;
-                            arq.ItemCode = item.ItemCode;
-                            arq.ArName = _hadd.ArName;
-                            arq.ExpDate = item.ExpDate;
-                            arq.ItemQuant = item.ItemQuant;
-                            arq.ItemPrice = item.ItemPrice;
-                            arq.UnitName = item.UnitName;
-                            arq.ItemDtype = item.ItemDtype;
-                            arq.ItemDesc = item.ItemDesc;
-                            arq.GhaCode = _hadd.GhaCode;
-                            arq.GhaMain = _hadd.GhaMain;
-                            arq.GhaNum = _hadd.GhaNum;
-                            arq.Transfer = false;
-                            arq.Perc = _hadd.Perc;
-                            arq.IncDec = _hadd.IncDec;
-                            arq.TempPrice = 0;
-                            arq.Notes = "";
-                            db.Arquants.Add(arq);
-                            _hadd.Transfer = true;
+                        //remove ohda//year
+                        var x = db.Arquants.Where(a => a.TrnNo.Equals(_hadd.TrnNo) && a.StockCode.Equals(curr_stockcode) && a.Kind.Equals("0")).FirstOrDefault();
+                        if (x != null) { db.Arquants.Remove(x); }
+                        foreach (var item in _hadd.Dadds)
+                        {
+                            if (item.ItemDesc == 1)
+                            {
+                                Arquant arq = new Arquant();
+                                arq.Kind = 0;
+                                arq.TrnNo = item.TrnNo;
+                                arq.TrnDate = item.TrnDate;
+                                arq.TrnYear = item.TrnYear;
+                                arq.StockCode = curr_stockcode;
+                                arq.EngName = item.EngName;
+                                arq.ItemCode = item.ItemCode;
+                                arq.ArName = _hadd.ArName;
+                                arq.ExpDate = item.ExpDate;
+                                arq.ItemQuant = item.ItemQuant;
+                                arq.ItemPrice = item.ItemPrice;
+                                arq.UnitName = item.UnitName;
+                                arq.ItemDtype = item.ItemDtype;
+                                arq.ItemDesc = item.ItemDesc;
+                                arq.GhaCode = _hadd.GhaCode;
+                                arq.GhaMain = _hadd.GhaMain;
+                                arq.GhaNum = _hadd.GhaNum;
+                                arq.Transfer = false;
+                                arq.Perc = _hadd.Perc;
+                                arq.IncDec = _hadd.IncDec;
+                                arq.TempPrice = 0;
+                                arq.Notes = "";
+                                db.Arquants.Add(arq);
+                                _hadd.Transfer = true;
+                            }
+
                         }
 
                     }
+                    if (_hadd.Id == 0) await db.AddAsync(_hadd);
+                    else db.Update(_hadd);
 
+                    List<Dadd> olditems, all_items;
+                    all_items = _hadd.Dadds.ToList();//initialization for the all
+                    if (_hadd.Id != 0)
+                    {
+
+                        olditems = db.Dadds.Where(d => d.Haddid == _hadd.Id).ToList();
+                        foreach (var oitem in olditems)
+                        {
+                            if (!(_hadd.Dadds.Any(d => d.ItemCode.Equals(oitem.ItemCode)))) all_items.Add(oitem);
+                        }
+
+
+
+                    }
+
+
+                    await db.SaveChangesAsync();
+                    foreach (var item in all_items)
+                    {
+                        double? ld_trnqty,ld_openbal;
+                        // ld_trnqty = gt.getbal(item.StockCode, item.ItemCode, item.TrnYear);//and check bal after
+                        ld_trnqty = db.Dadds.Where(d => d.TrnYear.Equals(item.TrnYear) && d.ItemCode.Equals(item.ItemCode) && d.StockCode.Equals(item.StockCode)).ToList().Sum(r => r.Kind == 1 ? r.ItemQuant : -1 * r.ItemQuant);
+                        ld_openbal =(double?) db.Items.Where(i => i.ItemCode.Equals(item.ItemCode) && i.StockCode.Equals(item.StockCode)).FirstOrDefault().OpenQuant;
+                        if (ld_openbal + ld_trnqty < 0) {
+                            gt.Mynotify("خطأ", "رصيد الصنف سوف يصبح سالب" + " " + item.ItemCode);
+                            is_ok = false;
+                            _hadd.Transfer = false;
+                            transaction.Rollback();
+                            return -1;
+
+                        }
+                        //gt.recitemcost
+
+                    }
+
+
+                    if (is_ok) transaction.Commit();
+                    else transaction.Rollback();
                 }
-
-
-                if (_hadd.Id == 0)    await db.AddAsync(_hadd);
-                else   db.Update(_hadd);
-
-                await db.SaveChangesAsync();
+                catch (Exception)
+                {
+                    _hadd.Transfer = false;
+                    throw;
+                }
             }
         }
-        catch (Exception)
-        {
-            _hadd.Transfer = false;
-            throw;
-        }
         return 0;
-
     }
 
     private void onDelete()
