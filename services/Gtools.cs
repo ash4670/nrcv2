@@ -28,6 +28,13 @@ namespace nrcv2.services
         public  void Mynotify(string title = "", string content = "") {
             _NotificationService.Notify(NotificationSeverity.Error, title, content, -1);
         }
+
+        public void Myinfo(string title = "", string content = "")
+        {
+            _NotificationService.Notify(NotificationSeverity.Info, title, content, -1);
+        }
+
+
         public IEnumerable<T> GetAll<T>() where T : class, new()
         {
             IEnumerable<T> temp;
@@ -101,22 +108,49 @@ namespace nrcv2.services
                 else return (double?)ld_openprice;
             }
         }
-   
-    
-        public double? getbal(string as_stockcode, string as_itemcode,string as_year ) {
-            double? trns_qty;
-            using (var db = dbf.CreateDbContext()) {
-                trns_qty= db.Dadds.Where(d => d.TrnYear.Equals(as_year) && d.ItemCode.Equals(as_itemcode) && d.StockCode.Equals(as_stockcode)).ToList().Sum(r=>r.ItemQuant);
-                //trns_qty = (from t in db.Dadds where t.TrnYear.Equals(as_year) && t.ItemCode.Equals(as_itemcode) && t.StockCode.Equals(as_stockcode)
-                //                select t).ToList().Sum(r => r.Kind == 1 ? r.ItemQuant : -1 * r.ItemQuant);
-                if (trns_qty == null) trns_qty=0 ;
-            }
+
+        public decimal? getbal(string as_stockcode, string as_itemcode, string as_year , nrcwebContext db)
+        {
+            decimal? trns_qty , ld_openbal;
+            trns_qty =(decimal?) db.Dadds.Where(d => d.TrnYear.Equals(as_year) && d.ItemCode.Equals(as_itemcode) && d.StockCode.Equals(as_stockcode)).ToList().Sum(r => r.Kind == 1 ? r.ItemQuant : -1 * r.ItemQuant);
+            if (trns_qty == null) trns_qty = 0;
+            ld_openbal = db.Items.Where(i => i.ItemCode.Equals(as_itemcode) && i.StockCode.Equals(as_stockcode)).FirstOrDefault().OpenQuant;
+            return ld_openbal + trns_qty;
+        }
+        public decimal? getbal(string as_stockcode, string as_itemcode,string as_year  ) {
+            decimal? trns_qty;
+            using (var db = dbf.CreateDbContext()) trns_qty= getbal( as_stockcode,  as_itemcode,  as_year, db);
            return trns_qty;
         }
-    }
 
-    //public interface IGtools
-    //{
-    //    void Mynotify(string title="",string content="") { }
-    //}
+        public void recitemcost(string as_stockcode, string as_itemcode,DateTime? as_dt ,  string as_year, nrcwebContext db)
+        {
+            decimal? tempBal = 0m, tempcost = 0m;
+            decimal? ld_openprice,ld_openbal, ld_trnsprice, ld_trnsqty;
+            Item res =(Item) (from i in db.Items where i.StockCode.Equals(as_stockcode) && i.ItemCode.Equals(as_itemcode) select i ).FirstOrDefault();
+            ld_openbal = res.OpenQuant; if (ld_openbal == null) ld_openbal = 0;
+            ld_openprice = res.OpenPrice; if (ld_openprice == null) ld_openprice = 0;
+            tempBal = ld_openbal;
+            tempcost = ld_openprice;
+           
+            foreach (var drow in db.Dadds.Where(d=>d.StockCode.Equals(as_stockcode) && d.ItemCode.Equals(as_itemcode) && d.TrnYear.Equals(as_year)).OrderBy(d=>d.TrnDate) )
+            {
+                ld_trnsprice =(decimal) drow.ItemPrice; if (ld_trnsprice == null) ld_trnsprice = 0;
+                ld_trnsqty = (decimal) drow.ItemQuant; if (ld_trnsqty == null) ld_trnsqty = 0;
+                if (drow.Kind == 1) {
+                    if (tempBal > 0) tempcost = ((tempcost * tempBal) + (ld_trnsprice * ld_trnsqty)) / (tempBal + ld_trnsqty);  
+                    else tempcost = ld_trnsprice;
+                    if (tempcost == null) tempcost = 0;
+                    tempBal += (decimal) drow.ItemQuant;
+                    if (DateTime.Compare((DateTime)drow.TrnDate, (DateTime)as_dt) >= 0)
+                    {
+                        drow.Cost = tempcost;
+                    }
+                }
+                else tempBal -= (decimal) drow.ItemQuant;
+            }
+            db.Items.Where(i => i.StockCode.Equals(as_stockcode) && i.ItemCode.Equals(as_itemcode) /*i.year.Equals(as_year) */).FirstOrDefault().Value = tempcost;
+        }
+    }
+  
 }

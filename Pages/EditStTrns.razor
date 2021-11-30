@@ -45,12 +45,14 @@
                 <div class="form-group  row  p-0 m-1">
                     <Label class="btn-outline-primary btn-sm col-4" @onclick="@(async ()=>await f_ondblclick("trnno"))">رقم المستند ...</Label>
                     <span>
-                        <RadzenMask Mask=@trn_no_mask Pattern="[^0-9]" style="display: block ; background-color:lemonchiffon" Name="trn_no"
+                        <RadzenMask Mask=@trn_no_mask Pattern="[^0-9]" style="background-color:lemonchiffon" Name="trn_no"
                                     @bind-Value=@_hadd.TrnNo Change=@(args => f_onchange( "trnno",args))
                                     @ondblclick="@(async ()=>await f_ondblclick("trnno"))" />
                         <RadzenRequiredValidator Component="trn_no" Text="يجب إدخال رقم المستند" Style="position: absolute" />
                         <RadzenRegexValidator Component="trn_no" Text="رقم المستند 10 أرقام" Pattern="\d{10}" Style="position: absolute" />
+
                     </span>
+                   
 
                 </div>
 
@@ -471,11 +473,9 @@
                     await db.SaveChangesAsync();
                     foreach (var item in all_items)
                     {
-                        double? ld_trnqty,ld_openbal;
-                        // ld_trnqty = gt.getbal(item.StockCode, item.ItemCode, item.TrnYear);//and check bal after
-                        ld_trnqty = db.Dadds.Where(d => d.TrnYear.Equals(item.TrnYear) && d.ItemCode.Equals(item.ItemCode) && d.StockCode.Equals(item.StockCode)).ToList().Sum(r => r.Kind == 1 ? r.ItemQuant : -1 * r.ItemQuant);
-                        ld_openbal =(double?) db.Items.Where(i => i.ItemCode.Equals(item.ItemCode) && i.StockCode.Equals(item.StockCode)).FirstOrDefault().OpenQuant;
-                        if (ld_openbal + ld_trnqty < 0) {
+                        decimal? ld_bal;
+                        ld_bal = gt.getbal(item.StockCode, item.ItemCode, item.TrnYear,db);//and check bal after  // ld_trnqty = db.Dadds.Where(d => d.TrnYear.Equals(item.TrnYear) && d.ItemCode.Equals(item.ItemCode) && d.StockCode.Equals(item.StockCode)).ToList().Sum(r => r.Kind == 1 ? r.ItemQuant : -1 * r.ItemQuant);
+                        if (ld_bal < 0) {
                             gt.Mynotify("خطأ", "رصيد الصنف سوف يصبح سالب" + " " + item.ItemCode);
                             is_ok = false;
                             _hadd.Transfer = false;
@@ -483,16 +483,25 @@
                             return -1;
 
                         }
-                        //gt.recitemcost
+                        //post the bal 
+                        db.Items.Where(i => i.StockCode.Equals(item.StockCode) && i.ItemCode.Equals(item.ItemCode)).FirstOrDefault().OpenbalQuant = ld_bal;
+                        //update costs
+                        gt.recitemcost(item.StockCode, item.ItemCode, item.TrnDate, item.TrnYear, db);
+
 
                     }
 
-
-                    if (is_ok) transaction.Commit();
+                    await db.SaveChangesAsync();//again to save the bal and cost calc
+                    if (is_ok) {
+                        transaction.Commit();
+                        gt.Myinfo("تم", "تم تسجيل المستند");
+                    }
                     else transaction.Rollback();
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    gt.Mynotify("خطأ", "حدث خطأ أثناء التسجيل" + e.Message );
+                    transaction.Rollback();
                     _hadd.Transfer = false;
                     throw;
                 }
@@ -530,7 +539,7 @@
         _hadd.GhaNum = "";
         _hadd.IncDec = 2;
         _hadd.Perc = 0;
-        _hadd.TrnYear = DateTime.Now.Year.ToString().PadLeft(4,'0');//gt.get_current_year
+        _hadd.TrnYear = "2018";//gt.get_current_year
         if (!string.IsNullOrEmpty(curr_stockcode))
         {
             _hadd.StockCode = curr_stockcode;
@@ -553,7 +562,7 @@
         string _value = "";
         switch (name.ToLower())
         {
-            case "trnsno":
+            case "trnno":
                 if (string.IsNullOrEmpty(_hadd.StockCode))
                 {
                     await Task.Delay(1); //Magic!
@@ -563,6 +572,25 @@
                     StateHasChanged();
                     return -1;
                 }
+                if (string.IsNullOrEmpty(_hadd.TrnYear))
+                {
+                    await Task.Delay(1); //Magic!
+                    StateHasChanged();
+                    gt.Mynotify("خطأ","يجب إختيار الفترة المالية");
+                    _hadd.TrnNo = "";
+                    StateHasChanged();
+                    return -1;
+                }
+                if (string.IsNullOrEmpty(arg))
+                {
+                    await Task.Delay(1); //Magic!
+                    StateHasChanged();
+                    gt.Mynotify("خطأ", "يجب إدخال رقم المستند");
+                    _hadd.TrnNo = "";
+                    StateHasChanged();
+                    return -1;
+                }
+
                 break;
 
             case "ghaname":
@@ -676,9 +704,10 @@
                 StateHasChanged();
                 _trnno = _trnno.Substring(0, Math.Min(10, _trnno.Length));
                 _trnno = _trnno.PadLeft(10, '0');
-                string _trnyear = _hadd.TrnYear;
+                string _trnyear;
                 using (var db = dbf.CreateDbContext())
                 {
+                    _trnyear = db.Hadds.FirstOrDefault().TrnYear; //gt.user.period;//to be modified
                     _hadd = db.Hadds.Where(a => a.TrnNo == _trnno && a.StockCode == curr_stockcode && a.Kind == kind && a.TrnYear==_trnyear ).Include(a => a.Dadds).ToList().FirstOrDefault();
                     if (_hadd == null) {
                         onNew();
@@ -917,7 +946,7 @@
                 decimal? curr_bal=0m,org_qty=0m,diff=0m ;
 
                 using (var db = dbf.CreateDbContext()) {
-                    curr_bal = db.Items.Where(i => i.StockCode.Equals(curr_stockcode) && i.ItemCode.Equals(_hadd.Dadds.ToList().ElementAt(row).ItemCode)).First().OpenbalQuant;
+                    curr_bal = db.Items.Where(i => i.StockCode.Equals(curr_stockcode) && i.ItemCode.Equals(_hadd.Dadds.ToList().ElementAt(row).ItemCode)).FirstOrDefault().OpenbalQuant;
                     if (curr_bal == null) curr_bal = 0;
                     Hadd h = db.Hadds.Where(h => h.Kind == kind && h.TrnNo.Equals(_hadd.TrnNo) && h.StockCode.Equals(curr_stockcode)).Include(a=>a.Dadds).FirstOrDefault();
                     if (h != null) {
@@ -929,13 +958,13 @@
                     diff = Convert.ToDecimal( arg) - org_qty;
                     if (kind == 1 && ((curr_bal + diff) < 0 ) ) {
                         gt.Mynotify("خطأ", "بتسجيل المستند سوف يصبح الرصيد سالب"+ "الصنف:"
-                            +_hadd.Dadds.ElementAt(row).ItemCode +" الرصيد السابق "+curr_bal.ToString() );
+                            +_hadd.Dadds.ElementAt(row).ItemCode +" الرصيد  "+ (curr_bal + diff).ToString() );
 
                     }
                     if (kind == 2 && ((curr_bal - diff) < 0))
                     {
                         gt.Mynotify("خطأ", "بتسجيل المستند سوف يصبح الرصيد سالب" + "الصنف:"
-                            + _hadd.Dadds.ElementAt(row).ItemCode + " الرصيد السابق " + curr_bal.ToString());
+                            + _hadd.Dadds.ElementAt(row).ItemCode + " الرصيد  " + (curr_bal - diff).ToString());
                     }
                 }
                 break;

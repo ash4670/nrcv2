@@ -116,10 +116,10 @@
         if (_filter == null || _filter == string.Empty)
             data = orgdata;
         else
-            data = orgdata.Where(r =>r.TrnNo.Contains(_filter) || r.TrnDate.ToString().Contains(_filter) ||
-            r.GhaName.Contains(_filter) ||
-            (trns_kind=="1" && ( r.SuppName.Contains(_filter) || r.DocNoN.Contains(_filter)) )||
-            (trns_kind == "2" && r.ArName.Contains(_filter))
+            data = orgdata.Where(r =>r.TrnNo.Contains(_filter) || (r.TrnDate==null?"": r.TrnDate.ToString()).Contains(_filter) ||
+            (r.GhaName??"").Contains(_filter) ||
+            (trns_kind=="1" && ( (r.SuppName??"").Contains(_filter) || (r.DocNoN??"").Contains(_filter)) )||
+            (trns_kind == "2" && (r.ArName??"").Contains(_filter))
             ).ToList();
     }
 
