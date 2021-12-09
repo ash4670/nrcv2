@@ -2,7 +2,7 @@
 @*@page "/editsstrns/{kind:int}/{id:int}"*@
 @inject IDbContextFactory<nrcwebContext> dbf;
 @inject DialogService ds
-@inject NotificationService ns
+@*@inject NotificationService ns*@
 @inject Gtools gt
 
 
@@ -282,10 +282,10 @@
                 <button class="btn btn-danger btn col-2 mr-auto font-weight-bolder" @onclick="onDelete">حذف</button>
             </div>*@
         <div class="alert alert-primary h6 text-center     btn-group-sm  row ">
-            <button class="btn btn-primary  ml-1 ml-md-5   col-2 font-weight-bolder" ButtonType="ButtonType.Submit" @onclick="onSave">تسجيل</button>
-            <button class="btn btn-primary  ml-1 ml-md-5   col-2  font-weight-bolder" @onclick="onNew">جديد</button>
-            <button class="btn btn-primary  ml-1 ml-md-5   col-2  font-weight-bolder" @onclick="onAddNewItem">إضافة صنف</button>
-            <button class="btn btn-primary  ml-1 ml-md-5  col-2 font-weight-bolder" @onclick="onDelete">حذف</button>
+            <button class="btn btn-primary  ml-1 ml-md-1   col-2 font-weight-bolder" ButtonType="ButtonType.Submit" @onclick="onSave">تسجيل</button>
+            <button class="btn btn-primary  ml-1 ml-md-1   col-2  font-weight-bolder" @onclick="onNew">جديد</button>
+            <button class="btn btn-primary  ml-1 ml-md-1   col-2  font-weight-bolder" @onclick="onAddNewItem">إضافة صنف</button>
+            <button class="btn btn-danger  ml-1 ml-md-1  col-2 font-weight-bolder" @onclick="onDelete">حذف</button>
 
         </div>
     </div>
@@ -393,6 +393,7 @@
             }
 
             if (!_hadd.Dadds.Any()) {
+
                 gt.Mynotify("خطأ", "لم يتم إدخال أصناف المستند");
                 return false;
             }
@@ -492,11 +493,16 @@
                     }
 
                     await db.SaveChangesAsync();//again to save the bal and cost calc
-                    if (is_ok) {
+                    if (is_ok)
+                    {
                         transaction.Commit();
                         gt.Myinfo("تم", "تم تسجيل المستند");
                     }
-                    else transaction.Rollback();
+                    else
+                    {
+                        transaction.Rollback();
+
+                    }
                 }
                 catch (Exception e)
                 {
@@ -510,8 +516,16 @@
         return 0;
     }
 
+    private bool on_predelete() {
+        return false;
+       
+    }
+
+
     private void onDelete()
     {
+
+         if (!(on_predelete())) return ;
         try
         {
             using (var db = dbf.CreateDbContext())
@@ -528,6 +542,7 @@
             throw e;
         }
     }
+
     private void onNew()
     {
         _hadd = new Hadd();
@@ -834,7 +849,7 @@
 
                 ret = await ds.OpenAsync<ModaltrnsList>("",
                     new Dictionary<string, object>() { { "stock_code", _hadd.StockCode }, { "trns_kind", _hadd.Kind.ToString() } },
-                     new DialogOptions() { ShowTitle = false, Width = "900px", Height = "400px", Resizable = true, Draggable = true });
+                     new DialogOptions() { ShowTitle = false, Width = "900px", Height = "400px", Resizable = false, Draggable = true });
 
 
                 if (ret != null)   {
@@ -977,6 +992,7 @@
                 break;
         }
     }
+
     private async Task f_ondblclickdetail(string name, int row){
         Dictionary<string, object> ret;
         List<Item>   itemlist;

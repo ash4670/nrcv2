@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using nrcv2.Models;
+using nrcv2.Pages;
 using Radzen;
 using System;
 using System.Collections.Generic;
@@ -14,19 +15,22 @@ namespace nrcv2.services
     {
 
         protected NotificationService _NotificationService { get; set; }
+        protected DialogService _ds { get; set; }
 
         [Inject]
         IDbContextFactory<nrcwebContext> dbf { get; set; }
         public Gtools()
         {
         }
-        public Gtools(NotificationService Nt, IDbContextFactory<nrcwebContext> dbfact )
+        public Gtools(NotificationService Nt, IDbContextFactory<nrcwebContext> dbfact , DialogService ds )
         {
             _NotificationService = Nt;
+            _ds = ds;
             dbf = dbfact;
         }
         public  void Mynotify(string title = "", string content = "") {
             _NotificationService.Notify(NotificationSeverity.Error, title, content, -1);
+            
         }
 
         public void Myinfo(string title = "", string content = "")
@@ -34,6 +38,7 @@ namespace nrcv2.services
             _NotificationService.Notify(NotificationSeverity.Info, title, content, -1);
         }
 
+       
 
         public IEnumerable<T> GetAll<T>() where T : class, new()
         {
