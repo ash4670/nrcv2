@@ -285,7 +285,7 @@
             <button class="btn btn-primary  ml-1 ml-md-1   col-2 font-weight-bolder" ButtonType="ButtonType.Submit" @onclick="onSave">تسجيل</button>
             <button class="btn btn-primary  ml-1 ml-md-1   col-2  font-weight-bolder" @onclick="onNew">جديد</button>
             <button class="btn btn-primary  ml-1 ml-md-1   col-2  font-weight-bolder" @onclick="onAddNewItem">إضافة صنف</button>
-            <button class="btn btn-danger  ml-1 ml-md-1  col-2 font-weight-bolder" @onclick="onDelete">حذف</button>
+            <button class="btn btn-danger  ml-1 ml-md-1  col-2 font-weight-bolder" @onclick="@(a=>onDelete())">حذف</button>
 
         </div>
     </div>
@@ -339,6 +339,10 @@
             return false;
         }
 
+        if (string.IsNullOrWhiteSpace(_hadd.GhaMain) ) {
+            gt.Mynotify("خطأ", "يجب إدخال إسم الجهة");
+            return false;
+        }
         if (_hadd.IncDec == null) { _hadd.IncDec = 0; }
         if (_hadd.Perc == null) { _hadd.Perc = 0; }
         using (var db = dbf.CreateDbContext())
@@ -517,29 +521,79 @@
     }
 
     private bool on_predelete() {
-        return false;
-       
+        using (var db = dbf.CreateDbContext())
+        {
+            if (!db.Dadds.Any(d => d.StockCode.Equals(_hadd.StockCode) && d.TrnNo.Equals(_hadd.TrnNo) && d.Kind == kind && d.TrnYear.Equals(_hadd.TrnYear))) {
+                gt.Mynotify("خطأ","لا يمكن الحذف لا يوجد بيانات فى أصل المستند");
+                return false;
+            }
+        }
+        return true;
+
     }
 
 
-    private void onDelete()
+    private int onDelete()
     {
-
-         if (!(on_predelete())) return ;
-        try
+        if (!(on_predelete())) return -1;
+        bool is_ok = true;
+        using (var db = dbf.CreateDbContext())
         {
-            using (var db = dbf.CreateDbContext())
-                if (_hadd.Id != 0)
+            using (var transaction = db.Database.BeginTransaction())
+            {
+                List<Dadd> olditems=new List<Dadd>();
+                olditems = db.Dadds.Where(d => d.Haddid == _hadd.Id).ToList();
+                try
                 {
-                    db.Remove(_hadd);
-                    if (db.SaveChanges() > 0) onNew();
+                    if (kind == 2)
+                    {
+                        //remove ohda//year
+                        var x = db.Arquants.Where(a => a.TrnNo.Equals(_hadd.TrnNo) && a.StockCode.Equals(curr_stockcode) && a.Kind.Equals("0")).FirstOrDefault();
+                        if (x != null) { db.Arquants.Remove(x); }
+                    }
+
+                    db.Hadds.Remove(_hadd);
+                    db.SaveChanges();
+                    foreach (var item in olditems)
+                    {
+                        decimal? ld_bal;
+                        ld_bal = gt.getbal(item.StockCode, item.ItemCode, item.TrnYear, db);//and check bal after  // ld_trnqty = db.Dadds.Where(d => d.TrnYear.Equals(item.TrnYear) && d.ItemCode.Equals(item.ItemCode) && d.StockCode.Equals(item.StockCode)).ToList().Sum(r => r.Kind == 1 ? r.ItemQuant : -1 * r.ItemQuant);
+                        if (ld_bal < 0)
+                        {
+                            gt.Mynotify("خطأ", "رصيد الصنف سوف يصبح سالب" + " " + item.ItemCode);
+                            is_ok = false;
+                            _hadd.Transfer = false;
+                            transaction.Rollback();
+                            return -1;
+
+                        }
+                        //post the bal 
+                        db.Items.Where(i => i.StockCode.Equals(item.StockCode) && i.ItemCode.Equals(item.ItemCode)).FirstOrDefault().OpenbalQuant = ld_bal;
+                        //update costs
+                        gt.recitemcost(item.StockCode, item.ItemCode, item.TrnDate, item.TrnYear, db);
+                    }
+
+                    db.SaveChanges();//again to save the bal and cost calc
+                    if (is_ok)
+                {
+                    transaction.Commit();
+                    gt.Myinfo("إعلام", "تم الحذف");
                 }
+                    else
+                {
+                    transaction.Rollback();
 
-        }
-        catch (DbUpdateException e)
-        {
-
-            throw e;
+                }
+                }
+                
+                catch (Exception e)
+                {
+                    gt.Mynotify("خطأ", "حدث خطأ أثناءالحذف" + e.Message);
+                    transaction.Rollback();
+                    throw;
+                }
+            }
+        return 0;
         }
     }
 
@@ -780,6 +834,11 @@
                 break;
             case "ghanum":
                 string ls_geha_main;
+                if (string.IsNullOrWhiteSpace(arg)) {
+                    gt.Mynotify("خطأ", "يجب إدخال كود الجهة بشكل سليم");
+                    return;
+                }
+
                 ls_geha_main = list_tklf_sub.Where(a => a.KindCode == LGHA_CODE && a.TklfsubCode == arg).FirstOrDefault().TklfCode;
                 _hadd.GhaMain = ls_geha_main;
                 break;
