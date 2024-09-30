@@ -52,7 +52,8 @@
     <div class="card-footer">
         <div class="row text-center">
             <div class="col-4">
-                <RadzenButton class="btn-dark" ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Secondary" @onclick="onSave">تسجيل</RadzenButton>
+                @*<RadzenButton class="btn-dark" ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Secondary" @onclick="onSave">تسجيل</RadzenButton>*@
+                <button class="btn btn-outline-secondary" @onclick="onSave">تسجيل</button>
             </div>
             <div class="col-4">
                 <button class="btn btn-outline-dark" @onclick="onNew">جديد</button>
@@ -178,12 +179,12 @@
                     default: break;
                 }
             }
-            void OnSubmit(Stock model)
-            {
-                Console.WriteLine(model);
-            }
-            void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
-            { }
+            //void OnSubmit(Stock model)
+            //{
+            //    Console.WriteLine(model);
+            //}
+            //void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+            //{ }
 
             private async Task f_ondblclick(string name)
             {

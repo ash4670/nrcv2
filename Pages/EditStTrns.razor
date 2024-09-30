@@ -469,9 +469,6 @@
                         {
                             if (!(_hadd.Dadds.Any(d => d.ItemCode.Equals(oitem.ItemCode)))) all_items.Add(oitem);
                         }
-
-
-
                     }
 
 
@@ -575,17 +572,17 @@
 
                     db.SaveChanges();//again to save the bal and cost calc
                     if (is_ok)
-                {
-                    transaction.Commit();
-                    gt.Myinfo("إعلام", "تم الحذف");
-                }
+                    {
+                        transaction.Commit();
+                        gt.Myinfo("إعلام", "تم الحذف");
+                    }
                     else
-                {
-                    transaction.Rollback();
+                    {
+                        transaction.Rollback();
 
+                    }
                 }
-                }
-                
+
                 catch (Exception e)
                 {
                     gt.Mynotify("خطأ", "حدث خطأ أثناءالحذف" + e.Message);
@@ -593,7 +590,7 @@
                     throw;
                 }
             }
-        return 0;
+            return 0;
         }
     }
 
@@ -612,12 +609,14 @@
         if (!string.IsNullOrEmpty(curr_stockcode))
         {
             _hadd.StockCode = curr_stockcode;
-            int maxno;
+            int maxno=0;
             using (var db = dbf.CreateDbContext())
             {
-                int.TryParse(db.Hadds.Where(a => a.StockCode == curr_stockcode && a.Kind == kind).OrderByDescending(a => a.TrnNo).FirstOrDefault().TrnNo, out maxno);
+                var records = db.Hadds.Where(a => a.StockCode == curr_stockcode && a.Kind == kind).OrderByDescending(a => a.TrnNo).FirstOrDefault();
+                if (records !=null)
+                    int.TryParse(records.TrnNo, out maxno);
             }
-            maxno++;
+            maxno++ ;
             _hadd.TrnNo = maxno.ToString().PadLeft(10,'0');
         }
         _hadd.TrnDate = DateTime.Parse(DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt"));
