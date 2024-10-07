@@ -28,9 +28,9 @@ namespace nrcv2.services
             _ds = ds;
             dbf = dbfact;
         }
-        public  void Mynotify(string title = "", string content = "") {
+        public void Mynotify(string title = "", string content = "")
+        {
             _NotificationService.Notify(NotificationSeverity.Error, title, content, -1);
-            
         }
 
         public void Myinfo(string title = "", string content = "")
@@ -48,7 +48,6 @@ namespace nrcv2.services
                 temp = (from e in db.Set<T>() select e).ToList();
                 return temp;
             }
-            ;
         }
         public IEnumerable<T> GetAll<T>(Func<T, bool> w) where T : class, new()
         {
@@ -58,9 +57,8 @@ namespace nrcv2.services
                 temp=(from e in db.Set<T>() select e ).ToList().Where(a=>w(a));
                 return temp;
             }
-             ;
         }
-        public bool gf_check_arcode_status(string as_arcode) {
+        public bool CheckArcodeStatus(string as_arcode) {
             Arname _arname;
             using (var db = dbf.CreateDbContext())
             {
@@ -93,8 +91,7 @@ namespace nrcv2.services
             
             return true;
         }
-
-        public double? get_avg_b4_time(string as_itemcode,string as_stock, DateTime? as_dt) {
+        public double? GetAvgB4Time(string as_itemcode,string as_stock, DateTime? as_dt) {
             using (var db = dbf.CreateDbContext())
             {
                 decimal? ld_openprice, ld_cost;
@@ -113,8 +110,7 @@ namespace nrcv2.services
                 else return (double?)ld_openprice;
             }
         }
-
-        public decimal? getbal(string as_stockcode, string as_itemcode, string as_year , nrcwebContext db)
+        public decimal? GetBal(string as_stockcode, string as_itemcode, string as_year , nrcwebContext db)
         {
             decimal? trns_qty , ld_openbal;
             trns_qty =(decimal?) db.Dadds.Where(d => d.TrnYear.Equals(as_year) && d.ItemCode.Equals(as_itemcode) && d.StockCode.Equals(as_stockcode)).ToList().Sum(r => r.Kind == 1 ? r.ItemQuant : -1 * r.ItemQuant);
@@ -122,13 +118,12 @@ namespace nrcv2.services
             ld_openbal = db.Items.Where(i => i.ItemCode.Equals(as_itemcode) && i.StockCode.Equals(as_stockcode)).FirstOrDefault().OpenQuant;
             return ld_openbal + trns_qty;
         }
-        public decimal? getbal(string as_stockcode, string as_itemcode,string as_year  ) {
+        public decimal? GetBal(string as_stockcode, string as_itemcode,string as_year  ) {
             decimal? trns_qty;
-            using (var db = dbf.CreateDbContext()) trns_qty= getbal( as_stockcode,  as_itemcode,  as_year, db);
+            using (var db = dbf.CreateDbContext()) trns_qty= GetBal( as_stockcode,  as_itemcode,  as_year, db);
            return trns_qty;
         }
-
-        public void recitemcost(string as_stockcode, string as_itemcode,DateTime? as_dt ,  string as_year, nrcwebContext db)
+        public void RecItemCost(string as_stockcode, string as_itemcode,DateTime? as_dt ,  string as_year, nrcwebContext db)
         {
             decimal? tempBal = 0m, tempcost = 0m;
             decimal? ld_openprice,ld_openbal, ld_trnsprice, ld_trnsqty;
@@ -157,5 +152,4 @@ namespace nrcv2.services
             db.Items.Where(i => i.StockCode.Equals(as_stockcode) && i.ItemCode.Equals(as_itemcode) /*i.year.Equals(as_year) */).FirstOrDefault().Value = tempcost;
         }
     }
-  
 }

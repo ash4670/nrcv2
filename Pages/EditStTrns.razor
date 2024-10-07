@@ -25,8 +25,7 @@
         @_hadd.TrnNo
         @(_hadd.Kind == 1 ? "إذن إضافة" : "إذن صرف") - @(_hadd.Id == 0 ? "جديد" : "تعديل")
     </div>
-    @*<div class="card-body font-weight-bold ">*@
-
+   
     <RadzenTemplateForm TItem="Hadd" Data=@_hadd InvalidSubmit=@OnInvalidSubmit>
         <div class="row">
             <div class="col-6">
@@ -272,15 +271,7 @@
 
     </div>
 
-    @*</div>*@
-
     <div class="card-footer">
-
-        @*<div class=" alert alert-info border border-info text-center h3">
-                <button class="btn btn-primary btn  col-2 mr-auto font-weight-bolder" @onclick="onSave">تسجيل</button>
-                <button class="btn btn-primary btn col-2 mr-auto font-weight-bolder" @onclick="onNew">إضافة</button>
-                <button class="btn btn-danger btn col-2 mr-auto font-weight-bolder" @onclick="onDelete">حذف</button>
-            </div>*@
         <div class="alert alert-primary h6 text-center     btn-group-sm  row ">
             <button class="btn btn-primary  ml-1 ml-md-1   col-2 font-weight-bolder" ButtonType="ButtonType.Submit" @onclick="onSave">تسجيل</button>
             <button class="btn btn-primary  ml-1 ml-md-1   col-2  font-weight-bolder" @onclick="onNew">جديد</button>
@@ -294,6 +285,8 @@
 
 @code {
     #region code
+
+    #region declarations
     [Parameter]
     public int? id { get; set; }
     [Parameter]
@@ -309,13 +302,15 @@
     private List<Tklfsub> list_tklf_sub = new List<Tklfsub>();
     private List<Out> list_outs = new List<Out>();
     bool shownum = false;
+    #endregion  declarations
+
     protected override void OnInitialized()
     {
         list_outs = gt.GetAll<Out>().ToList();
     }
+
     protected override void OnParametersSet()
     {
-
         curr_stockcode = "";
         _hadd = new Hadd();
         using (var db = dbf.CreateDbContext())
@@ -354,7 +349,7 @@
             }
         }
         if (kind == 2) {
-            if (!gt.gf_check_arcode_status(_hadd.ArName)) {
+            if (!gt.CheckArcodeStatus(_hadd.ArName)) {
                 return false;
             }
         }
@@ -476,7 +471,7 @@
                     foreach (var item in all_items)
                     {
                         decimal? ld_bal;
-                        ld_bal = gt.getbal(item.StockCode, item.ItemCode, item.TrnYear,db);//and check bal after  // ld_trnqty = db.Dadds.Where(d => d.TrnYear.Equals(item.TrnYear) && d.ItemCode.Equals(item.ItemCode) && d.StockCode.Equals(item.StockCode)).ToList().Sum(r => r.Kind == 1 ? r.ItemQuant : -1 * r.ItemQuant);
+                        ld_bal = gt.GetBal(item.StockCode, item.ItemCode, item.TrnYear,db);//and check bal after  // ld_trnqty = db.Dadds.Where(d => d.TrnYear.Equals(item.TrnYear) && d.ItemCode.Equals(item.ItemCode) && d.StockCode.Equals(item.StockCode)).ToList().Sum(r => r.Kind == 1 ? r.ItemQuant : -1 * r.ItemQuant);
                         if (ld_bal < 0) {
                             gt.Mynotify("خطأ", "رصيد الصنف سوف يصبح سالب" + " " + item.ItemCode);
                             is_ok = false;
@@ -488,7 +483,7 @@
                         //post the bal 
                         db.Items.Where(i => i.StockCode.Equals(item.StockCode) && i.ItemCode.Equals(item.ItemCode)).FirstOrDefault().OpenbalQuant = ld_bal;
                         //update costs
-                        gt.recitemcost(item.StockCode, item.ItemCode, item.TrnDate, item.TrnYear, db);
+                        gt.RecItemCost(item.StockCode, item.ItemCode, item.TrnDate, item.TrnYear, db);
 
 
                     }
@@ -529,7 +524,6 @@
 
     }
 
-
     private int onDelete()
     {
         if (!(on_predelete())) return -1;
@@ -554,7 +548,7 @@
                     foreach (var item in olditems)
                     {
                         decimal? ld_bal;
-                        ld_bal = gt.getbal(item.StockCode, item.ItemCode, item.TrnYear, db);//and check bal after  // ld_trnqty = db.Dadds.Where(d => d.TrnYear.Equals(item.TrnYear) && d.ItemCode.Equals(item.ItemCode) && d.StockCode.Equals(item.StockCode)).ToList().Sum(r => r.Kind == 1 ? r.ItemQuant : -1 * r.ItemQuant);
+                        ld_bal = gt.GetBal(item.StockCode, item.ItemCode, item.TrnYear, db);//and check bal after  // ld_trnqty = db.Dadds.Where(d => d.TrnYear.Equals(item.TrnYear) && d.ItemCode.Equals(item.ItemCode) && d.StockCode.Equals(item.StockCode)).ToList().Sum(r => r.Kind == 1 ? r.ItemQuant : -1 * r.ItemQuant);
                         if (ld_bal < 0)
                         {
                             gt.Mynotify("خطأ", "رصيد الصنف سوف يصبح سالب" + " " + item.ItemCode);
@@ -567,7 +561,7 @@
                         //post the bal 
                         db.Items.Where(i => i.StockCode.Equals(item.StockCode) && i.ItemCode.Equals(item.ItemCode)).FirstOrDefault().OpenbalQuant = ld_bal;
                         //update costs
-                        gt.recitemcost(item.StockCode, item.ItemCode, item.TrnDate, item.TrnYear, db);
+                        gt.RecItemCost(item.StockCode, item.ItemCode, item.TrnDate, item.TrnYear, db);
                     }
 
                     db.SaveChanges();//again to save the bal and cost calc
@@ -620,10 +614,8 @@
             _hadd.TrnNo = maxno.ToString().PadLeft(10,'0');
         }
         _hadd.TrnDate = DateTime.Parse(DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt"));
-
         //  DateTime.ParseExact(DateTime.Now.ToString("MM/dd/yyyy hh:mm tt"), "", CultureInfo.InvariantCulture);
         StateHasChanged();
-
     }
 
     public async Task<int> f_MasterValidate(string name, dynamic arg) {
@@ -995,7 +987,7 @@
                     }
                     else {//get the avg before time
                         double? ld_cost ;
-                        ld_cost = gt.get_avg_b4_time(_value, curr_stockcode, _hadd.TrnDate);
+                        ld_cost = gt.GetAvgB4Time(_value, curr_stockcode, _hadd.TrnDate);
                         _hadd.Dadds.ToList().ElementAt(row).ItemPrice = ld_cost;
 
 
@@ -1128,8 +1120,10 @@
     void OnSubmit(Hadd model){
         Console.WriteLine(model);
     }
+
     void OnInvalidSubmit(FormInvalidSubmitEventArgs args){ }
-    #endregion
+
+    #endregion code
 }
 
 

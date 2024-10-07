@@ -6,180 +6,177 @@
     .form-group, input {
         padding: 0px;
         margin: 1px;
-        font-weight:bold;
-        font-size:small;
-        height:75%;
+        font-weight: bold;
+        font-size: small;
+        height: 75%;
     }
-
-      
-    
 </style>
-    <div class="  text-center  alert alert-info border border-info h5  m-1 p-1   ">  @(_item.Id==0? "جديد" : "تعديل")</div>
-    <EditForm Model=_item OnValidSubmit="HandleValidSubmit">
-        <div class="container">
+<div class="  text-center  alert alert-info border border-info h5  m-1 p-1   ">  @(_item.Id==0? "جديد" : "تعديل")</div>
+<EditForm Model=_item OnValidSubmit="HandleValidSubmit">
+    <div class="container">
 
-            <div class="row form-group form-inline">
-                <label class="col-sm-2" for="StockCode">كود المخزن</label>
-                <select class="form-control" value="@_item.StockCode"  @onchange="@((a)=>f_onchange("StockCode",a.Value))">
-                    <option>--select--</option>
-                    @foreach (var item in _stockist)
-                    {
-                        <option value="@item.StockCode">@item.StockName</option>
-                    }
-                </select>
-            </div>
-            <ValidationMessage For="() => _item.StockCode" />
-
-
-            <div class="row form-group form-inline">
-                <label class="col-sm-2" for="ItemCode">كود الصنف</label>
-                <input style="background-color:lemonchiffon" id="ItemCode" @ondblclick="@(async ()=>await f_ondblclick("itemcode"))" value=@_item.ItemCode @onchange="@((a)=>f_onchange("itemcode",a.Value))" class="form-control col-sm-2" />
-                <span class="col-sm-2"></span>
-                <label class="col-sm-2" for="OpenbalDate">تاريخ التعريف</label>
-                @*<input value="@_item.OpenbalDate" type = "date"  id="OpenbalDate" TValue="Datetime?"  ParsingErrorMessage="التاريخ غير صحيح" class="form-control col-3" @onchange="@(async (a)=>await f_onchange("openbaldate",a.Value))" />*@
-                <RadzenDatePicker Value=_item.OpenbalDate DateFormat="dd/MM/yyyy" ShowTime="false" id="OpenbalDate" TValue=DateTime class="form-control col-sm-3  p-0 m-1" @onchange="@(async (a)=>await f_onchange("openbaldate",a.Value))" />
-            </div>
-            <ValidationMessage For="() => _item.ItemCode" />
-
-            <div class="row form-group form-inline">
-                <label class="col-sm-2" for="EngName">وصف</label>
-                <InputText id="EngName" @bind-Value="_item.EngName" class="form-control col-sm-4" />
-                <span class="col-sm-1"></span>
-                <label class="col-sm-1" for="EngName">الوحدة</label>
-                <InputText id="EngName" @bind-Value="_item.UnitName" class="form-control col-sm-2" />
-            </div>
-            <ValidationMessage For="() => _item.EngName" />
-
-            <div class="row form-group   form-inline">
+        <div class="row form-group form-inline">
+            <label class="col-sm-2" for="StockCode">كود المخزن</label>
+            <select class="form-control" value="@_item.StockCode" @onchange="@((a)=>f_onchange("StockCode",a.Value))">
+                <option>--select--</option>
+                @foreach (var item in _stockist)
+                {
+                    <option value="@item.StockCode">@item.StockName</option>
+                }
+            </select>
+        </div>
+        <ValidationMessage For="() => _item.StockCode" />
 
 
-                <label class="col-sm-2" for="OpenQuant">الرصيد الإفتتاحى</label>
-                <input id="OpenQuant" Value="@_item.OpenQuant"  @onchange="@((a)=>f_onchange("OpenQuant",a.Value))" class="form-control col-sm-2" />
-                <span class="col-sm-2"></span>
-                <label class="col-sm-2" for="OpenbalQuant">الرصيد الحالى</label>
-                <input id="OpenbalQuant" disabled Value="@_item.OpenbalQuant" class="form-control col-sm-2" />
-                <ValidationMessage For="() => _item.OpenbalQuant" />
-            </div>
+        <div class="row form-group form-inline">
+            <label class="col-sm-2" for="ItemCode">كود الصنف</label>
+            <input style="background-color:lemonchiffon" id="ItemCode" @ondblclick="@(async ()=>await f_ondblclick("itemcode"))" value=@_item.ItemCode @onchange="@((a)=>f_onchange("itemcode",a.Value))" class="form-control col-sm-2" />
+            <span class="col-sm-2"></span>
+            <label class="col-sm-2" for="OpenbalDate">تاريخ التعريف</label>
+            @*<input value="@_item.OpenbalDate" type = "date"  id="OpenbalDate" TValue="Datetime?"  ParsingErrorMessage="التاريخ غير صحيح" class="form-control col-3" @onchange="@(async (a)=>await f_onchange("openbaldate",a.Value))" />*@
+            <RadzenDatePicker Value=_item.OpenbalDate DateFormat="dd/MM/yyyy" ShowTime="false" id="OpenbalDate" TValue=DateTime class="form-control col-sm-3  p-0 m-1" @onchange="@(async (a)=>await f_onchange("openbaldate",a.Value))" />
+        </div>
+        <ValidationMessage For="() => _item.ItemCode" />
 
-            <div class="row form-group  form-inline">
-                <label class="col-sm-2" for="ItemOrderlimit">حد الطلب</label>
-                <InputNumber id="ItemOrderlimit" @bind-Value="_item.ItemOrderlimit" class="form-control col-sm-2" />
-                <span class="col-sm-2"></span>
-                <label class="col-sm-2" for="FactQuant">الكمية من الجرد</label>
-                <InputNumber id="FactQuant" style="background-color:aqua;" @bind-Value="_item.FactQuant" class="form-control col-sm-2" />
-            </div>
+        <div class="row form-group form-inline">
+            <label class="col-sm-2" for="EngName">وصف</label>
+            <InputText id="EngName" @bind-Value="_item.EngName" class="form-control col-sm-4" />
+            <span class="col-sm-1"></span>
+            <label class="col-sm-1" for="EngName">الوحدة</label>
+            <InputText id="EngName" @bind-Value="_item.UnitName" class="form-control col-sm-2" />
+        </div>
+        <ValidationMessage For="() => _item.EngName" />
 
-
-            <div class="row form-group form-inline">
-                <label class="col-sm-2" for="OpenPrice">سعر الوحدة</label>
-                <input id="OpenPrice" value="@_item.OpenPrice"  @onchange="@((a)=>f_onchange("OpenPrice",a.Value))" class="form-control col-sm-2" />
-                <span class="col-sm-2"></span>
-                <label class="col-sm-2" for="Value">أخر سعر وحدة</label>
-                <InputNumber id="Value" disabled @bind-Value="_item.Value" class="form-control col-sm-2" />
-            </div>
+        <div class="row form-group   form-inline">
 
 
+            <label class="col-sm-2" for="OpenQuant">الرصيد الإفتتاحى</label>
+            <input id="OpenQuant" Value="@_item.OpenQuant" @onchange="@((a)=>f_onchange("OpenQuant",a.Value))" class="form-control col-sm-2" />
+            <span class="col-sm-2"></span>
+            <label class="col-sm-2" for="OpenbalQuant">الرصيد الحالى</label>
+            <input id="OpenbalQuant" disabled Value="@_item.OpenbalQuant" class="form-control col-sm-2" />
+            <ValidationMessage For="() => _item.OpenbalQuant" />
+        </div>
 
-            <div class="row form-group  form-inline">
-                <label class="col-sm-2" for="ItemDesc">نوع الصنف</label>
-                <select id="ItemDesc" @bind="_item.ItemDesc" name="ItemDesc" class="form-control col-sm-2">
-                    <option value="1">مستديم</option>
-                    <option value="2">مستهلك</option>
-                </select>
+        <div class="row form-group  form-inline">
+            <label class="col-sm-2" for="ItemOrderlimit">حد الطلب</label>
+            <InputNumber id="ItemOrderlimit" @bind-Value="_item.ItemOrderlimit" class="form-control col-sm-2" />
+            <span class="col-sm-2"></span>
+            <label class="col-sm-2" for="FactQuant">الكمية من الجرد</label>
+            <InputNumber id="FactQuant" style="background-color:aqua;" @bind-Value="_item.FactQuant" class="form-control col-sm-2" />
+        </div>
+
+
+        <div class="row form-group form-inline">
+            <label class="col-sm-2" for="OpenPrice">سعر الوحدة</label>
+            <input id="OpenPrice" value="@_item.OpenPrice" @onchange="@((a)=>f_onchange("OpenPrice",a.Value))" class="form-control col-sm-2" />
+            <span class="col-sm-2"></span>
+            <label class="col-sm-2" for="Value">أخر سعر وحدة</label>
+            <InputNumber id="Value" disabled @bind-Value="_item.Value" class="form-control col-sm-2" />
+        </div>
 
 
 
-
-
-                <span class="col-sm-2"></span>
-                <label class="col-sm-2" for="ItemDtype">التصنيف</label> 
-               
-
-                <select id="ItemDtype" @bind="_item.ItemDtype" name="ItemDtype" class="form-control col-sm-2">
-                    <option value="1">عادى</option>
-                    <option value="2">تاريخ صلاحية</option>
-                </select>
-
-
-
-               
-            </div>
+        <div class="row form-group  form-inline">
+            <label class="col-sm-2" for="ItemDesc">نوع الصنف</label>
+            <select id="ItemDesc" @bind="_item.ItemDesc" name="ItemDesc" class="form-control col-sm-2">
+                <option value="1">مستديم</option>
+                <option value="2">مستهلك</option>
+            </select>
 
 
 
 
-            <div class="row form-group form-inline">
-                <label class="col-sm-2" for="Cas">رقم CAS</label>
-                <InputText id="Cas" @bind-Value="_item.Cas" class="form-control col-sm-2" />
-                <span class="col-sm-2"></span>
-                @{bool flag = (_item.Isinstrument == 1);}
-                <RadzenLabel  class="col-sm-2"  Text="مجموعة أجهزة" Component="Isinstrument" Style="margin-left: 5px;" />
-                
-                <RadzenCheckBox  class="col-sm-2"  Value="@flag" Name="Isinstrument" TValue="bool" Change=@(args => f_onchange("Isinstrument",args)) />
+
+            <span class="col-sm-2"></span>
+            <label class="col-sm-2" for="ItemDtype">التصنيف</label>
+
+
+            <select id="ItemDtype" @bind="_item.ItemDtype" name="ItemDtype" class="form-control col-sm-2">
+                <option value="1">عادى</option>
+                <option value="2">تاريخ صلاحية</option>
+            </select>
 
 
 
-                @*<label class="custom-control-label" for="Isinstrument">
-            مجموعة أجهزة
-            <input type="checkbox" id="Isinstrument" name="Isinstrument" checked>
-        </label>*@
-            </div>
-            <div class="row form-group form-inline">
-             
-            </div>
-            <div class="row form-group form-inline">
-                <label class="col-sm-2" for="ScientificName">البديل العلمى</label>
-                <InputText id="ScientificName" @bind-Value="_item.ScientificName" class="form-control col-sm-3" />
-                <label class="col-sm-2" for="SeriousLevel">درجة الخطورة</label>
-                <InputText id="SeriousLevel" @bind-Value="_item.SeriousLevel" class="form-control col-sm-3" />
-
-            </div>
-            <div class="row form-group form-inline">
-                <label class="col-sm-2" for="AlternativeName1">البديل الأول</label>
-                <InputText id="AlternativeName1" @bind-Value="_item.AlternativeName1" class="form-control col-sm-3" />
-
-                <label class="col-sm-2" for="AlternativeName2">البديل الثانى</label>
-                <InputText id="AlternativeName2" @bind-Value="_item.AlternativeName2" class="form-control col-sm-3" />
-
-
-            </div>
-
-            <div class="row form-group form-inline">
-                <label class="col-sm-2" for="AlternativeName3">البديل الثالث</label>
-                <InputText id="AlternativeName3" @bind-Value="_item.AlternativeName3" class="form-control col-sm-3" />
-
-                <label class="col-sm-2" for="AlternativeName4">البديل الرابع</label>
-                <InputText id="AlternativeName4" @bind-Value="_item.AlternativeName4" class="form-control col-sm-3" />
-            </div>
 
         </div>
-        <DataAnnotationsValidator />
-        <ValidationSummary />
 
 
 
 
+        <div class="row form-group form-inline">
+            <label class="col-sm-2" for="Cas">رقم CAS</label>
+            <InputText id="Cas" @bind-Value="_item.Cas" class="form-control col-sm-2" />
+            <span class="col-sm-2"></span>
+            @{bool flag = (_item.Isinstrument == 1);}
+            <RadzenLabel class="col-sm-2" Text="مجموعة أجهزة" Component="Isinstrument" Style="margin-left: 5px;" />
+
+            <RadzenCheckBox class="col-sm-2" Value="@flag" Name="Isinstrument" TValue="bool" Change=@(args => f_onchange("Isinstrument",args)) />
 
 
 
-
-
-
-
-
-
-        <div class="  text-center  alert alert-info border border-info h5  m-1 p-1  btn-group-sm ">
-
-            @*<div class="row  alert alert-info border  btn-group-sm   border-info text-center h6">*@
-            <button class="btn btn-primary btn  col-2 mr-auto font-weight-bolder" @onclick="onSave">تسجيل</button>
-            <button class="btn btn-primary btn col-2 mr-auto font-weight-bolder" @onclick="onNew">إضافة</button>
-            <button class="btn btn-danger btn col-2 mr-auto font-weight-bolder" @onclick="onDelete">حذف</button>
+            @*<label class="custom-control-label" for="Isinstrument">
+                    مجموعة أجهزة
+                    <input type="checkbox" id="Isinstrument" name="Isinstrument" checked>
+                </label>*@
         </div>
-    </EditForm>
-        
-    
+        <div class="row form-group form-inline">
 
-    
+        </div>
+        <div class="row form-group form-inline">
+            <label class="col-sm-2" for="ScientificName">البديل العلمى</label>
+            <InputText id="ScientificName" @bind-Value="_item.ScientificName" class="form-control col-sm-3" />
+            <label class="col-sm-2" for="SeriousLevel">درجة الخطورة</label>
+            <InputText id="SeriousLevel" @bind-Value="_item.SeriousLevel" class="form-control col-sm-3" />
+
+        </div>
+        <div class="row form-group form-inline">
+            <label class="col-sm-2" for="AlternativeName1">البديل الأول</label>
+            <InputText id="AlternativeName1" @bind-Value="_item.AlternativeName1" class="form-control col-sm-3" />
+
+            <label class="col-sm-2" for="AlternativeName2">البديل الثانى</label>
+            <InputText id="AlternativeName2" @bind-Value="_item.AlternativeName2" class="form-control col-sm-3" />
+
+
+        </div>
+
+        <div class="row form-group form-inline">
+            <label class="col-sm-2" for="AlternativeName3">البديل الثالث</label>
+            <InputText id="AlternativeName3" @bind-Value="_item.AlternativeName3" class="form-control col-sm-3" />
+
+            <label class="col-sm-2" for="AlternativeName4">البديل الرابع</label>
+            <InputText id="AlternativeName4" @bind-Value="_item.AlternativeName4" class="form-control col-sm-3" />
+        </div>
+
+    </div>
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="  text-center  alert alert-info border border-info h5  m-1 p-1  btn-group-sm ">
+
+        @*<div class="row  alert alert-info border  btn-group-sm   border-info text-center h6">*@
+        <button class="btn btn-primary btn  col-2 mr-auto font-weight-bolder" @onclick="onSave">تسجيل</button>
+        <button class="btn btn-primary btn col-2 mr-auto font-weight-bolder" @onclick="onNew">إضافة</button>
+        <button class="btn btn-danger btn col-2 mr-auto font-weight-bolder" @onclick="onDelete">حذف</button>
+    </div>
+</EditForm>
+
+
+
+
 
 
 
@@ -200,11 +197,12 @@
         //old_stock = _item.StockCode;
         _item = new Item();
         _item.StockCode = curr_stockcode;
-        _item.OpenbalDate =DateTime.Parse( DateTime.Now.ToString("dd/MM/yyyy hh:mm tt")) ;
-        using (var db = dbf.CreateDbContext()) {
-            string max= db.Items.Where(i=>i.StockCode== curr_stockcode).Max(i => i.ItemCode);
+        _item.OpenbalDate = DateTime.Parse(DateTime.Now.ToString("dd/MM/yyyy hh:mm tt"));
+        using (var db = dbf.CreateDbContext())
+        {
+            string max = db.Items.Where(i => i.StockCode == curr_stockcode).Max(i => i.ItemCode);
             int o;
-            int.TryParse(max,out o);
+            int.TryParse(max, out o);
             o++;
             _item.ItemCode = o.ToString().PadLeft(5);
         }
@@ -217,7 +215,7 @@
     private bool on_presave()
     {
 
-        if (String.IsNullOrWhiteSpace(_item .StockCode)) { gtool.Mynotify("خطأ", "كود المخزن غير معرف"); return false; }
+        if (String.IsNullOrWhiteSpace(_item.StockCode)) { gtool.Mynotify("خطأ", "كود المخزن غير معرف"); return false; }
         if (String.IsNullOrWhiteSpace(_item.ItemCode)) { gtool.Mynotify("خطأ", "كود الصنف خطأ"); return false; }
         if (String.IsNullOrWhiteSpace(_item.EngName)) { gtool.Mynotify("خطأ", "يجب إدخال إسم الصنف"); return false; }
         if ((!_item.OpenbalDate.HasValue) || String.IsNullOrWhiteSpace(_item.OpenbalDate.ToString())) { gtool.Mynotify("خطأ", "ادخل تاريخ التعريف"); return false; }
@@ -437,7 +435,7 @@
                     await f_onchange("itemcode", val[0].ItemCode);
                 }
                 break;
-            default:  break;
+            default: break;
         }
 
     }

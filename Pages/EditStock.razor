@@ -28,24 +28,19 @@
                         <RadzenRequiredValidator Component="StockName" Text="يجب إدخال وصف المخزن" />
                     </div>
                 </div>
-                
-                
-               
             </div>
 
             <div class="form-group row">
                 <label for="Name1" class="col-sm-2">امين المخزن</label>
                 <RadzenTextBox style="display: block" Name="Name1" @bind-Value=@_stock.Name1 Change=@(args => f_onchange("name1",args )) />
             </div>
+
             <div class="form-group row">
                 <RadzenLabel Text="التاريخ" class="col-sm-2" />
                 <RadzenDatePicker Name="vdate" TValue=DateTime ShowTime="true" Value="_stock.Vdate" HourFormat="12" DateFormat="dd/MM/yyyy hh:mm:ss tt" Change=@(args => f_onchange("vdate",args )) />
                 <RadzenRegexValidator Component="vdate" Text="يجب إدخال التاريخ بشكل سليم" Pattern="dd/MM/yyyy hh:mm:ss tt" Style="position: absolute" />
 
             </div>
-
-
-
 
         </RadzenTemplateForm>
     </div>
@@ -78,35 +73,15 @@
                 else onNew();
 
             }
-            private async Task<int> onSave()
+
+            private void onNew()
             {
-                if (!on_presave()) return -1;
-                try
-                {
-                    using (var db = dbf.CreateDbContext())
-                    {
-                        if (_stock.Id == 0)
-                            await db.AddAsync(_stock);
-                        else
-                            db.Update(_stock);
-                        await db.SaveChangesAsync();
-                    }
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
-                return 0;
+                _stock = new Stock();
+                _stock.Vdate = DateTime.Parse(DateTime.Now.ToString("dd/MM/yyyy hh:mm tt"));
+                //  DateTime.ParseExact(DateTime.Now.ToString("MM/dd/yyyy hh:mm tt"), "", CultureInfo.InvariantCulture);
 
             }
-            private bool on_presave()
-            {
-                //if (String.IsNullOrWhiteSpace(_stock.StockCode)) { gtool.Mynotify("خطأ", "كود المخزن غير معرف"); return false; }
-                //if (String.IsNullOrWhiteSpace(_stock.StockName)) { gtool.Mynotify("خطأ", "اسم المخزن غير معرف"); return false; }
-                //if (String.IsNullOrWhiteSpace(_stock.Name1)) { gtool.Mynotify("خطأ", "أمين المخزن غير معرف"); return false; }
-                // if ((!_stock.Vdate.HasValue) || String.IsNullOrWhiteSpace(_stock.Vdate.ToString())) { gtool.Mynotify("خطأ", "ادخل تاريخ التعريف"); return false; }
-                return true;
-            }
+
             private void onDelete()
             {
                 try
@@ -125,13 +100,7 @@
                     throw e;
                 }
             }
-            private void onNew()
-            {
-                _stock = new Stock();
-                _stock.Vdate = DateTime.Parse(DateTime.Now.ToString("dd/MM/yyyy hh:mm tt"));
-                //  DateTime.ParseExact(DateTime.Now.ToString("MM/dd/yyyy hh:mm tt"), "", CultureInfo.InvariantCulture);
 
-            }
             public async Task f_onchange(string name, dynamic arg)
             {
                 string _value = "";
@@ -149,7 +118,9 @@
                             Stock st;
                             st = db.Stocks.FirstOrDefault<Stock>(a => a.StockCode == _value);
                             if (st != null)
+                            {
                                 _stock = st;
+                            }
                             else
                             {
                                 onNew();
@@ -163,11 +134,12 @@
                         await Task.Delay(1); //Magic!
                         StateHasChanged();
                         _value = arg;
-                        if (string.IsNullOrEmpty(_value.ToString()))
-                        {
-                            // _notifi.Notify((new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "", Detail = "يجب إدخال الإسم", Duration = -1 }));
-                            //  gtool.Mynotify("خطأ", "يجب إدخال وصف المخزن");
-                        }
+
+                        //if (string.IsNullOrEmpty(_value.ToString())) {
+                        //     _notifi.Notify((new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "", Detail = "يجب إدخال الإسم", Duration = -1 }));
+                        //      gtool.Mynotify("خطأ", "يجب إدخال وصف المخزن");
+                        //}
+
                         _value = _value.Substring(0, Math.Min(50, _value.Length));
                         _stock.StockName = _value;
                         StateHasChanged();
@@ -179,12 +151,6 @@
                     default: break;
                 }
             }
-            //void OnSubmit(Stock model)
-            //{
-            //    Console.WriteLine(model);
-            //}
-            //void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
-            //{ }
 
             private async Task f_ondblclick(string name)
             {
@@ -208,6 +174,46 @@
                     default: break;
                 }
 
+            }
+
+            private bool on_presave()
+            {
+                //if (String.IsNullOrWhiteSpace(_stock.StockCode)) { gtool.Mynotify("خطأ", "كود المخزن غير معرف"); return false; }
+                //if (String.IsNullOrWhiteSpace(_stock.StockName)) { gtool.Mynotify("خطأ", "اسم المخزن غير معرف"); return false; }
+                //if (String.IsNullOrWhiteSpace(_stock.Name1)) { gtool.Mynotify("خطأ", "أمين المخزن غير معرف"); return false; }
+                // if ((!_stock.Vdate.HasValue) || String.IsNullOrWhiteSpace(_stock.Vdate.ToString())) { gtool.Mynotify("خطأ", "ادخل تاريخ التعريف"); return false; }
+                return true;
+            }
+
+            private async Task<int> onSave()
+            {
+                if (!on_presave()) return -1;
+                try
+                {
+                    using (var db = dbf.CreateDbContext())
+                    {
+                        if (_stock.Id == 0)
+                            await db.AddAsync(_stock);
+                        else
+                            db.Update(_stock);
+                        await db.SaveChangesAsync();
+                    }
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+                return 0;
+
+            }
+
+            //void OnSubmit(Stock model)
+            //{
+            //    Console.WriteLine(model);
+            //}
+
+            void OnInvalidSubmit(FormInvalidSubmitEventArgs args) {
+                Console.WriteLine("edit stock invalid submitt");
             }
         }
 
