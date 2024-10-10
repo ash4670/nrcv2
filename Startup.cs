@@ -60,7 +60,7 @@ namespace nrcv2
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();//commented on 08-10-2024 to stop https and use only http
             app.UseStaticFiles();
 
             app.UseRouting();

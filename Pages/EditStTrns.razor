@@ -468,7 +468,8 @@
 
 
                     await db.SaveChangesAsync();
-                    foreach (var item in all_items)
+                    
+                    foreach (var item in all_items)//check balances after save 
                     {
                         decimal? ld_bal;
                         ld_bal = gt.GetBal(item.StockCode, item.ItemCode, item.TrnYear,db);//and check bal after  // ld_trnqty = db.Dadds.Where(d => d.TrnYear.Equals(item.TrnYear) && d.ItemCode.Equals(item.ItemCode) && d.StockCode.Equals(item.StockCode)).ToList().Sum(r => r.Kind == 1 ? r.ItemQuant : -1 * r.ItemQuant);
