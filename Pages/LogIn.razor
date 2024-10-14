@@ -1,0 +1,43 @@
+﻿@page "/login"
+@inject IDbContextFactory<nrcwebContext> dbf;
+@inject NotificationService n
+@layout EmptyLayout
+@inject NavigationManager navmanager
+<div class="modal  fade show " id="myModal" style=" border : 3px solid #666;display: @display;background-color: rgba(10,10,10,.8);margin:0;padding:0">
+    <div class="modal-dialog  modal-xl">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <div class="alert alert-primary col-12 h3 text-center ">
+                    Log In
+                    <button type="button" class="close" @onclick="OnClose">&times;</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <input type="text" @bind-value="@UserId" placeholder="User name" />
+                <input type="password" @bind-value="@Password" placeholder="password" />
+                @if (!string.IsNullOrEmpty(errorMessage))  {<p style="color:red">@errorMessage</p>}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" @onclick="HandleLogin">موافق</button>
+                <button type="button" class="btn btn-primary" @onclick="OnClose">خروج</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@code { 
+    private string UserId, Username, Password, errorMessage;
+    private string display= "block";
+
+    private void HandleLogin()
+    {
+        // Handle login logic here
+        OnClose();
+    }
+    private void OnClose() {
+        display = "None";
+        navmanager.NavigateTo("/");
+    }
+
+    }
