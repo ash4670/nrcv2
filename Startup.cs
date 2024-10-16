@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
@@ -44,6 +45,11 @@ namespace nrcv2
             services.AddScoped<TooltipService>();
             services.AddScoped<ContextMenuService>();
             services.AddScoped<Gtools>();
+
+            //for authentications service and authentication provider
+            services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddAuthorizationCore(); // Required for authorization
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

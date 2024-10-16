@@ -1,43 +1,79 @@
 ﻿@page "/login"
 @inject IDbContextFactory<nrcwebContext> dbf;
 @inject NotificationService n
+@inject IAuthenticationService AuthenticationService
 @layout EmptyLayout
-@inject NavigationManager navmanager
+@inject NavigationManager NavigationManager
 <div class="modal  fade show " id="myModal" style=" border : 3px solid #666;display: @display;background-color: rgba(10,10,10,.8);margin:0;padding:0">
     <div class="modal-dialog  modal-xl">
         <div class="modal-content ">
             <div class="modal-header">
                 <div class="alert alert-primary col-12 h3 text-center ">
                     Log In
-                    <button type="button" class="close" @onclick="OnClose">&times;</button>
+                    @*<button type="button" class="close" @onclick="OnClose">&times;</button>*@
                 </div>
             </div>
             <div class="modal-body">
-                <input type="text" @bind-value="@UserId" placeholder="User name" />
-                <input type="password" @bind-value="@Password" placeholder="password" />
-                @if (!string.IsNullOrEmpty(errorMessage))  {<p style="color:red">@errorMessage</p>}
+
+                <div class="row form-group form-inline">
+                    <RadzenLabel Text="المستخدم" class="col-sm-2" />
+                    <input type="text" @bind-value="@Username" placeholder="User name" />
+                </div>
+                <div class="row form-group form-inline">
+                    <RadzenLabel Text="كلمة السر" class="col-sm-2" />
+                    <input type="password" @bind-value="@Password" placeholder="password" />
+                </div>
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {<p style="color:red">@errorMessage</p>}
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" @onclick="HandleLogin">موافق</button>
-                <button type="button" class="btn btn-primary" @onclick="OnClose">خروج</button>
+                @*<button type="button" class="btn btn-primary" @onclick="OnClose">خروج</button>*@
             </div>
         </div>
     </div>
 
 </div>
 
-@code { 
+@code {
     private string UserId, Username, Password, errorMessage;
-    private string display= "block";
+    private string display = "block";
 
-    private void HandleLogin()
+    private async Task HandleLogin()
     {
         // Handle login logic here
-        OnClose();
-    }
-    private void OnClose() {
-        display = "None";
-        navmanager.NavigateTo("/");
-    }
+        if (!(string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(Password)))
+        {
+
+            bool result = await AuthenticationService.AuthenticateAsync(Username, Password);
+            if (!result)
+            {
+                errorMessage = "إسم المستخدم او كلمة السر خطأ";
+                // else
+                //{
+                //OnClose();
+                //  NavigationManager.NavigateTo("/");
+                //}
+            }
+            else
+              OnClose();
+            //NavigationManager.NavigateTo("/");
+        }
+        else
+            errorMessage = "أدخل كود المستخدم و كلمة السر";
+
 
     }
+
+    private void OnClose()
+    {
+        display = "None";
+        NavigationManager.NavigateTo("/");
+    }
+
+}
+
+
+
+
+

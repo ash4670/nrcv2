@@ -10,23 +10,26 @@ namespace nrcv2.services
     public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
         private ClaimsPrincipal _anonymous = new ClaimsPrincipal(new ClaimsIdentity());
+        private ClaimsPrincipal _currentUser= new ClaimsPrincipal(new ClaimsIdentity());
 
         public override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            return Task.FromResult(new AuthenticationState(_anonymous));
+            return Task.FromResult(new AuthenticationState(_currentUser)); //Task.FromResult(new AuthenticationState(_anonymous));
         }
 
         public void MarkUserAsAuthenticated(string username)
         {
             var claims = new[] { new Claim(ClaimTypes.Name, username) };
             var identity = new ClaimsIdentity(claims, "apiauth_type");
-            var user = new ClaimsPrincipal(identity);
+             _currentUser = new ClaimsPrincipal(identity);
 
-            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
+            var x = Task.FromResult(new AuthenticationState(_currentUser));
+                NotifyAuthenticationStateChanged(x);
         }
 
         public void MarkUserAsLoggedOut()
         {
+            _currentUser = _anonymous;
             NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(_anonymous)));
         }
     }

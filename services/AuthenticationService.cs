@@ -58,10 +58,13 @@ namespace nrcv2.services
         public async Task<Entry> GetCurrentUserAsync()
         {
             var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
-            var username = authState.User.Identity.Name;
+            var username = authState.User.Identity?.Name;
+            if (string.IsNullOrEmpty(username))
+            return new Entry();  // If username is null, the user is not authenticated.
+            
             Entry result;
             using (var db = dbf.CreateDbContext()) result = await db.Entries.SingleOrDefaultAsync(u => u.UserName == username);
-            return (Entry)result;
+            return result;
         }
     }
 }

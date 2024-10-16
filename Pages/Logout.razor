@@ -1,0 +1,39 @@
+﻿@page "/logout"
+@inject NotificationService n
+@inject IAuthenticationService AuthenticationService
+@layout EmptyLayout
+@inject NavigationManager NavigationManager
+<div class="modal  fade show " id="myModal" style=" border : 3px solid #666;display:block ;background-color: rgba(10,10,10,.8);margin:0;padding:0">
+    <div class="modal-dialog  modal-xl">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <div class="alert alert-primary col-12 h3 text-center ">
+                   خروج
+                </div>
+            </div>
+            <div class="modal-body">
+                    مع السلامة @user_name
+            </div>
+            <div class="modal-footer">
+              
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@code {
+    Entry curentuser;
+    string user_name;
+
+    protected override async Task OnInitializedAsync() {
+        curentuser =await AuthenticationService.GetCurrentUserAsync();
+        user_name = curentuser?.UserName;
+        await AuthenticationService.LogoutAsync();
+    }
+}
+
+
+
+
+
