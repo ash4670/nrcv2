@@ -5,7 +5,7 @@
     </button>
 </div>
 
-<div  class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+<div  class="@NavMenuCssClass" @onclick="ToggleNavMenu" >
     <ul class="nav flex-column">
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
@@ -13,6 +13,18 @@
             </NavLink>
         </li>
 
+
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" @onclick="()=>expandStoreBasicdataSubNav = !expandStoreBasicdataSubNav">
+                <span class="oi oi-arrow-bottom" aria-hidden="true"></span><strong>بيانات أساسية</strong>
+            </NavLink>
+        </li>
+        @if (expandStoreBasicdataSubNav){
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="editstock">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> تعريف المخازن
+            </NavLink>
+        </li>
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="edititem">
                 <span class="oi oi-plus" aria-hidden="true"></span> تعريف الأصناف
@@ -20,12 +32,31 @@
         </li>
 
         <li class="nav-item px-3">
-            <NavLink class="nav-link" @onclick="()=>expandSubNav = !expandSubNav">
-                <span class="oi oi-list-rich" aria-hidden="true"></span><strong>مستندات مخزنية</strong>
+            <NavLink class="nav-link" href="editstock_old">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> editstock old
             </NavLink>
         </li>
 
-        @if (expandSubNav)
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="fetchdata">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="counter">
+                <span class="oi oi-plus" aria-hidden="true"></span> Counter
+            </NavLink>
+        </li>
+
+        }
+
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" @onclick="()=>expandStoreTrnsSubNav = !expandStoreTrnsSubNav">
+                <span  class="oi oi-arrow-bottom" aria-hidden="true"></span><strong>مستندات مخزنية</strong>
+            </NavLink>
+        </li>
+
+        @if (expandStoreTrnsSubNav)
         {
             <li class="nav-item px-5">
                 <NavLink class="nav-link" href="editstTrns/1">
@@ -41,40 +72,15 @@
         }
 
 
-
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="editstock">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> تعريف المخازن
-            </NavLink>
-        </li>
-
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="editstock_old">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> editstock old
-            </NavLink>
-        </li>
-
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
-            </NavLink>
-        </li>
-
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-            </NavLink>
-        </li>
-
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="login">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> log in
+                <span  class="oi oi-account-login" aria-hidden="true"></span> log in
             </NavLink>
         </li>
 
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="logout">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> log out
+                <span class="oi oi-account-logout" aria-hidden="true"></span> log out
             </NavLink>
         </li>
 
@@ -89,7 +95,8 @@
 
 @code {
     private bool collapseNavMenu = true;
-    private bool expandSubNav = false;
+    private bool expandStoreTrnsSubNav = false;
+    private bool expandStoreBasicdataSubNav = false;
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     private void ToggleNavMenu()
