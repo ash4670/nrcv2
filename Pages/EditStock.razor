@@ -178,7 +178,12 @@
 
             private bool on_presave()
             {
-                //if (String.IsNullOrWhiteSpace(_stock.StockCode)) { gtool.Mynotify("خطأ", "كود المخزن غير معرف"); return false; }
+                if (String.IsNullOrWhiteSpace(_stock.StockCode))
+                {
+                  
+                    DialogService.Confirm("كود المخزن غير معرف", "خطأ", new ConfirmOptions() { OkButtonText = "موافق",n});//{ gtool.Mynotify("خطأ", "كود المخزن غير معرف"); return false; }
+                    return false;
+                }
                 //if (String.IsNullOrWhiteSpace(_stock.StockName)) { gtool.Mynotify("خطأ", "اسم المخزن غير معرف"); return false; }
                 //if (String.IsNullOrWhiteSpace(_stock.Name1)) { gtool.Mynotify("خطأ", "أمين المخزن غير معرف"); return false; }
                 // if ((!_stock.Vdate.HasValue) || String.IsNullOrWhiteSpace(_stock.Vdate.ToString())) { gtool.Mynotify("خطأ", "ادخل تاريخ التعريف"); return false; }
