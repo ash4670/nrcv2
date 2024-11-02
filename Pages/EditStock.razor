@@ -2,6 +2,7 @@
 @page "/editstock/{id:int}"
 @inject IDbContextFactory<nrcwebContext> dbf;
 @inject DialogService DialogService
+@inject Gtools gtool
 <div class="card">
     <div class="card-header alert alert-primary h3 text-center ">@(_stock.Id == 0 ? "جديد" : "تعديل")</div>
     <div class="card-body">
@@ -161,8 +162,6 @@
                         new Dictionary<string, object>() { { "title", "قائمة المخازن" },{"scollist","stockcode,stockname" } },
                         new DialogOptions() { ShowTitle= false , Width = "400px", Height = "400px", Resizable = true, Draggable = true });
 
-
-
                         if (ret != null)
                         {
                             if (!((bool)ret["status"])) return;
@@ -178,15 +177,16 @@
 
             private bool on_presave()
             {
-                if (String.IsNullOrWhiteSpace(_stock.StockCode))
-                {
-                  
-                    DialogService.Confirm("كود المخزن غير معرف", "خطأ", new ConfirmOptions() { OkButtonText = "موافق",n});//{ gtool.Mynotify("خطأ", "كود المخزن غير معرف"); return false; }
+                string ls_errorlist="";
+                if (String.IsNullOrWhiteSpace(_stock.StockCode))  ls_errorlist += "كود المخزن غير معرف";
+                if (String.IsNullOrWhiteSpace(_stock.StockName)) ls_errorlist += "-"+ "اسم المخزن غير معرف";
+                if (String.IsNullOrWhiteSpace(_stock.StockName)) ls_errorlist +="-" + "أمين المخزن غير معرف";
+                if ((!_stock.Vdate.HasValue) || String.IsNullOrWhiteSpace(_stock.Vdate.ToString())) ls_errorlist += "-" + "ادخل تاريخ التعريف";
+                //  if (String.IsNullOrWhiteSpace(_stock.Name1)) { gtool.Mynotify("خطأ", "أمين المخزن غير معرف"); return false; }
+                if (!string.IsNullOrWhiteSpace(ls_errorlist)) {
+                    gtool.Mynotify("خطأ", ls_errorlist);
                     return false;
                 }
-                //if (String.IsNullOrWhiteSpace(_stock.StockName)) { gtool.Mynotify("خطأ", "اسم المخزن غير معرف"); return false; }
-                //if (String.IsNullOrWhiteSpace(_stock.Name1)) { gtool.Mynotify("خطأ", "أمين المخزن غير معرف"); return false; }
-                // if ((!_stock.Vdate.HasValue) || String.IsNullOrWhiteSpace(_stock.Vdate.ToString())) { gtool.Mynotify("خطأ", "ادخل تاريخ التعريف"); return false; }
                 return true;
             }
 
@@ -209,7 +209,6 @@
                     throw;
                 }
                 return 0;
-
             }
 
             //void OnSubmit(Stock model)
