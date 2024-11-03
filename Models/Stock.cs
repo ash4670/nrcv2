@@ -26,6 +26,7 @@ namespace nrcv2.Models
 
         [DisplayName("إسم المخزن")]
         [Column("STOCK_NAME")]
+        [Required(ErrorMessage = "إدخل إسم المخزن")]
         [StringLength(50)]
         public string StockName { get; set; }
         [Column("NAME1")]

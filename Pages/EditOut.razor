@@ -6,7 +6,7 @@
 <div class="card">
     <div class="card-header alert alert-primary h3 text-center ">@(_out.Id == 0 ? "جديد" : "تعديل")</div>
     <div class="card-body">
-        <RadzenTemplateForm  TItem="Out" Data=@_out Submit=@(async (args) => await OnSubmit(args) ) InvalidSubmit=@OnInvalidSubmit>
+        <RadzenTemplateForm Editcontext="edcontext"  TItem="Out" Data=@_out Submit=@(async (args) => await OnSubmit(args) ) InvalidSubmit=@OnInvalidSubmit>
             <div class="form-group  row  ">
                 <Label class="btn-outline-primary col-sm-2" @onclick="@(async ()=>await f_ondblclick("outcode"))">كود المصروف ...</Label>
                 <span>
@@ -79,7 +79,8 @@
     [Parameter]
     public int? id { get; set; }
 
-   
+    public  EditContext edcontext;
+
     private Out _out = new Out();
     public int codelength { get; set; } = 3;
     public string mask = "*";
@@ -87,6 +88,8 @@
 
     protected override void OnInitialized()
     {
+        edcontext = new EditContext(_out);
+
         mask = mask.PadLeft(codelength, '*');
         if (id != null) using (var db = dbf.CreateDbContext())
             {
@@ -102,8 +105,9 @@
     {
 
         _out = new Out();
+        edcontext = new EditContext(_out);
         if (string.IsNullOrWhiteSpace(_out.OutType)) _out.OutType = "0";
-        
+      
 
     }
 
