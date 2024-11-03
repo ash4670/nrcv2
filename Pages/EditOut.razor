@@ -59,12 +59,15 @@
                         <RadzenButton ButtonType="ButtonType.Submit" Text="تسجيل"></RadzenButton>
                         @*<button class="btn btn-outline-secondary" @onclick="onSave">تسجيل</button>*@
                     </div>
+                    @if (_out.Id != 0)
+                    {
                     <div class="col-4">
-                        <button class="btn btn-outline-dark" @onclick="@(() => {onNew();   })">جديد</button>
+                        <button class="btn btn-outline-dark" @onclick="@(() => { onNew(); })">جديد</button>
                     </div>
                     <div class="col-4">
                         <button class="btn btn-outline-dark" @onclick="onDelete">حذف</button>
                     </div>
+                    }
                 </div>
             </div>
 

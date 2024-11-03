@@ -41,6 +41,7 @@
 
     private async Task HandleLogin()
     {
+        Username = "adel"; Password = "123";//remove this line in deployed version
         // Handle login logic here
         if (!(string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(Password)))
         {
@@ -56,7 +57,7 @@
                 //}
             }
             else
-              OnClose();
+                OnClose();
             //NavigationManager.NavigateTo("/");
         }
         else
