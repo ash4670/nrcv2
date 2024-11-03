@@ -1,0 +1,244 @@
+﻿@page "/editout"
+@inject IDbContextFactory<nrcwebContext> dbf;
+@inject DialogService DialogService
+@inject Gtools gtool
+
+<div class="card">
+    <div class="card-header alert alert-primary h3 text-center ">@(_out.Id == 0 ? "جديد" : "تعديل")</div>
+    <div class="card-body">
+        <RadzenTemplateForm  TItem="Out" Data=@_out Submit=@(async (args) => await OnSubmit(args) ) InvalidSubmit=@OnInvalidSubmit>
+            <div class="form-group  row  ">
+                <Label class="btn-outline-primary col-sm-2" @onclick="@(async ()=>await f_ondblclick("outcode"))">كود المصروف ...</Label>
+                <span>
+                    <RadzenMask Mask=@mask Pattern="[^0-9]" style="display: block ; background-color:lemonchiffon" Name="OutCode"
+                                @bind-Value=@_out.OutCode Change=@(args => f_onchange( "outcode",args))
+                                @ondblclick="@(async ()=>await f_ondblclick("outcode"))" />
+                    <RadzenRequiredValidator Component="OutCode" Text="يجب إدخال كود المصروف" Style="position: absolute" />
+                    <RadzenRegexValidator Component="OutCode" Text="كود المصروف 3 ارقام" Pattern="\d{3}" Style="position: absolute" />
+                </span>
+
+            </div>
+
+            <div class="form-group row">
+                <RadzenLabel Text="الإسم" class="col-sm-2" />
+                <div class="col-sm-10">
+                    <div class="row">
+                        <RadzenTextBox class="col-sm-8" style="display: block" Name="OutName" @bind-Value=@_out.OutName Change=@(args => f_onchange( "outname",args)) />
+                    </div>
+                    <div class="row">
+                        <RadzenRequiredValidator Component="OutName" Text="يجب إدخال وصف المصروف" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+
+                <div class="col-sm-10">
+                    <div class="row">
+                        <RadzenLabel Text="نوع المصروف" class="col-sm-2" />
+                        @*<RadzenTextBox class="col-sm-8" style="display: block" Name="OutType" @bind-Value=@_out.OutType Change=@(args => f_onchange( "outtype",args)) />*@
+                        <RadzenRadioButtonList @bind-Value=@_out.OutType TValue="string" Name="OutType">
+                            <Items>
+                                <RadzenRadioButtonListItem Text="غبر مخزنى" Value="0.ToString()" TValue="string" />
+                                <RadzenRadioButtonListItem Text="مخزنى" Value="1.ToString()" TValue="string" />
+                            </Items>
+                        </RadzenRadioButtonList>
+
+                    </div>
+                    <div class="row">
+                        <RadzenRequiredValidator Component="OutType" Text="يجب إدخال وصف المصروف" />
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="card-footer">
+                <div class="row text-center">
+                    <div class="col-4">
+                        @*<RadzenButton class="btn-dark" ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Secondary" @onclick="onSave">تسجيل</RadzenButton>*@
+                        <RadzenButton ButtonType="ButtonType.Submit" Text="تسجيل"></RadzenButton>
+                        @*<button class="btn btn-outline-secondary" @onclick="onSave">تسجيل</button>*@
+                    </div>
+                    <div class="col-4">
+                        <button class="btn btn-outline-dark" @onclick="@(() => {onNew();   })">جديد</button>
+                    </div>
+                    <div class="col-4">
+                        <button class="btn btn-outline-dark" @onclick="onDelete">حذف</button>
+                    </div>
+                </div>
+            </div>
+
+
+        </RadzenTemplateForm>
+    </div>
+
+
+</div>
+
+@code {
+    [Parameter]
+    public int? id { get; set; }
+
+   
+    private Out _out = new Out();
+    public int codelength { get; set; } = 3;
+    public string mask = "*";
+
+
+    protected override void OnInitialized()
+    {
+        mask = mask.PadLeft(codelength, '*');
+        if (id != null) using (var db = dbf.CreateDbContext())
+            {
+                _out = db.Outs.Where(r => r.Id == id).FirstOrDefault();
+
+            }
+        else onNew();
+        base.OnInitialized();
+    }
+
+
+    private void onNew()
+    {
+
+        _out = new Out();
+        if (string.IsNullOrWhiteSpace(_out.OutType)) _out.OutType = "0";
+        
+
+    }
+
+    private void onDelete()
+    {
+        try
+        {
+            using (var db = dbf.CreateDbContext())
+                if (_out.Id != 0)
+                {
+                    db.Remove(_out);
+                    if (db.SaveChanges() > 0) onNew();
+                }
+
+        }
+        catch (DbUpdateException e)
+        {
+
+            throw e;
+        }
+    }
+
+    public async Task f_onchange(string name, dynamic arg)
+    {
+        string _value = "";
+        switch (name.ToLower())
+        {
+            case "outcode":
+                _out.OutCode = "";
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _value = arg;
+                if (string.IsNullOrEmpty(_value)) return;
+                _value = _value.Substring(0, Math.Min(codelength, _value.Length));
+                _value = _value.PadLeft(codelength, '0');
+                using (var db = dbf.CreateDbContext())
+                {
+                    Out o;
+                    o = db.Outs.FirstOrDefault<Out>(a => a.OutCode == _value);
+                    if (o != null)
+                    {
+                        _out = o;
+                        if (string.IsNullOrWhiteSpace(o.OutType)) o.OutType = "0";
+                    }
+                    else
+                    {
+                        onNew();
+                        _out.OutCode = _value;
+                    }
+                }
+                StateHasChanged();
+                break;
+            case "outname":
+                _out.OutName = "";
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _value = arg;
+                _value = _value.Substring(0, Math.Min(50, _value.Length));
+                _out.OutName = _value;
+                StateHasChanged();
+                break;
+
+
+            default: break;
+        }
+    }
+
+    private async Task f_ondblclick(string name)
+    {
+        switch (name.ToLower())
+        {
+            case "outcode":
+                Dictionary<string, object> ret = await DialogService.OpenAsync<GModalList<Out>>("",
+                new Dictionary<string, object>() { { "title", "قائمة أكواد الصرف" }, { "scollist", "outcode,outname" } },
+                new DialogOptions() { ShowTitle = false, Width = "400px", Height = "400px", Resizable = true, Draggable = true });
+
+                if (ret != null)
+                {
+                    if (!((bool)ret["status"])) return;
+                    List<Out> val = ret["result"] as List<Out>;
+                    _out.OutCode = val[0].OutCode;
+                    await f_onchange("outcode", val[0].OutCode);
+                }
+                break;
+            default: break;
+        }
+
+    }
+
+
+
+    private async Task OnSubmit(Out model)
+    {
+        await onSave();
+    }
+
+    private async Task<int> onSave()
+    {
+        if (!on_presave()) return -1;
+        try
+        {
+            using (var db = dbf.CreateDbContext())
+            {
+                if (_out.Id == 0)
+                    await db.AddAsync(_out);
+                else
+                    db.Update(_out);
+                await db.SaveChangesAsync();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        return 0;
+    }
+
+    private bool on_presave()
+    {
+        //put any validation not a normal validation of the form
+        //string ls_errorlist = "";
+        //if (String.IsNullOrWhiteSpace(_out.OutCode)) ls_errorlist += "كود المصروف غير معرف";
+        //if (String.IsNullOrWhiteSpace(_out.OutName)) ls_errorlist += "-" + "اسم المصروف غير معرف";
+        //if (!string.IsNullOrWhiteSpace(ls_errorlist))
+        //{
+        //    gtool.Mynotify("خطأ", ls_errorlist);return false;
+        //}
+        return true;
+    }
+
+    void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+    {
+        //console.Log($"InvalidSubmit: {JsonSerializer.Serialize(args, new JsonSerializerOptions() { WriteIndented = true })}");
+    }
+
+}
+
+
