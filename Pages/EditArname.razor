@@ -1,0 +1,240 @@
+﻿@page "/editemployee"
+@inject IDbContextFactory<nrcwebContext> dbf;
+@inject DialogService DialogService
+@inject Gtools gtool
+
+<div class="card">
+    <div class="card-header alert alert-primary h3 text-center ">@(_emp.Id == 0 ? "جديد" : "تعديل")</div>
+    <div class="card-body">
+        <RadzenTemplateForm Editcontext="edcontext" TItem="Arname" Data=@_emp Submit=@(async (args) => await OnSubmit(args) ) InvalidSubmit=@OnInvalidSubmit>
+            <div class="form-group  row  ">
+                <Label class="btn-outline-primary col-sm-2" @onclick="@(async ()=>await f_ondblclick("empcode"))">كود الموظف ...</Label>
+                <span>
+                    <RadzenMask Mask=@mask Pattern="[^0-9]" style="display: block ; background-color:lemonchiffon" Name="EmpCode"
+                                @bind-Value=@_emp.ArCode Change=@(args => f_onchange( "empcode",args))
+                                @ondblclick="@(async ()=>await f_ondblclick("empcode"))" />
+                    <RadzenRequiredValidator Component="EmpCode" Text="يجب إدخال كود المصروف" Style="position: absolute" />
+                    <RadzenRegexValidator Component="EmpCode" Text="كود الموظف 5 ارقام" Pattern="\d{5}" Style="position: absolute" />
+                </span>
+
+            </div>
+
+            <div class="form-group row">
+                <RadzenLabel Text="الإسم" class="col-sm-2" />
+                <div class="col-sm-10">
+                    <div class="row">
+                        <RadzenTextBox class="col-sm-8" style="display: block" Name="EmpName" @bind-Value=@_emp.ArName1 Change=@(args => f_onchange( "empname",args)) />
+                    </div>
+                    <div class="row">
+                        <RadzenRequiredValidator Component="EmpName" Text="يجب إدخال إسم الموظف" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+
+                <div class="col-sm-10">
+                    <div class="row">
+                        <RadzenLabel Text="مكان العمل" class="col-sm-2" />
+                        <RadzenDropDown @bind-Value=@_emp.Work Data=@worklist  TextProperty="@nameof(Tklfmain.TklfName)" ValueProperty="@nameof(Tklfmain.TklfName)" 
+                                        @bind-SearchText=SearchText FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" AllowFiltering="true"
+                                        Style="width: 100%; max-width: 400px;" Name="DropDownWork" />
+
+                    </div>
+                    <div class="row">
+                        <RadzenRequiredValidator Component="OutType" Text="يجب إدخال مكان العمل" />
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="card-footer">
+                <div class="row text-center">
+                    <div class="col-4">
+                         <RadzenButton ButtonType="ButtonType.Submit" Text="تسجيل"></RadzenButton>
+                      
+                    </div>
+                    @if (_emp.Id != 0)
+                    {
+                        <div class="col-4">
+                            <button class="btn btn-outline-dark" @onclick="@(() => { onNew(); })">جديد</button>
+                        </div>
+                        <div class="col-4">
+                            <button class="btn btn-outline-dark" @onclick="onDelete">حذف</button>
+                        </div>
+                    }
+                </div>
+            </div>
+
+
+        </RadzenTemplateForm>
+    </div>
+
+
+</div>
+
+@code {
+
+    IEnumerable<Tklfmain> worklist;
+    [Parameter]
+    public int? id { get; set; }
+
+    public EditContext edcontext;
+
+    private Arname _emp = new Arname();
+    public int codelength { get; set; } = 5;
+    public string mask = "*";
+    public string SearchText = "";
+
+    protected override void OnInitialized()
+    {
+        edcontext = new EditContext(_emp);
+
+        mask = mask.PadLeft(codelength, '*');
+        if (id != null) using (var db = dbf.CreateDbContext())
+                _emp = db.Arnames.Where(r => r.Id == id).FirstOrDefault();
+        else onNew();
+        using (var db = dbf.CreateDbContext())
+            worklist = db.Tklfmains.Where(k=> k.KindCode=="01"|| k.KindCode == "02").OrderBy(k=>k.TklfName).ToList();
+        base.OnInitialized();
+    }
+
+
+    private void onNew()
+    {
+
+        _emp = new Arname();
+        edcontext = new EditContext(_emp);
+        //if (string.IsNullOrWhiteSpace(_emp.OutType)) _out.OutType = "0";
+
+
+    }
+
+    private void onDelete()
+    {
+        try
+        {
+            using (var db = dbf.CreateDbContext())
+                if (_emp.Id != 0)
+                {
+                    db.Remove(_emp);
+                    if (db.SaveChanges() > 0) onNew();
+                }
+
+        }
+        catch (DbUpdateException e)
+        {
+
+            throw e;
+        }
+    }
+
+    public async Task f_onchange(string name, dynamic arg)
+    {
+        string _value = "";
+        switch (name.ToLower())
+        {
+            case "empcode":
+                _emp.ArCode = "";
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _value = arg;
+                if (string.IsNullOrEmpty(_value)) return;
+                _value = _value.Substring(0, Math.Min(codelength, _value.Length));
+                _value = _value.PadLeft(codelength, '0');
+                using (var db = dbf.CreateDbContext())
+                {
+                    Arname localemp;
+                    localemp = db.Arnames.FirstOrDefault<Arname>(a => a.ArCode == _value);
+                    if (localemp != null)
+                    {
+                        _emp = localemp;
+                        //  if (string.IsNullOrWhiteSpace(o.OutType)) o.OutType = "0";
+                    }
+                    else
+                    {
+                        onNew();
+                        _emp.ArCode = _value;
+                    }
+                }
+                StateHasChanged();
+                break;
+            case "empname":
+                _emp.ArName1 = "";
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _value = arg;
+                _value = _value.Substring(0, Math.Min(50, _value.Length));
+                _emp.ArName1 = _value;
+                StateHasChanged();
+                break;
+
+
+            default: break;
+        }
+    }
+
+    private async Task f_ondblclick(string colname)
+    {
+        switch (colname.ToLower())
+        {
+            case "empcode":
+                Dictionary<string, object> ret = await DialogService.OpenAsync<GModalList<Arname>>("",
+                new Dictionary<string, object>() { { "title", "قائمة أكواد الموظفين" }, { "scollist", "ArCode,ArName1" } },
+                new DialogOptions() { ShowTitle = false, Width = "400px", Height = "400px", Resizable = true, Draggable = true });
+
+                if (ret != null)
+                {
+                    if (!((bool)ret["status"])) return;
+                    List<Arname> val = ret["result"] as List<Arname>;
+                    _emp.ArCode = val[0].ArCode;
+                    await f_onchange(colname.ToLower(), val[0].ArCode);
+                }
+                break;
+            default: break;
+        }
+
+    }
+
+
+
+    private async Task OnSubmit(Arname model)
+    {
+        await onSave();
+    }
+
+    private async Task<int> onSave()
+    {
+        if (!on_presave()) return -1;
+        try
+        {
+            using (var db = dbf.CreateDbContext())
+            {
+                if (_emp.Id == 0)
+                    await db.AddAsync(_emp);
+                else
+                    db.Update(_emp);
+                await db.SaveChangesAsync();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        return 0;
+    }
+
+    private bool on_presave()
+    {
+
+        return true;
+    }
+
+    void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+    {
+
+    }
+
+}
+
+
