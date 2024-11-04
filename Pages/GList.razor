@@ -11,62 +11,76 @@
     }
 </style>
 
-@if (data == null)
+@if (pagedData == null)
 {
-    <p><em>Loading...</em></p> 
+    <p><em>Loading...</em></p>
 }
 else
 {
-    <div class="input-group m-0 p-0 ">
-        <div class="input-group-text bg-transparent input-group-prepend">  <i class="oi oi-magnifying-glass"></i></div>
+    <div class="input-group m-0 p-0">
+        <div class="input-group-text bg-transparent input-group-prepend">
+            <i class="oi oi-magnifying-glass"></i>
+        </div>
         <input @ref="searchinput" class="form-control" type="search" placeholder="بحث" @bind-value="_filter" @bind-value:event="oninput" @onkeyup="myfilter" />
     </div>
 
-    <div class="tableFixHead" style=" height:250px ; overflow: auto; ">
-        <table class="table  table-hover table-bordered  table-sm ">
+    <div class="tableFixHead" style="height:250px; overflow: auto;">
+        <table class="table table-hover table-bordered table-sm">
             <thead class="font-weight-bold">
                 @myHeader
-                <tr style="height:50%" class="bg-primary text-center text-white ">
-                    <th style="  width: 5%">م</th>
-                    @{int k = 0; }
+                <tr style="height:50%" class="bg-primary text-center text-white">
+                    <th style="width: 5%">م</th>
+                    @{
+                        int k = 0;
+                    }
                     @foreach (PropertyInfo c in displayedcolumn)
                     {
                         <th @onclick="@(() => mysort(c.Name))">
                             @if (_colheads.Any())
-                            {@_colheads.ElementAt(k); k++;
-                        }
-                        else
-                        { @GetAttributeDisplayName(c);
+                            {
+                                @_colheads.ElementAt(k); k++;
+                            }
+                            else
+                            {
+                                @GetAttributeDisplayName(c);
+                            }
+                        </th>
                     }
-                    </th>
-                }
                 </tr>
             </thead>
 
             <tbody>
-                @{int rownum = 1; }
-                @foreach (T item in data)
+                @{
+                    int rownum = (CurrentPage - 1) * PageSize + 1;
+                }
+                @foreach (T item in pagedData)
                 {
-                    <tr style="background-color:@(item== selectedrow ? "lightblue":"lightyellow" ) " class="text-right" @onclick="()=>f_Rowclicked(item)" @ondblclick="()=>f_Rowdblclicked(item)">
+                    <tr style="background-color:@(item == selectedrow ? "lightblue" : "lightyellow")" class="text-right" @onclick="() => f_Rowclicked(item)" @ondblclick="() => f_Rowdblclicked(item)">
                         <td style="width: 5%">@rownum</td>
                         @foreach (PropertyInfo c in displayedcolumn)
                         {
-                            <td>@c.GetValue(item, null) </td>
+                            <td>@c.GetValue(item, null)</td>
                         }
                     </tr>
                     rownum++;
                 }
-
             </tbody>
             @ChildContent
             @myFooter
         </table>
     </div>
+
+    <!-- Pagination Controls -->
+    <div class="pagination mt-2">
+        <button @onclick="GoToFirstPage" disabled="@IsFirstPage">First</button>
+        <button @onclick="GoToPreviousPage" disabled="@IsFirstPage">Previous</button>
+        <span>Page @CurrentPage of @TotalPages</span>
+        <button @onclick="GoToNextPage" disabled="@IsLastPage">Next</button>
+        <button @onclick="GoToLastPage" disabled="@IsLastPage">Last</button>
+    </div>
 }
 
-
-
-@code { 
+@code {
     #region declarations
     ElementReference searchinput;
     public T selectedrow { get; set; }
@@ -84,13 +98,21 @@ else
     private IEnumerable<String> _colheads { get; set; } = new List<string>();
     private List<PropertyInfo> props;
     private List<PropertyInfo> displayedcolumn = new List<PropertyInfo>();
+
+    private int CurrentPage { get; set; } = 1;
+    private int PageSize { get; set; } = 10; // Adjust page size as needed
+    private int TotalPages => (int)Math.Ceiling((double)data?.Count / PageSize);
+    private bool IsFirstPage => CurrentPage == 1;
+    private bool IsLastPage => CurrentPage == TotalPages;
+    private List<T> pagedData => data?
+        .Skip((CurrentPage - 1) * PageSize)
+        .Take(PageSize)
+        .ToList();
     #endregion
 
-    protected override void OnInitialized() { }
-
+   
     protected override void OnParametersSet()
     {
-
         if ((scollist != null) && (scollist.Trim().Equals(scollist)))
         {
             scollist = scollist.ToLower();
@@ -103,19 +125,13 @@ else
         }
 
         if (data == null) using (var db = dbf.CreateDbContext()) data = db.Set<T>().ToList<T>();
-        //props = (data.FirstOrDefault()).GetType().GetProperties().ToList();
         props = (new T()).GetType().GetProperties().ToList();
         if (collist != null)
-            //displayedcolumn =props.Where(p => collist.Contains(p.Name.ToLower())).ToList();
-            //   displayedcolumn = props.Where(p => collist.Contains(p.Name.ToLower())).ToList();
-
             displayedcolumn = (from s in collist
-                               join p in props
-                                  on s.ToLower() equals p.Name.ToLower()
+                               join p in props on s.ToLower() equals p.Name.ToLower()
                                select p).ToList();
         else
             displayedcolumn = props.Where(p => p.PropertyType == typeof(string) || p.PropertyType.IsValueType).ToList();
-
         orgdata = data;
     }
 
@@ -127,21 +143,34 @@ else
     public void mysort(string colname)
     {
         data = data.OrderBy(x => x.GetType().GetProperty(colname).GetValue(x, null)).ToList();
+        CurrentPage = 1;
     }
 
     public void myfilter()
     {
-        if (_filter == null || _filter == string.Empty)
+        if (string.IsNullOrEmpty(_filter))
             data = orgdata;
         else
-            data = orgdata.Where(x => (x.GetType().GetProperties().Intersect(displayedcolumn).Where(p => x.GetType().GetProperty(p.Name).GetValue(x, null) != null)).Any(p => (x.GetType().GetProperty(p.Name).GetValue(x, null)).ToString().Contains(_filter))).ToList();
+            //data = orgdata.Where(x => (x.GetType().GetProperties().Intersect(displayedcolumn)
+            //            .Where(p => x.GetType().GetProperty(p.Name).GetValue(x, null) != null))
+            //            .Any(p => (x.GetType().GetProperty(p.Name).GetValue(x, null)).ToString().Contains(_filter)))
+            //            .ToList();
+            data = orgdata?
+    .Where(x => displayedcolumn != null && displayedcolumn
+        .Any(p =>
+            x.GetType().GetProperty(p.Name)?
+            .GetValue(x, null)?
+            .ToString()?
+            .Contains(_filter, StringComparison.OrdinalIgnoreCase) == true))
+    .ToList() ?? new List<T>();
+
+        CurrentPage = 1;
     }
 
     public async void f_Rowclicked(T row)
     {
         selectedrow = row;
         await OnRowclicked.InvokeAsync(row);
-
     }
 
     public async void f_Rowdblclicked(T row)
@@ -150,13 +179,23 @@ else
         await OnRowdblclicked.InvokeAsync(row);
     }
 
-    private string GetAttributeDisplayName(PropertyInfo property)//this method to get the display name from the model attribute displayname
+    private string GetAttributeDisplayName(PropertyInfo property)
     {
         var atts = property.GetCustomAttributes(typeof(DisplayNameAttribute), true);
-        if (atts.Length == 0) return null;
-        return (atts[0] as DisplayNameAttribute).DisplayName;
+        return atts.Length == 0 ? null : ((DisplayNameAttribute)atts[0]).DisplayName;
     }
 
+    private void GoToFirstPage() => CurrentPage = 1;
+
+    private void GoToPreviousPage()
+    {
+        if (CurrentPage > 1) CurrentPage--;
+    }
+
+    private void GoToNextPage()
+    {
+        if (CurrentPage < TotalPages) CurrentPage++;
+    }
+
+    private void GoToLastPage() => CurrentPage = TotalPages;
 }
-
-

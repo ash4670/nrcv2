@@ -8,12 +8,12 @@
     <div class="card-body">
         <RadzenTemplateForm Editcontext="edcontext" TItem="Arname" Data=@_emp Submit=@(async (args) => await OnSubmit(args) ) InvalidSubmit=@OnInvalidSubmit>
             <div class="form-group  row  ">
-                <Label class="btn-outline-primary col-sm-2" @onclick="@(async ()=>await f_ondblclick("empcode"))">كود الموظف ...</Label>
+                <Label class="btn-outline-primary col-sm-2" @onclick="@(async () => await f_ondblclick("empcode"))">كود الموظف ...</Label>
                 <span>
                     <RadzenMask Mask=@mask Pattern="[^0-9]" style="display: block ; background-color:lemonchiffon" Name="EmpCode"
-                                @bind-Value=@_emp.ArCode Change=@(args => f_onchange( "empcode",args))
-                                @ondblclick="@(async ()=>await f_ondblclick("empcode"))" />
-                    <RadzenRequiredValidator Component="EmpCode" Text="يجب إدخال كود المصروف" Style="position: absolute" />
+                                @bind-Value=@_emp.ArCode Change=@(args => f_onchange("empcode", args))
+                                @ondblclick="@(async () => await f_ondblclick("empcode"))" />
+                    <RadzenRequiredValidator Component="EmpCode" Text="يجب إدخال كود الموظف" Style="position: absolute" />
                     <RadzenRegexValidator Component="EmpCode" Text="كود الموظف 5 ارقام" Pattern="\d{5}" Style="position: absolute" />
                 </span>
 
@@ -23,36 +23,71 @@
                 <RadzenLabel Text="الإسم" class="col-sm-2" />
                 <div class="col-sm-10">
                     <div class="row">
-                        <RadzenTextBox class="col-sm-8" style="display: block" Name="EmpName" @bind-Value=@_emp.ArName1 Change=@(args => f_onchange( "empname",args)) />
+                        <RadzenTextBox class="col-sm-8" style="display: block" Name="EmpName" @bind-Value=@_emp.ArName1 Change=@(args => f_onchange("empname", args)) />
                     </div>
                     <div class="row">
                         <RadzenRequiredValidator Component="EmpName" Text="يجب إدخال إسم الموظف" />
+                        @*<RadzenCustomValidator Component="Email" Validator="@(() => ValidateNameIsfour(_emp.ArName1))" Text="Email already exists" Popup=@popup />*@
                     </div>
                 </div>
             </div>
 
             <div class="form-group row">
-
+                <RadzenLabel Text="مكان العمل" class="col-sm-2" />
                 <div class="col-sm-10">
                     <div class="row">
-                        <RadzenLabel Text="مكان العمل" class="col-sm-2" />
-                        <RadzenDropDown @bind-Value=@_emp.Work Data=@worklist  TextProperty="@nameof(Tklfmain.TklfName)" ValueProperty="@nameof(Tklfmain.TklfName)" 
+                        <RadzenDropDown class="col-sm-8"  @bind-Value=@_emp.Work Data=@worklist TextProperty="@nameof(Tklfmain.TklfName)" ValueProperty="@nameof(Tklfmain.TklfName)"
                                         @bind-SearchText=SearchText FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" AllowFiltering="true"
                                         Style="width: 100%; max-width: 400px;" Name="DropDownWork" />
 
                     </div>
                     <div class="row">
-                        <RadzenRequiredValidator Component="OutType" Text="يجب إدخال مكان العمل" />
+                        <RadzenRequiredValidator Component="DropDownWork" Text="يجب إدخال مكان العمل" />
                     </div>
                 </div>
             </div>
 
 
+            <div class="form-group row">
+                <RadzenLabel Text="الوظيفة" class="col-sm-2" />
+                <div class="col-sm-10">
+                    <div class="row">
+                        <RadzenTextBox class="col-sm-8" style="display: block" Name="EmpJob" @bind-Value=@_emp.Job Change=@(args => f_onchange("empjob", args)) />
+                    </div>
+                    <div class="row">
+                        @*<RadzenRequiredValidator Component="EmpJob" Text="يجب إدخال الوظيفة" />*@
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <RadzenLabel Text="الحالة" class="col-sm-2" />
+                <div class="col-sm-10">
+                    <div class="row">
+                        <RadzenDropDown Data="@statusList" TextProperty="@nameof(empstatus.statusname)" ValueProperty="@nameof(empstatus.statuscode)"
+                                        @bind-Value=@_emp.Status Style="width: 100%; max-width: 400px;" Name="DropDownEnums">
+                        </RadzenDropDown>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group  row  ">
+                <Label class="btn-outline-primary col-sm-2" @onclick="@(async () => await f_ondblclick("empcode"))">الرقم القومى</Label>
+                <span>
+                    <RadzenMask Mask="**************" Pattern="[^0-9]" style="display: block ;" Name="nid"
+                                @bind-Value=@_emp.Nid Change=@(args => f_onchange("nid", args)) />
+                    <RadzenRequiredValidator Component="nid" Text="يجب إدخال الرقم القومى" Style="position: absolute" />
+                    <RadzenRegexValidator Component="nid" Text="الرقم القومى 14 رقم" Pattern="\d{14}" Style="position: absolute" />
+                </span>
+
+            </div>
+
             <div class="card-footer">
                 <div class="row text-center">
                     <div class="col-4">
-                         <RadzenButton ButtonType="ButtonType.Submit" Text="تسجيل"></RadzenButton>
-                      
+                        <RadzenButton ButtonType="ButtonType.Submit" Text="تسجيل"></RadzenButton>
+
                     </div>
                     @if (_emp.Id != 0)
                     {
@@ -76,6 +111,20 @@
 @code {
 
     IEnumerable<Tklfmain> worklist;
+    private class empstatus
+    {
+        public string statuscode { get; set; }
+        public string statusname { get; set; }
+        public empstatus() { }
+
+        public empstatus(string argstatuscode, string argstatusname) {
+            statuscode = argstatuscode;
+            statusname = argstatusname;
+        }
+    }
+    List<empstatus> statusList = new List<empstatus>();
+
+
     [Parameter]
     public int? id { get; set; }
 
@@ -94,8 +143,15 @@
         if (id != null) using (var db = dbf.CreateDbContext())
                 _emp = db.Arnames.Where(r => r.Id == id).FirstOrDefault();
         else onNew();
+
         using (var db = dbf.CreateDbContext())
             worklist = db.Tklfmains.Where(k=> k.KindCode=="01"|| k.KindCode == "02").OrderBy(k=>k.TklfName).ToList();
+
+        statusList.Add(new empstatus( "A", "بالخدمة"));
+        statusList.Add(new empstatus("S", "بالمعاش"));
+        statusList.Add(new empstatus("D", "متوفى"));
+        statusList.Add(new empstatus("H", "أجازة بدون أجر"));
+        statusList.Add(new empstatus("X", "إستقالة"));
         base.OnInitialized();
     }
 
@@ -104,30 +160,14 @@
     {
 
         _emp = new Arname();
+        _emp.Status = "A";
         edcontext = new EditContext(_emp);
-        //if (string.IsNullOrWhiteSpace(_emp.OutType)) _out.OutType = "0";
+
 
 
     }
 
-    private void onDelete()
-    {
-        try
-        {
-            using (var db = dbf.CreateDbContext())
-                if (_emp.Id != 0)
-                {
-                    db.Remove(_emp);
-                    if (db.SaveChanges() > 0) onNew();
-                }
 
-        }
-        catch (DbUpdateException e)
-        {
-
-            throw e;
-        }
-    }
 
     public async Task f_onchange(string name, dynamic arg)
     {
@@ -180,8 +220,8 @@
         {
             case "empcode":
                 Dictionary<string, object> ret = await DialogService.OpenAsync<GModalList<Arname>>("",
-                new Dictionary<string, object>() { { "title", "قائمة أكواد الموظفين" }, { "scollist", "ArCode,ArName1" } },
-                new DialogOptions() { ShowTitle = false, Width = "400px", Height = "400px", Resizable = true, Draggable = true });
+                new Dictionary<string, object>() { { "title", "قائمة أكواد الموظفين" }, { "scollist", "ArCode,ArName1,nid,work" }, { "colheads", "الكود,الإسم,الرقم القومى,مكان العمل" } },
+                new DialogOptions() { ShowTitle = false, Width = "800px", Height = "400px", Resizable = true, Draggable = true }) ;
 
                 if (ret != null)
                 {
@@ -198,10 +238,7 @@
 
 
 
-    private async Task OnSubmit(Arname model)
-    {
-        await onSave();
-    }
+    private async Task OnSubmit(Arname model)=> await onSave();
 
     private async Task<int> onSave()
     {
@@ -214,6 +251,7 @@
                     await db.AddAsync(_emp);
                 else
                     db.Update(_emp);
+
                 await db.SaveChangesAsync();
             }
         }
@@ -226,14 +264,55 @@
 
     private bool on_presave()
     {
-
         return true;
     }
+
+    private bool on_prdelete()
+    {
+        using (var db = dbf.CreateDbContext())
+        {
+            if (db.Arquants.Where(q => q.ItemQuant > 0 && q.ArName == _emp.ArCode).Any())
+            {
+
+                /*"يوجد عهد لهذا الموظف"*/
+                return false;
+            }
+            if (db.Arquants.Where(q => q.ItemQuant > 0 && q.ArName == _emp.ArCode).Any())
+            {
+                /*"يوجد مستندات مخزنية لهذا الموظف"*/
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void onDelete()
+    {
+        if (!on_prdelete()) return;
+        try
+        {
+            using (var db = dbf.CreateDbContext())
+                if (_emp.Id != 0)
+                {
+                    db.Remove(_emp);
+                    if (db.SaveChanges() > 0) onNew();
+                }
+
+        }
+        catch (DbUpdateException e)
+        {
+
+            throw e;
+        }
+    }
+
+
 
     void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
     {
 
     }
+
 
 }
 

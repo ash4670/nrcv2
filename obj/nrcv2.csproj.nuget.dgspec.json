@@ -1,23 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\nrcv2\\nrcv2.csproj": {}
+    "D:\\ashwork\\blazors\\nrcv2\\nrcv2.csproj": {}
   },
   "projects": {
-    "D:\\nrcv2\\nrcv2.csproj": {
+    "D:\\ashwork\\blazors\\nrcv2\\nrcv2.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\nrcv2\\nrcv2.csproj",
+        "projectUniqueName": "D:\\ashwork\\blazors\\nrcv2\\nrcv2.csproj",
         "projectName": "nrcv2",
-        "projectPath": "D:\\nrcv2\\nrcv2.csproj",
-        "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-        "outputPath": "D:\\nrcv2\\obj\\",
+        "projectPath": "D:\\ashwork\\blazors\\nrcv2\\nrcv2.csproj",
+        "packagesPath": "C:\\Users\\ash\\.nuget\\packages\\",
+        "outputPath": "D:\\ashwork\\blazors\\nrcv2\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\ash\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -25,7 +22,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "D:\\localpackagesources": {},
+          "D:\\ashwork\\nugetsources": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -75,7 +72,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.404\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.416\\RuntimeIdentifierGraph.json"
         }
       }
     }
