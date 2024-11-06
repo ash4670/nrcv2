@@ -1,0 +1,350 @@
+﻿@page "/editTklfsub/{formarg:int}"
+@inject IDbContextFactory<nrcwebContext> dbf;
+@inject DialogService DialogService
+@inject Gtools gtool
+
+<div class="card">
+    <div class="card-header alert alert-primary h3 text-center ">
+        تعريف  @pagetitle -   @(_tklfsub.Id == 0 ? "جديد" : "تعديل")
+    </div>
+    <div class="card-body">
+        <RadzenTemplateForm TItem="Tklfsub" Data=@_tklfsub Submit=@(async (args) => await OnSubmit(args) ) InvalidSubmit=@OnInvalidSubmit>
+            <div class="form-group  row  ">
+                <Label class="btn-outline-primary col-sm-2" @onclick="@(async () => await f_ondblclick("tklfcode"))">@MasterButtonText ...</Label>
+                <span>
+                    <RadzenMask Mask=@mask Pattern="[^0-9]" style="display: block ; background-color:lemonchiffon" Name="ParentCode"
+                                @bind-Value=@_tklfsub.TklfCode Change=@(args => f_onchange("tklfcode", args))
+                                @ondblclick="@(async () => await f_ondblclick("tklfcode"))" />
+                    <RadzenRequiredValidator Component="ParentCode" Text="يجب إدخال الكود" Style="position: absolute" />
+
+                </span>
+            </div>
+
+            <div class="form-group  row  ">
+                <Label class="btn-outline-primary col-sm-2" @onclick="@(async () => await f_ondblclick("tklfsubcode"))">@DetailCodeText ...</Label>
+                <span>
+                    <RadzenMask Mask=@mask Pattern="[^0-9]" style="display: block ; background-color:lemonchiffon" Name="subCode"
+                                @bind-Value=@_tklfsub.TklfsubCode Change=@(args => f_onchange("tklfsubcode", args))
+                                @ondblclick="@(async () => await f_ondblclick("tklfsubcode"))" />
+                    <RadzenRequiredValidator Component="subCode" Text="يجب إدخال الكود" Style="position: absolute" />
+
+                </span>
+            </div>
+
+
+            <div class="form-group row">
+                <RadzenLabel Text="@DetailNameText" class="col-sm-2" />
+                <div class="col-sm-10">
+                    <div class="row">
+                        <RadzenTextBox class="col-sm-8" style="display: block" Name="Name" @bind-Value=@_tklfsub.TklfsubName Change=@(args => f_onchange("tklfsubname", args)) />
+                    </div>
+                    <div class="row">
+                        <RadzenRequiredValidator Component="Name" Text="يجب إدخال الإسم" />
+                        @*<RadzenCustomValidator Component="Email" Validator="@(() => ValidateNameIsfour(_tklfsub.ArName1))" Text="Email already exists" Popup=@popup />*@
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <RadzenLabel Text="المشرف الرئيسى" class="col-sm-2" />
+                <div class="col-sm-10">
+                    <div class="row">
+                        <RadzenTextBox class="col-sm-8" style="display: block" Name="Name1" @bind-Value=@_tklfsub.Name1 />
+                    </div>
+                    <div class="row">
+                        <RadzenRequiredValidator Component="Name1" Text="يجب إدخال إسم المشرف الرئيسى" />
+                        @*<RadzenCustomValidator Component="Email" Validator="@(() => ValidateNameIsfour(_tklfsub.ArName1))" Text="Email already exists" Popup=@popup />*@
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <RadzenLabel Text="اسم المشرف المناوب" class="col-sm-2" />
+                <div class="col-sm-10">
+                    <div class="row">
+                        <RadzenTextBox class="col-sm-8" style="display: block" Name="Name2" @bind-Value=@_tklfsub.Name2 />
+                    </div>
+                    <div class="row">
+                        @*<RadzenRequiredValidator Component="Name2" Text="يجب إدخال اسم المشرف المناوب" />*@
+                        @*<RadzenCustomValidator Component="Email" Validator="@(() => ValidateNameIsfour(_tklfsub.ArName1))" Text="Email already exists" Popup=@popup />*@
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="card-footer">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <RadzenButton ButtonType="ButtonType.Submit" Text="تسجيل"></RadzenButton>
+
+                    </div>
+                    @if (_tklfsub.Id != 0)
+                    {
+                        <div class="col-4">
+                            <button class="btn btn-outline-dark" @onclick="@(() => { onNew(); })">جديد</button>
+                        </div>
+                        <div class="col-4">
+                            <button class="btn btn-outline-dark" @onclick="onDelete">حذف</button>
+                        </div>
+                    }
+                </div>
+            </div>
+
+
+        </RadzenTemplateForm>
+    </div>
+
+
+</div>
+
+@code
+{
+    [Parameter]
+    public int? formarg { get; set; }
+    public string ikind_code { get; set; }
+    public Tklfsub _tklfsub = new Tklfsub();
+    // public List<Tklfsub> shobalist = new List<Tklfsub>();
+    public int codelength { get; set; } = 4;
+    public string MasterButtonText { get; set; } = "كود القسم";
+    public string DetailCodeText { get; set; } = "كود";
+    public string DetailNameText { get; set; } = "الإسم";
+    public string mask = "*";
+    public string SearchText = "";
+    public string pagetitle = "";
+    public Tklfmain current_section { get; set; }=new Tklfmain();
+
+    protected override void OnParametersSet()
+    {
+        // if (formarg == 2) { using (var db = dbf.CreateDbContext()) shobalist = db.Tklfsubs.Where(t => t.KindCode == "09").ToList(); }
+
+        switch (formarg)
+        {
+
+            case 2:
+                ikind_code = "02";
+                codelength = 4;
+                pagetitle = "أكواد الرسائل";
+                break;
+            case 4:
+                ikind_code = "04";
+                codelength = 4;
+                pagetitle = " المعامل و المزارع";
+                break;
+            case 5:
+                ikind_code = "05";
+                codelength = 4;
+                pagetitle = "أكواد مشروعات الخطة الثالثة عشر";
+                break;
+            case 6:
+                ikind_code = "06";
+                codelength = 4;
+                pagetitle = "مشروعات الخطة التكميليه MP";
+                break;
+            case 7:
+                ikind_code = "07";
+                codelength = 4;
+                pagetitle = "مشروعات التكنولوجيا القادمة من الخارج TT";
+                break;
+            case 8:
+                ikind_code = "08";
+                codelength = 4;
+                pagetitle = "مشروعات الخطة المصرية الإيطالية IT";
+                break;
+            case 11:
+                ikind_code = "11";
+                codelength = 4;
+                pagetitle = "الخطة الروماني";
+                break;
+
+            case 12:
+                ikind_code = "12";
+                codelength = 2;
+                pagetitle = "مشروعات الخطة E";
+                break;
+
+            default:
+                break;
+        }
+        mask = mask.PadLeft(codelength, '*');
+        onNew();
+        base.OnParametersSet();
+    }
+
+
+    private void onNew()
+    {
+        _tklfsub = new Tklfsub();
+        _tklfsub.KindCode = ikind_code;
+
+    }
+
+    public async Task f_onchange(string name, dynamic arg)
+    {
+        string _value = "";
+        switch (name.ToLower())
+        {
+            case "tklfcode"://this is the parent قسم
+                _tklfsub.TklfCode = "";
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _value = arg;
+                if (string.IsNullOrEmpty(_value)) return;
+                _value = _value.Substring(0, Math.Min(codelength, _value.Length));
+                _value = _value.PadLeft(codelength, '0');
+                using (var db = dbf.CreateDbContext())
+                {
+                   
+                    current_section = db.Tklfmains.FirstOrDefault<Tklfmain>(a => a.KindCode == ikind_code && a.TklfCode == _value);
+                    if (current_section != null)
+                    {
+                        onNew();
+                        _tklfsub.KindCode = ikind_code;
+                        _tklfsub.Tklfmainid = current_section.Id;
+                        _tklfsub.TklfCode = current_section.TklfCode;
+                    }
+
+                }
+                StateHasChanged();
+                break;
+            case "tklfsubcode":
+
+                _tklfsub.TklfsubCode = "";
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _value = arg;
+                if (string.IsNullOrEmpty(_value)) return;
+                _value = _value.Substring(0, Math.Min(codelength, _value.Length));
+                _value = _value.PadLeft(codelength, '0');
+                using (var db = dbf.CreateDbContext())
+                {
+                    Tklfsub LocalTklfSub;
+                    LocalTklfSub = db.Tklfsubs.FirstOrDefault<Tklfsub>(a => a.KindCode == ikind_code && a.TklfCode == current_section.TklfCode && a.TklfsubCode== _value);
+                    if (LocalTklfSub != null)
+                    {
+                        _tklfsub = LocalTklfSub;
+                    }
+                    else
+                    {
+                        //  onNew();
+                        _tklfsub.TklfsubCode = _value;
+                        _tklfsub.Tklfmainid = current_section.Id;
+                        _tklfsub.TklfCode = current_section.TklfCode;
+                    }
+                }
+                StateHasChanged();
+                break;
+
+            case "tklfsubname":
+                _tklfsub.TklfsubName = "";
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _value = arg;
+                _value = _value.Substring(0, Math.Min(50, _value.Length));
+                _tklfsub.TklfsubName = _value;
+                StateHasChanged();
+                break;
+            default: break;
+        }
+    }
+
+    private async Task f_ondblclick(string colname)
+    {
+        switch (colname.ToLower())
+        {
+            case "tklfcode":
+                List<Tklfmain> Parenthelplist = new List<Tklfmain>();
+                using (var db = dbf.CreateDbContext()) Parenthelplist = db.Tklfmains.Where(t => t.KindCode == ikind_code).ToList();
+
+                Dictionary<string, object> Parentret = await DialogService.OpenAsync<GModalList<Tklfmain>>("",
+            new Dictionary<string, object>() { { "data", Parenthelplist }, { "title",  " " + "قائمة " }, { "scollist", "tklfcode,tklfname" }, { "colheads", "الكود,الإسم" } },
+            new DialogOptions() { ShowTitle = false, Width = "800px", Height = "400px", Resizable = true, Draggable = true });
+
+                if (Parentret != null)
+                {
+                    if (!((bool)Parentret["status"])) return;
+                    List<Tklfmain> val = Parentret["result"] as List<Tklfmain>;
+                    _tklfsub.TklfCode = val[0].TklfCode;
+                    await f_onchange(colname.ToLower(), val[0].TklfCode);
+                }
+                break;
+            case "tklfsubcode":
+                List<Tklfsub> helplist = new List<Tklfsub>();
+                using (var db = dbf.CreateDbContext()) helplist = db.Tklfsubs.Where(t => t.KindCode == ikind_code && t.TklfCode==current_section.TklfCode).ToList();
+
+                Dictionary<string, object> ret = await DialogService.OpenAsync<GModalList<Tklfsub>>("",
+            new Dictionary<string, object>() { { "data", helplist }, { "title", pagetitle + " " + "قائمة " }, { "scollist", "tklfsubcode,tklfsubname,name1" }, { "colheads", "الكود,الإسم,المشرف" } },
+            new DialogOptions() { ShowTitle = false, Width = "800px", Height = "400px", Resizable = true, Draggable = true });
+
+                if (ret != null)
+                {
+                    if (!((bool)ret["status"])) return;
+                    List<Tklfsub> val = ret["result"] as List<Tklfsub>;
+                    _tklfsub.TklfsubCode = val[0].TklfsubCode;
+                    await f_onchange(colname.ToLower(), val[0].TklfsubCode);
+                }
+                break;
+            default: break;
+        }
+
+    }
+
+    private async Task OnSubmit(Tklfsub model) => await onSave();
+
+    private async Task<int> onSave()
+    {
+        if (!on_presave()) return -1;
+        try
+        {
+            using (var db = dbf.CreateDbContext())
+            {
+                if (_tklfsub.Id == 0)
+                    await db.AddAsync(_tklfsub);
+                else
+                    db.Update(_tklfsub);
+
+                await db.SaveChangesAsync();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        return 0;
+    }
+
+    private bool on_presave()
+    {
+        return true;
+    }
+
+    private bool on_prdelete()
+    {
+
+        return true;
+    }
+
+    private void onDelete()
+    {
+        if (!on_prdelete()) return;
+        try
+        {
+            using (var db = dbf.CreateDbContext())
+                if (_tklfsub.Id != 0)
+                {
+                    db.Remove(_tklfsub);
+                    if (db.SaveChanges() > 0) onNew();
+                }
+
+        }
+        catch (DbUpdateException e)
+        { throw e; }
+    }
+
+    void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+    {
+    }
+
+}
+
+
