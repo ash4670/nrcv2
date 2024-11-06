@@ -273,13 +273,12 @@
         {
             if (db.Arquants.Where(q => q.ItemQuant > 0 && q.ArName == _emp.ArCode).Any())
             {
-
-                /*"يوجد عهد لهذا الموظف"*/
+                gtool.Mynotify("خطأ", "يوجد عهد لهذا الموظف");
                 return false;
             }
             if (db.Arquants.Where(q => q.ItemQuant > 0 && q.ArName == _emp.ArCode).Any())
             {
-                /*"يوجد مستندات مخزنية لهذا الموظف"*/
+                gtool.Mynotify("خطأ", "يوجد مستندات مخزنية لهذا الموظف");
                 return false;
             }
         }

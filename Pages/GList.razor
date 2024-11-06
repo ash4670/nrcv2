@@ -72,11 +72,11 @@ else
 
     <!-- Pagination Controls -->
     <div class="pagination mt-2">
-        <button @onclick="GoToFirstPage" disabled="@IsFirstPage">First</button>
-        <button @onclick="GoToPreviousPage" disabled="@IsFirstPage">Previous</button>
+        <button class="btn btn-sm btn-primary" @onclick="GoToFirstPage" disabled="@IsFirstPage"><span class="oi oi-media-step-backward"></span></button>
+        <button  class="btn btn-sm btn-primary"  @onclick="GoToPreviousPage" disabled="@IsFirstPage"><span class="oi oi-media-skip-backward" /></button>
         <span>Page @CurrentPage of @TotalPages</span>
-        <button @onclick="GoToNextPage" disabled="@IsLastPage">Next</button>
-        <button @onclick="GoToLastPage" disabled="@IsLastPage">Last</button>
+        <button  class="btn btn-sm btn-primary"  @onclick="GoToNextPage" disabled="@IsLastPage"><span class="oi oi-media-skip-forward" /></button>
+        <button  class="btn btn-sm btn-primary"  @onclick="GoToLastPage" disabled="@IsLastPage"><span class="oi oi-media-step-forward"/></button>
     </div>
 }
 

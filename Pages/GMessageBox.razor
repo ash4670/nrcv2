@@ -1,23 +1,23 @@
-﻿<div  class="modal  fade show " id="myModal" style=" border : 3px solid #666;display: block;background-color: rgba(10,10,10,.8);margin:0;padding:0">
+﻿<div class="modal  fade show " id="myModal" style=" border : 3px solid #666;display: block;background-color: rgba(10,10,10,.8);margin:0;padding:0">
     <div class="modal-dialog  modal-xl">
         <div class="modal-content ">
             <div class="modal-header">
                 <div class="alert alert-primary col-12 h3 text-center ">
-                    @Title  
+                    @Title
                     <button type="button" class="close" @onclick="async () =>await OnClose.InvokeAsync(false)">&times;</button>
                 </div>
-             </div>
-                <div class="modal-body">
-                    <p>@Content</p>
-                    @ChildContent
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" @onclick="async () =>await OnClose.InvokeAsync(true)">موافق</button>
-                    <button type="button" class="btn btn-primary" @onclick="async () =>await OnClose.InvokeAsync(false)">إلغاء</button>
-                </div>
             </div>
+            <div class="modal-body">
+                <p>@Content</p>
+                @ChildContent
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" @onclick="async () =>await OnClose.InvokeAsync(true)">موافق</button>
+                <button type="button" class="btn btn-primary" @onclick="async () =>await OnClose.InvokeAsync(false)">إلغاء</button>
+            </div>
+        </div>
     </div>
-    
+
 </div>
 @code {
     #region declarations
@@ -28,6 +28,6 @@
     #endregion
 
     private Task ModalCancel() { return OnClose.InvokeAsync(false); }
-    private Task ModalOk()    { return OnClose.InvokeAsync(true);  }
+    private Task ModalOk() { return OnClose.InvokeAsync(true); }
     //@onclick="@ModalCancel"
 }
