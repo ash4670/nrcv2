@@ -24,7 +24,7 @@ else
         <input @ref="searchinput" class="form-control" type="search" placeholder="بحث" @bind-value="_filter" @bind-value:event="oninput" @onkeyup="myfilter" />
     </div>
 
-    <div class="tableFixHead" style="height:250px; overflow: auto;">
+    <div class="tableFixHead" style="height:350px; overflow: auto;">
         <table class="table table-hover table-bordered table-sm">
             <thead class="font-weight-bold">
                 @myHeader
@@ -71,13 +71,15 @@ else
     </div>
 
     <!-- Pagination Controls -->
-    <div class="pagination mt-2">
-        <button class="btn btn-sm btn-primary" @onclick="GoToFirstPage" disabled="@IsFirstPage"><span class="oi oi-media-step-backward"></span></button>
-        <button  class="btn btn-sm btn-primary"  @onclick="GoToPreviousPage" disabled="@IsFirstPage"><span class="oi oi-media-skip-backward" /></button>
-        <span>Page @CurrentPage of @TotalPages</span>
-        <button  class="btn btn-sm btn-primary"  @onclick="GoToNextPage" disabled="@IsLastPage"><span class="oi oi-media-skip-forward" /></button>
-        <button  class="btn btn-sm btn-primary"  @onclick="GoToLastPage" disabled="@IsLastPage"><span class="oi oi-media-step-forward"/></button>
-    </div>
+if (TotalPages> 1) { 
+<div class="pagination mt-1">
+     <button class="btn btn-toolbar btn-primary" @onclick="GoToFirstPage" disabled="@IsFirstPage"><span class="oi oi-media-step-backward"></span></button>
+    <button class="btn btn-sm btn-primary" @onclick="GoToPreviousPage" disabled="@IsFirstPage"><span class="oi oi-media-skip-backward" /></button>
+    <span>Page @CurrentPage of @TotalPages</span>
+    <button class="btn btn-sm btn-primary" @onclick="GoToNextPage" disabled="@IsLastPage"><span class="oi oi-media-skip-forward" /></button>
+    <button class="btn btn-sm btn-primary" @onclick="GoToLastPage" disabled="@IsLastPage"><span class="oi oi-media-step-forward" /></button>
+</div>
+                        }
 }
 
 @code {

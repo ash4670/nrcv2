@@ -30,6 +30,8 @@ namespace nrcv2.Models
         public string OutCode { get; set; }
         [Column("VALUE")]
         public double? Value { get; set; }
+        [Column("PREV_VALUE")]
+        public double? PrevValue { get; set; }
         [Column("project")]
         [StringLength(60)]
         public string Project { get; set; }

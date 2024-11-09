@@ -1721,6 +1721,7 @@ namespace nrcv2.Models
                     .HasColumnName("project");
 
                 entity.Property(e => e.Value).HasColumnName("VALUE");
+                entity.Property(e => e.PrevValue).HasColumnName("PREV_VALUE");
             });
 
             modelBuilder.Entity<TklfSubBudg>(entity =>
