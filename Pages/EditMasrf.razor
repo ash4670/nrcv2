@@ -1,0 +1,463 @@
+﻿@page "/editmasrf/{trnstype}/{formarg:int}"
+@inject IDbContextFactory<nrcwebContext> dbf;
+@inject DialogService DialogService
+@inject Gtools gtool
+@inject NavigationManager NavigationManager
+<style>
+    /* This CSS ensures the table header stays on top */
+    .tableFixHead {
+        height: 250px;
+        overflow-y: auto;
+    }
+
+        .tableFixHead thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1000; /* Ensures the header stays above table rows */
+            background-color: #007bff; /* Adjust this color to match your header's */
+            color: white;
+        }
+</style>
+
+<div class="card p-0 " style="padding: 0px;width:720px;">
+    <div class="card-header alert alert-primary h3 text-center ">
+        تعريف  @PageTitle
+    </div>
+    <div class="card-body p-0" style="padding: 0px;">
+        <div class="container">
+            <div class="row" style="padding: 0px;">
+                <div class="col-3 ">
+                    <button class="button btn-link" @onclick="()=>OnMasterButtonClick()">@MasterText</button>
+                </div>
+                <div class="col-5">
+                    <RadzenTextBox @bind-Value="@selectedtklfcode"  Change=@(args => f_onchange("tklfcode", args) ) />
+                    @*<InputText @bind-Value="selectedtklfcode" @onchange=@(args => f_onchange("tklfcode", args) ) class="form-control col-sm-2" />*@
+                    <RadzenDropDown @bind-Value=@selectedtklfcode Data=@Parenthelplist TextProperty="@nameof(Tklfmain.TklfName)" ValueProperty="@nameof(Tklfmain.TklfCode)"
+                                    Style="width: 100%; max-width: 400px; display:block;" Name="DropDownParent">
+                    </RadzenDropDown>
+                </div>
+                <div class="col-4">
+                    <label>الإجمالى @section_total</label>
+                </div>
+            </div>
+
+            <div class="row" style="padding: 0px;">
+                <div class="col-2 ">
+                    <button class="button btn-link" @onclick="()=>OnsubButtonClick()">@this.SubText</button>
+                </div>
+                <div class="col-4">
+                    <RadzenTextBox @bind-Value="@selectedsubcode" Change=@(args => f_onchange("tklfsubcode", args)  )  />
+                    @*<InputText @bind-Value="selectedsubcode" @onchange=@(args => f_onchange("tklfsubcode", args) ) class="form-control col-sm-2" />*@
+                    <RadzenDropDown @bind-Value=@selectedtklfcode Data=@(_sublist) TextProperty="@nameof(Tklfsub.Name1)" ValueProperty="@nameof(Tklfsub.TklfCode)"
+                                    Style="width: 100%; max-width: 400px; display:block;" Name="DropDownParent">
+                    </RadzenDropDown>
+                </div>
+               
+            </div>
+
+
+            <div class="  row  " style="padding: 0px;">
+               
+                <div class="col-lg p-0 border border-primary">
+                    @if (_TrnsList.Any())
+                    {
+                        <div class="card">
+                           
+                            <div class="card-body " style="padding: 0px;">
+
+                                <div class="tableFixHead" style=" height: 250px; font-size: small; overflow: auto; ">
+                                    <table class="table  table-hover table-bordered  table-sm">
+                                        <thead style="position: sticky ; z-index:5;" class="font-weight-bold text-center alert-primary">
+                                            @if (_TrnsList.Any())
+                                            {
+                                            <tr style="padding:0;margin:0;max-height:fit-content;">
+                                                <th>م</th>
+                                                <th class="col-4" style="padding:0;margin:0;"> إسم البـــنـــد </th>
+                                                <th class="col-3" style="padding:0;margin:0">رقم المستند </th>
+                                                <th class="col-3" style="padding:0;margin:0">تاريخ المستند </th>
+                                                <th class="col-3" style="padding:0;margin:0">القيمة </th>
+                                                <th> </th>
+                                            </tr>
+                                            }
+                                        </thead>
+                                        <tbody>
+                                            @{int r = 0; double? total = 00.00;}
+                                            @if (_TrnsList.Any())
+                                            {
+                                                @foreach (var item in _TrnsList)
+                                                {
+
+                                                    <tr style="padding:0;margin:0;max-height:fit-content; background-color:lightsteelblue">
+
+                                                        <td>@(r + 1) </td>
+
+
+                                                        <td>
+                                                            <RadzenDropDown @bind-Value=@item.OutCode Data=@OutHelpList TextProperty="@nameof(Out.OutName)" ValueProperty="@nameof(Out.OutCode)"
+                                                                            @bind-SearchText=SearchText FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" AllowFiltering="true"
+                                                                            Change=@(args => f_onchange("outcode", args) )
+                                                                            Style="width: 100%; max-width: 400px; display:block;" Name="DropDownOuts">
+                                                            </RadzenDropDown>
+                                                        </td>
+                                                        <td>
+                                                            <RadzenNumeric ShowUpDown="false" TValue="double?" Format="#.00" @bind-Value="@item.Value" />
+                                                        </td>
+                                                       
+                                                        <td>
+                                                            <RadzenButton Size="ButtonSize.Small" Text="-" class="badge" Click="() => Deletedetail(item)" />
+                                                        </td>
+
+                                                    </tr>
+
+                                                    total += item.Value ?? 0;
+                                                    r++;
+                                                }
+                                            }
+                                            <tr>
+                                                <td></td>
+                                                <td>الإجمالى</td>
+                                                <td>@total</td>
+                                                @if (this.ikind_code == "02")
+                                                {
+                                                    <td></td>
+                                                }
+                                                <td></td>
+
+
+
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </div>
+
+                                <div class="card-footer">
+                                    <div class="row text-center">
+                                        <div class="col">
+                                            <RadzenButton Text="تسجيل" Click="onSave"></RadzenButton>
+                                        </div>
+                                        <div class="col">
+                                            <RadzenButton Size="ButtonSize.Small" Text="إضافة" class="badge" Click="() => Adddetails()" />
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+            </div>
+            @*<div class="card-footer"></div>*@
+        </div>
+    </div>
+</div>
+
+@code {
+    public string PageTitle { get; set; } = "";
+    public string ikind_code { get; set; }
+    public string MasterText { get; set; }
+    public string MasterTextMany { get; set; }
+    public string SubText { get; set; }
+    public string selectedtklfcode { get; set; }
+    public string selectedsubcode { get; set; }
+    public double section_total { get; set; } = 0.00;
+    List<Tklfmain> Parenthelplist { get; set; } = new();
+    List<Out> OutHelpList { get; set; } = new();
+    Tklfmain selectedparent { get; set; } = new();
+    List<Tklfsub> _sublist { get; set; } = new();
+    List<Masrf> _TrnsList { get; set; } = new();
+
+    Tklfsub selectedsub { get; set; } = new();
+
+    public string SearchText = "";
+
+    [Parameter]
+    public int formarg { get; set; }
+    [Parameter]
+    public string trnstype { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        switch (trnstype)
+        {
+            case "masrf":
+                PageTitle = SubText + " مستند صرف";
+                break;
+            case "taziz":
+                PageTitle = SubText + "مستند تعزيز";
+                break;
+            case "related":
+                PageTitle = SubText + "مستند إرتباط";
+                break;
+            default:
+                break;
+        }
+
+        switch (formarg)
+        {
+            case 2:
+                ikind_code = "02";
+
+                MasterText = "كود القسم";
+                MasterTextMany = "الأقسام";
+                SubText = "رسائل";
+                break;
+            case 4:
+                ikind_code = "04";
+                PageTitle = " ميزانية المعامل و المزارع";
+                MasterText = "اسم مزرعة / معمل";
+                MasterTextMany = "المعامل/المزارع";
+                SubText = "مشروعات";
+                break;
+            case 5:
+                ikind_code = "05";
+                PageTitle = "ميزانية أكواد مشروعات الخطة الثالثة عشر";
+                MasterText = "كود المحور";
+                MasterTextMany = "محاور";
+                SubText = "مجالات";
+                break;
+            case 6:
+                ikind_code = "06";
+                PageTitle = "ميزانية مشروعات الخطة التكميليه MP";
+                MasterText = "كود الشعبة";
+                MasterTextMany = "الشعب";
+                SubText = "المشروعات";
+                break;
+            case 12:
+                ikind_code = "12";
+                PageTitle = "ميزانية مشروعات الخطة E";
+                MasterText = "كود البرنامج";
+                MasterTextMany = "المشروعات";
+                break;
+
+            default:
+                break;
+        }
+
+        using (var db = dbf.CreateDbContext())
+        {
+            Parenthelplist = db.Tklfmains.Where(t => t.KindCode == ikind_code).ToList();
+            if (Parenthelplist.Count() == 0)
+            {
+                gtool.Mynotify("خطأ", "لا يوجد " + " " + MasterTextMany);
+                NavigationManager.NavigateTo("/");
+                return;
+            }
+            OutHelpList = db.Outs.ToList();
+            selectedparent = db.Tklfmains.Include(p => p.Tklfsubs).ThenInclude(s => s.TklfDetails).Where(t => t.KindCode == ikind_code).FirstOrDefault();
+            _sublist = selectedparent.Tklfsubs.OrderBy(a => a.TklfsubCode).ToList();
+            selectedsub = _sublist.FirstOrDefault();
+            section_total = (db.Masrves).Where(M=>M.KindCode== selectedparent.KindCode && M.TklfCode== selectedparent.TklfCode && M.TklfsubCode== selectedsub.TklfsubCode).Sum(d => d.Value ?? 0 );
+
+            //_Detaillist = selectedsub.TklfDetails.ToList();
+            selectedtklfcode = selectedparent.TklfCode;
+        }
+
+        base.OnParametersSet();
+    }
+
+
+
+    private void onsubselected(Tklfsub arg)
+    {
+        selectedsub = selectedparent.Tklfsubs.Where(a => a.KindCode == arg.KindCode && a.TklfCode == arg.TklfCode && a.TklfsubCode == arg.TklfsubCode).FirstOrDefault();
+
+    }
+
+    private void Adddetails()
+    {
+        if (string.IsNullOrEmpty(ikind_code) || string.IsNullOrEmpty(selectedtklfcode) || selectedsub == null) return;
+        Masrf masrf = new();
+        masrf.KindCode = ikind_code;
+        masrf.TklfCode = selectedtklfcode;
+        masrf.TklfsubCode = selectedsub.TklfsubCode;
+        _TrnsList.Add(masrf);
+    }
+
+
+    //private async Task OntklfdetalClick(TklfDetail arg)
+    //{
+    //    int rowIndex = selectedsub.TklfDetails.ToList().IndexOf(arg);
+    //    List<Out> Outhelplist = new List<Out>();
+    //    using (var db = dbf.CreateDbContext()) Outhelplist = db.Outs.ToList();
+
+    //    Dictionary<string, object> ret = await DialogService.OpenAsync<GModalList<Out>>("",
+    //new Dictionary<string, object>() { { "data", Outhelplist }, { "title", " قائمة بنود المصروفات " }, { "scollist", "outcode,outname" }, { "colheads", "الكود,الإسم" } },
+    //new DialogOptions() { ShowTitle = false, Width = "800px", Height = "400px", Resizable = true, Draggable = true });
+
+    //    if (ret != null)
+    //    {
+    //        if (!((bool)ret["status"])) return;
+    //        List<Out> val = ret["result"] as List<Out>;
+    //        selectedsub.TklfDetails.ElementAt(rowIndex).OutCode = val[0].OutCode;
+
+    //    }
+
+
+
+    //}
+    private void Deletedetail(Masrf m)
+    {
+        _TrnsList.Remove(m);
+    }
+
+
+
+
+    public async Task f_onchange(string name, dynamic arg)
+    {
+        string _value = "";
+        switch (name.ToLower())
+        {
+            case "tklfcode":
+                //this is the parent قسم
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _value = arg;
+                if (string.IsNullOrEmpty(_value)) return;
+
+                using (var db = dbf.CreateDbContext())
+                {
+                    selectedparent = db.Tklfmains.Include(m => m.Tklfsubs).FirstOrDefault(a => a.KindCode == ikind_code && a.TklfCode == _value);
+                    _sublist = selectedparent.Tklfsubs.OrderBy(a => a.TklfsubCode).ToList();
+                    selectedsub = _sublist.FirstOrDefault();
+                    section_total = (selectedparent.Tklfsubs.SelectMany(s => s.TklfDetails).ToList()).Sum(d => d.Value ?? 0 + d.PrevValue ?? 0);
+                    this._TrnsList = db.Masrves.Where(m=>m.KindCode== selectedparent.KindCode && m.TklfCode== selectedparent.TklfCode && m.TklfsubCode== selectedsub.TklfsubCode).ToList();
+                }
+
+                if (_sublist?.Count == 0)
+                    gtool.Mynotify("خطأ", MasterText + " غير معرف");
+
+                StateHasChanged();
+                break;
+
+
+
+            case "tklfsubcode":
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _value = arg;
+                if (string.IsNullOrEmpty(_value)) return;
+
+                using (var db = dbf.CreateDbContext())
+                {
+                    selectedsub = selectedparent.Tklfsubs.Where(s => s.TklfsubCode == _value).FirstOrDefault();
+                    _TrnsList = db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToList();
+                    section_total = (selectedparent.Tklfsubs.SelectMany(s => s.TklfDetails).ToList()).Sum(d => d.Value ?? 0 + d.PrevValue ?? 0);
+                    this._TrnsList = db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToList();
+                }
+
+                if (_sublist?.Count == 0)
+                    gtool.Mynotify("خطأ", MasterText + " غير معرف");
+
+                StateHasChanged();
+                break;
+
+
+
+            default: break;
+        }
+    }
+
+    private async Task OnsubButtonClick() {
+        Dictionary<string, object> ret = await DialogService.OpenAsync<GModalList<Tklfsub>>("",
+       new Dictionary<string, object>() { { "data", this.selectedparent.Tklfsubs.ToList() }, { "title", " قائمة أكواد " + this.SubText }, { "scollist",nameof(Tklfsub.TklfsubCode)+","+nameof(Tklfsub.TklfsubName)  }, { "colheads", "الكود,الإسم" } },
+       new DialogOptions() { ShowTitle = false, Width = "800px", Height = "400px", Resizable = true, Draggable = true });
+
+        if (ret != null)
+        {
+            if (!((bool)ret["status"])) return;
+            List<Tklfsub> val = ret["result"] as List<Tklfsub>;
+            selectedsub = val[0] as Tklfsub;
+            this.selectedsubcode = selectedsub.TklfsubCode;
+            await f_onchange("tklfsubcode", val[0].TklfsubCode);
+        }
+    }
+    
+    private async Task OnMasterButtonClick()
+    {
+        Dictionary<string, object> ret = await DialogService.OpenAsync<GModalList<Tklfmain>>("",
+        new Dictionary<string, object>() { { "data", Parenthelplist }, { "title", " قائمة أكواد " + MasterTextMany }, { "scollist", "Tklfcode,tklfname" }, { "colheads", "الكود,الإسم" } },
+        new DialogOptions() { ShowTitle = false, Width = "800px", Height = "400px", Resizable = true, Draggable = true });
+
+        if (ret != null)
+        {
+            if (!((bool)ret["status"])) return;
+            List<Tklfmain> val = ret["result"] as List<Tklfmain>;
+            selectedparent = val[0] as Tklfmain;
+            selectedtklfcode = selectedparent.TklfCode;
+            await f_onchange("tklfcode", val[0].TklfCode);
+        }
+    }
+    //private async Task OnSubmit(TklfDetail model) => await onSave();
+
+    private async Task<int> onSave()
+    {
+        if (!on_presave()) return -1;
+        try
+        {
+            using (var db = dbf.CreateDbContext())
+            {
+                // db.Update(this.selectedsub);
+                await db.SaveChangesAsync();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        return 0;
+    }
+
+    private bool on_presave()
+    {
+        _TrnsList.RemoveAll(item => string.IsNullOrEmpty(item.OutCode));
+
+        //if (string.IsNullOrEmpty(_tklfsub.TklfCode) || string.IsNullOrEmpty(_tklfsub.TklfsubCode) || string.IsNullOrEmpty(_tklfsub.TklfsubName)
+        //    || _tklfsub.Tklfmainid == 0)
+        //{
+        //    gtool.Mynotify("خطأ", "يجب إدخال البيانات بشكل سليم");
+        //    return false;
+        //}
+
+
+
+        //if (_tklfsub.Cost == null) _tklfsub.Cost = 0;
+        //if (_tklfsub.Taziz == null) _tklfsub.Taziz = 0;
+        return true;
+    }
+
+    private bool on_prdelete()
+    {
+
+        return true;
+    }
+
+    private void onDelete()
+    {
+        //    if (!on_prdelete()) return;
+        //    try
+        //    {
+        //        using (var db = dbf.CreateDbContext())
+        //            if (_tklfsub.Id != 0)
+        //            {
+        //                db.Remove(_tklfsub);
+        //                if (db.SaveChanges() > 0) onNew();
+        //            }
+
+        //    }
+        //    catch (DbUpdateException e)
+        //    { throw e; }
+    }
+
+    void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+    {
+    }
+
+
+}
+
+
+
