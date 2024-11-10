@@ -26,64 +26,67 @@
     <div class="card-body p-0" style="padding: 0px;">
         <div class="container">
             <div class="row" style="padding: 0px;">
-                <div class="col-3 ">
-                    <button class="button btn-link" @onclick="()=>OnMasterButtonClick()">@MasterText</button>
-                </div>
-                <div class="col-5">
-                    <RadzenTextBox @bind-Value="@selectedtklfcode"  Change=@(args => f_onchange("tklfcode", args) ) />
-                    @*<InputText @bind-Value="selectedtklfcode" @onchange=@(args => f_onchange("tklfcode", args) ) class="form-control col-sm-2" />*@
-                    <RadzenDropDown @bind-Value=@selectedtklfcode Data=@Parenthelplist TextProperty="@nameof(Tklfmain.TklfName)" ValueProperty="@nameof(Tklfmain.TklfCode)"
-                                    Style="width: 100%; max-width: 400px; display:block;" Name="DropDownParent">
-                    </RadzenDropDown>
+                <div class="col-2 ">
+                    <RadzenButton Text=@MasterText  Click="()=>OnMasterButtonClick()" />
+                     @*<button class="button " @onclick="()=>OnMasterButtonClick()">@MasterText ...</button>*@
                 </div>
                 <div class="col-4">
+                    <RadzenTextBox @bind-Value="@selectedtklfcode" Change=@(args => f_onchange("tklfcode", args) ) />
+                </div>
+                <div class="col-4">
+                    <RadzenDropDown @bind-Value=@selectedtklfcode Data=@Parenthelplist TextProperty="@nameof(Tklfmain.TklfName)" ValueProperty="@nameof(Tklfmain.TklfCode)"
+                                    Change=@(args => f_onchange("tklfcode", args) ) Style="width: 100%; max-width: 400px; display:block;" Name="DropDownParent">
+                    </RadzenDropDown>
+                </div>
+                <div class="col-2">
                     <label>الإجمالى @section_total</label>
                 </div>
             </div>
 
             <div class="row" style="padding: 0px;">
                 <div class="col-2 ">
-                    <button class="button btn-link" @onclick="()=>OnsubButtonClick()">@this.SubText</button>
+                    <RadzenButton Text=@SubText Click="()=>OnsubButtonClick()" />
+                    @*<button class="button btn-link" @onclick="()=>OnsubButtonClick()">@this.SubText</button>*@
                 </div>
                 <div class="col-4">
-                    <RadzenTextBox @bind-Value="@selectedsubcode" Change=@(args => f_onchange("tklfsubcode", args)  )  />
-                    @*<InputText @bind-Value="selectedsubcode" @onchange=@(args => f_onchange("tklfsubcode", args) ) class="form-control col-sm-2" />*@
-                    <RadzenDropDown @bind-Value=@selectedtklfcode Data=@(_sublist) TextProperty="@nameof(Tklfsub.Name1)" ValueProperty="@nameof(Tklfsub.TklfCode)"
-                                    Style="width: 100%; max-width: 400px; display:block;" Name="DropDownParent">
+                    <RadzenTextBox @bind-Value="@selectedsubcode" Change=@(args => f_onchange("tklfsubcode", args)  ) />
+                </div>
+                <div class="col-4">
+                    <RadzenDropDown @bind-Value=@selectedsubcode Data=@(_sublist) TextProperty="@nameof(Tklfsub.TklfsubName)" ValueProperty="@nameof(Tklfsub.TklfsubCode)"
+                                    Change=@(args => f_onchange("tklfsubcode", args)  ) Style="width: 100%; max-width: 400px; display:block;" Name="DropDownParent">
                     </RadzenDropDown>
                 </div>
-               
+               <div class="col-2"> </div>
             </div>
 
 
             <div class="  row  " style="padding: 0px;">
                
                 <div class="col-lg p-0 border border-primary">
-                    @if (_TrnsList.Any())
-                    {
-                        <div class="card">
-                           
-                            <div class="card-body " style="padding: 0px;">
+                    <div class="card">
+                        @*@if (_TrnsList.Any())
+                        {*@
+
+
+                            <div class="card-body" style="padding: 0px;">
 
                                 <div class="tableFixHead" style=" height: 250px; font-size: small; overflow: auto; ">
                                     <table class="table  table-hover table-bordered  table-sm">
                                         <thead style="position: sticky ; z-index:5;" class="font-weight-bold text-center alert-primary">
-                                            @if (_TrnsList.Any())
-                                            {
-                                            <tr style="padding:0;margin:0;max-height:fit-content;">
-                                                <th>م</th>
-                                                <th class="col-4" style="padding:0;margin:0;"> إسم البـــنـــد </th>
-                                                <th class="col-3" style="padding:0;margin:0">رقم المستند </th>
-                                                <th class="col-3" style="padding:0;margin:0">تاريخ المستند </th>
-                                                <th class="col-3" style="padding:0;margin:0">القيمة </th>
-                                                <th> </th>
-                                            </tr>
-                                            }
+                                            
+                                                <tr style="padding:0;margin:0;max-height:fit-content;">
+                                                    <th>م</th>
+                                                    <th class="col-4" style="padding:0;margin:0;"> إسم البـــنـــد </th>
+                                                    <th class="col-3" style="padding:0;margin:0">رقم المستند </th>
+                                                    <th class="col-3" style="padding:0;margin:0">تاريخ المستند </th>
+                                                    <th class="col-3" style="padding:0;margin:0">القيمة </th>
+                                                    <th> </th>
+                                                </tr>
+                                          
                                         </thead>
                                         <tbody>
                                             @{int r = 0; double? total = 00.00;}
-                                            @if (_TrnsList.Any())
-                                            {
+                                           
                                                 @foreach (var item in _TrnsList)
                                                 {
 
@@ -100,9 +103,17 @@
                                                             </RadzenDropDown>
                                                         </td>
                                                         <td>
-                                                            <RadzenNumeric ShowUpDown="false" TValue="double?" Format="#.00" @bind-Value="@item.Value" />
+                                                            <RadzenNumeric ShowUpDown="false" TValue="int?" @bind-Value="@item.No" />
                                                         </td>
-                                                       
+
+                                                        <td>
+                                                            <RadzenDatePicker Value=item.OutDate DateFormat="dd/MM/yyyy" ShowTime="false" id="OpenbalDate" TValue=DateTime />
+                                                        </td>
+
+                                                        <td>
+                                                            <RadzenNumeric ShowUpDown="false" TValue="double?" @bind-Value="@item.Value" />
+                                                        </td>
+
                                                         <td>
                                                             <RadzenButton Size="ButtonSize.Small" Text="-" class="badge" Click="() => Deletedetail(item)" />
                                                         </td>
@@ -112,15 +123,13 @@
                                                     total += item.Value ?? 0;
                                                     r++;
                                                 }
-                                            }
+                                            
                                             <tr>
                                                 <td></td>
                                                 <td>الإجمالى</td>
+
+                                                <td></td>
                                                 <td>@total</td>
-                                                @if (this.ikind_code == "02")
-                                                {
-                                                    <td></td>
-                                                }
                                                 <td></td>
 
 
@@ -131,23 +140,26 @@
 
                                 </div>
 
-                                <div class="card-footer">
-                                    <div class="row text-center">
-                                        <div class="col">
-                                            <RadzenButton Text="تسجيل" Click="onSave"></RadzenButton>
-                                        </div>
-                                        <div class="col">
-                                            <RadzenButton Size="ButtonSize.Small" Text="إضافة" class="badge" Click="() => Adddetails()" />
-                                        </div>
-                                    </div>
 
-                                </div>
                             </div>
 
-                        </div>
-                    }
+                       
 
-                </div>
+                       
+                    <div class="card-footer p-2">
+                        
+                        <div class="row text-center">
+                            <div class="col">
+                                <RadzenButton Text="تسجيل" Click="onSave"></RadzenButton>
+                            </div>
+                            <div class="col">
+                                <RadzenButton Text="إضافة" Click="() => Adddetails()" />
+                            </div>
+                        </div>
+
+                    </div>
+                    </div>
+                    </div>
             </div>
             @*<div class="card-footer"></div>*@
         </div>
@@ -246,13 +258,12 @@
                 return;
             }
             OutHelpList = db.Outs.ToList();
-            selectedparent = db.Tklfmains.Include(p => p.Tklfsubs).ThenInclude(s => s.TklfDetails).Where(t => t.KindCode == ikind_code).FirstOrDefault();
+            selectedparent = db.Tklfmains.Include(p => p.Tklfsubs).Where(t => t.KindCode == ikind_code).FirstOrDefault();
             _sublist = selectedparent.Tklfsubs.OrderBy(a => a.TklfsubCode).ToList();
             selectedsub = _sublist.FirstOrDefault();
-            section_total = (db.Masrves).Where(M=>M.KindCode== selectedparent.KindCode && M.TklfCode== selectedparent.TklfCode && M.TklfsubCode== selectedsub.TklfsubCode).Sum(d => d.Value ?? 0 );
-
-            //_Detaillist = selectedsub.TklfDetails.ToList();
+            section_total = db.Masrves.Where(M=>M.KindCode== selectedparent.KindCode && M.TklfCode== selectedparent.TklfCode && M.TklfsubCode== selectedsub.TklfsubCode).Sum(d => d.Value ?? 0 );
             selectedtklfcode = selectedparent.TklfCode;
+            selectedsubcode = selectedsub.TklfsubCode;
         }
 
         base.OnParametersSet();
@@ -263,7 +274,7 @@
     private void onsubselected(Tklfsub arg)
     {
         selectedsub = selectedparent.Tklfsubs.Where(a => a.KindCode == arg.KindCode && a.TklfCode == arg.TklfCode && a.TklfsubCode == arg.TklfsubCode).FirstOrDefault();
-
+        selectedsubcode = selectedsub.TklfsubCode;
     }
 
     private void Adddetails()
@@ -275,29 +286,7 @@
         masrf.TklfsubCode = selectedsub.TklfsubCode;
         _TrnsList.Add(masrf);
     }
-
-
-    //private async Task OntklfdetalClick(TklfDetail arg)
-    //{
-    //    int rowIndex = selectedsub.TklfDetails.ToList().IndexOf(arg);
-    //    List<Out> Outhelplist = new List<Out>();
-    //    using (var db = dbf.CreateDbContext()) Outhelplist = db.Outs.ToList();
-
-    //    Dictionary<string, object> ret = await DialogService.OpenAsync<GModalList<Out>>("",
-    //new Dictionary<string, object>() { { "data", Outhelplist }, { "title", " قائمة بنود المصروفات " }, { "scollist", "outcode,outname" }, { "colheads", "الكود,الإسم" } },
-    //new DialogOptions() { ShowTitle = false, Width = "800px", Height = "400px", Resizable = true, Draggable = true });
-
-    //    if (ret != null)
-    //    {
-    //        if (!((bool)ret["status"])) return;
-    //        List<Out> val = ret["result"] as List<Out>;
-    //        selectedsub.TklfDetails.ElementAt(rowIndex).OutCode = val[0].OutCode;
-
-    //    }
-
-
-
-    //}
+   
     private void Deletedetail(Masrf m)
     {
         _TrnsList.Remove(m);
@@ -323,8 +312,16 @@
                     selectedparent = db.Tklfmains.Include(m => m.Tklfsubs).FirstOrDefault(a => a.KindCode == ikind_code && a.TklfCode == _value);
                     _sublist = selectedparent.Tklfsubs.OrderBy(a => a.TklfsubCode).ToList();
                     selectedsub = _sublist.FirstOrDefault();
-                    section_total = (selectedparent.Tklfsubs.SelectMany(s => s.TklfDetails).ToList()).Sum(d => d.Value ?? 0 + d.PrevValue ?? 0);
-                    this._TrnsList = db.Masrves.Where(m=>m.KindCode== selectedparent.KindCode && m.TklfCode== selectedparent.TklfCode && m.TklfsubCode== selectedsub.TklfsubCode).ToList();
+                    selectedsubcode = selectedsub.TklfsubCode;
+                    if (selectedsub != null)
+                    {
+                        section_total = (db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode)).Sum(d => d.Value ?? 0);
+                        this._TrnsList = db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToList();
+                    }
+                    else {
+                        section_total = 0;
+                        this._TrnsList.Clear();
+                    }
                 }
 
                 if (_sublist?.Count == 0)
@@ -344,9 +341,17 @@
                 using (var db = dbf.CreateDbContext())
                 {
                     selectedsub = selectedparent.Tklfsubs.Where(s => s.TklfsubCode == _value).FirstOrDefault();
-                    _TrnsList = db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToList();
-                    section_total = (selectedparent.Tklfsubs.SelectMany(s => s.TklfDetails).ToList()).Sum(d => d.Value ?? 0 + d.PrevValue ?? 0);
-                    this._TrnsList = db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToList();
+                    selectedsubcode = selectedsub.TklfsubCode;
+                    if (selectedsub != null)
+                    {
+                        _TrnsList = db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToList();
+                        section_total = db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToList().Sum(s => s.Value ?? 0);
+
+                    }
+                    else {
+                        _TrnsList.Clear();
+                        section_total = 0;
+                    }
                 }
 
                 if (_sublist?.Count == 0)
@@ -375,7 +380,7 @@
             await f_onchange("tklfsubcode", val[0].TklfsubCode);
         }
     }
-    
+
     private async Task OnMasterButtonClick()
     {
         Dictionary<string, object> ret = await DialogService.OpenAsync<GModalList<Tklfmain>>("",
