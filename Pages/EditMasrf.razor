@@ -26,8 +26,8 @@
     <div class="card-body p-0" style="padding: 0px;">
         <div class="container">
             <div class="row" style="padding: 0px;">
-                <div class="col-2 ">
-                    <RadzenButton Text=@MasterText  Click="()=>OnMasterButtonClick()" />
+                <div class="col-2">
+                    <RadzenButton  Text=@MasterText  Click="()=>OnMasterButtonClick()" />
                      @*<button class="button " @onclick="()=>OnMasterButtonClick()">@MasterText ...</button>*@
                 </div>
                 <div class="col-4">
@@ -43,8 +43,8 @@
                 </div>
             </div>
 
-            <div class="row" style="padding: 0px;">
-                <div class="col-2 ">
+            <div class="row" >
+                <div class="col-2">
                     <RadzenButton Text=@SubText Click="()=>OnsubButtonClick()" />
                     @*<button class="button btn-link" @onclick="()=>OnsubButtonClick()">@this.SubText</button>*@
                 </div>
@@ -60,10 +60,10 @@
             </div>
 
 
-            <div class="  row  " style="padding: 0px;">
+            <div class="  row  " >
                
-                <div class="col-lg p-0 border border-primary">
-                    <div class="card">
+                <div class="col-lg mt-3 p-0 border border-primary">
+                    <div class="card ">
                         @*@if (_TrnsList.Any())
                         {*@
 
@@ -153,7 +153,14 @@
                                 <RadzenButton Text="تسجيل" Click="onSave"></RadzenButton>
                             </div>
                             <div class="col">
+                                <RadzenButton Text="حذف" Click="onDelete"></RadzenButton>
+                            </div>
+                            <div class="col">
                                 <RadzenButton Text="إضافة" Click="() => Adddetails()" />
+                            </div>
+
+                            <div class="col">
+                                <RadzenButton Text="حذف" Click="onSave"></RadzenButton>
                             </div>
                         </div>
 
@@ -271,11 +278,6 @@
 
 
 
-    private void onsubselected(Tklfsub arg)
-    {
-        selectedsub = selectedparent.Tklfsubs.Where(a => a.KindCode == arg.KindCode && a.TklfCode == arg.TklfCode && a.TklfsubCode == arg.TklfsubCode).FirstOrDefault();
-        selectedsubcode = selectedsub.TklfsubCode;
-    }
 
     private void Adddetails()
     {
@@ -286,7 +288,7 @@
         masrf.TklfsubCode = selectedsub.TklfsubCode;
         _TrnsList.Add(masrf);
     }
-   
+
     private void Deletedetail(Masrf m)
     {
         _TrnsList.Remove(m);
@@ -316,11 +318,11 @@
                     if (selectedsub != null)
                     {
                         section_total = (db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode)).Sum(d => d.Value ?? 0);
-                        this._TrnsList = db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToList();
+                        _TrnsList = db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToList();
                     }
                     else {
                         section_total = 0;
-                        this._TrnsList.Clear();
+                        _TrnsList.Clear();
                     }
                 }
 
@@ -398,24 +400,6 @@
     }
     //private async Task OnSubmit(TklfDetail model) => await onSave();
 
-    private async Task<int> onSave()
-    {
-        if (!on_presave()) return -1;
-        try
-        {
-            using (var db = dbf.CreateDbContext())
-            {
-                // db.Update(this.selectedsub);
-                await db.SaveChangesAsync();
-            }
-        }
-        catch (Exception)
-        {
-            throw;
-        }
-        return 0;
-    }
-
     private bool on_presave()
     {
         _TrnsList.RemoveAll(item => string.IsNullOrEmpty(item.OutCode));
@@ -428,11 +412,57 @@
         //}
 
 
-
-        //if (_tklfsub.Cost == null) _tklfsub.Cost = 0;
-        //if (_tklfsub.Taziz == null) _tklfsub.Taziz = 0;
         return true;
     }
+
+    private async Task<int> onSave()
+    {
+        if (!on_presave()) return -1;
+        try
+        {
+            using (var db = dbf.CreateDbContext())
+            {
+                
+
+                var originaldata = await db.Masrves.Where(c => c.KindCode==ikind_code && c.TklfCode==selectedparent.TklfCode && c.TklfsubCode==selectedsub.TklfsubCode).AsNoTracking().ToListAsync();
+                foreach (var detailrow in originaldata)
+                {
+                    if (!_TrnsList.Any(c => c.Id == detailrow.Id))
+                    {
+                        db.Entry(detailrow).State = EntityState.Deleted;
+                    }
+                }
+
+                // Step 2: Handle additions and modifications
+                foreach (var row in _TrnsList)
+                {
+                    if (row.Id==0) // Assuming 'IsNew' flag indicates a new row
+                    {
+                        db.Add(row); // Add new child to the context
+                    }
+                    else
+                    {
+                        db.Entry(row).State = EntityState.Modified; // Mark existing child as modified
+                    }
+                }
+
+                // Save all changes (adds, updates, and deletes) to the database
+                await db.SaveChangesAsync();
+            }
+
+
+
+
+
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        return 0;
+    }
+
+
 
     private bool on_prdelete()
     {
@@ -442,19 +472,16 @@
 
     private void onDelete()
     {
-        //    if (!on_prdelete()) return;
-        //    try
-        //    {
-        //        using (var db = dbf.CreateDbContext())
-        //            if (_tklfsub.Id != 0)
-        //            {
-        //                db.Remove(_tklfsub);
-        //                if (db.SaveChanges() > 0) onNew();
-        //            }
+        if (!on_prdelete()) return;
+        try
+        {
+            using (var db = dbf.CreateDbContext())
 
-        //    }
-        //    catch (DbUpdateException e)
-        //    { throw e; }
+                db.RemoveRange(_TrnsList) ;
+
+        }
+        catch (DbUpdateException e)
+        { throw e; }
     }
 
     void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
