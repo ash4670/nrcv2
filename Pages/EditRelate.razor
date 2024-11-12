@@ -1,4 +1,4 @@
-﻿@page "/editmasrf/{formarg:int}"
+﻿@page "/editrelated/{formarg:int}"
 @inject IDbContextFactory<nrcwebContext> dbf;
 @inject DialogService DialogService
 @inject Gtools gtool
@@ -51,7 +51,7 @@
                 </div>
                 <div class="col-4">
                     <RadzenDropDown @bind-Value=@selectedsubcode Data=@(_sublist) TextProperty="@nameof(Tklfsub.TklfsubName)" ValueProperty="@nameof(Tklfsub.TklfsubCode)"
-                       Change=@(args => f_onchange("tklfsubcode", args)  ) Style="width: 100%; max-width: 400px; display:block;" Name="DropDownParent">
+                                    Change=@(args => f_onchange("tklfsubcode", args)  ) Style="width: 100%; max-width: 400px; display:block;" Name="DropDownParent">
                     </RadzenDropDown>
                 </div>
                 <div class="col-2"> </div>
@@ -160,14 +160,21 @@
     List<Out> OutHelpList { get; set; } = new();
     Tklfmain selectedparent { get; set; } = new();
     List<Tklfsub> _sublist { get; set; } = new();
-    List<Masrf> _TrnsList { get; set; } = new();
+    List<Related> _TrnsList { get; set; } = new();
     Tklfsub selectedsub { get; set; } = new();
 
     protected override async Task OnParametersSetAsync()
     {
 
-        PageTitle = "تعريف مستندات صرف";
-        
+        PageTitle = "تعريف مستندات تعزيز";
+
+        //    case "related":
+        //        PageTitle = "تعريف مستندات إرتباط";
+
+        //        break;
+        //    default:
+        //        break;
+        //}
 
         switch (formarg)
         {
@@ -229,7 +236,7 @@
             selectedparent = await db.Tklfmains.Include(p => p.Tklfsubs).Where(t => t.KindCode == ikind_code).FirstOrDefaultAsync();
             _sublist = selectedparent.Tklfsubs.OrderBy(a => a.TklfsubCode).ToList();
             selectedsub = _sublist?.FirstOrDefault();
-            section_total = db.Masrves != null && selectedsub != null ? (await db.Masrves.Where(M => M.KindCode == selectedparent.KindCode && M.TklfCode == selectedparent.TklfCode && M.TklfsubCode == selectedsub.TklfsubCode).ToListAsync()).Sum(d => d.Value ?? 0) : 0.00;
+            section_total = db.Relateds != null && selectedsub != null ? (await db.Relateds.Where(M => M.KindCode == selectedparent.KindCode && M.TklfCode == selectedparent.TklfCode && M.TklfsubCode == selectedsub.TklfsubCode).ToListAsync()).Sum(d => d.Value ?? 0) : 0.00;
             selectedtklfcode = selectedparent?.TklfCode;
             await f_onchange("tklfcode", selectedtklfcode);
             selectedsubcode = selectedsub?.TklfsubCode;
@@ -242,15 +249,15 @@
     private void AddNewLine()
     {
         if (string.IsNullOrEmpty(ikind_code) || string.IsNullOrEmpty(selectedtklfcode) || selectedsub == null) return;
-        Masrf masrf = new();
-        masrf.KindCode = ikind_code;
-        masrf.TklfCode = selectedtklfcode;
-        masrf.TklfsubCode = selectedsub.TklfsubCode;
-        masrf.OutDate = DateTime.Today;
-        _TrnsList.Add(masrf);
+        Related row = new();
+        row.KindCode = ikind_code;
+        row.TklfCode = selectedtklfcode;
+        row.TklfsubCode = selectedsub.TklfsubCode;
+        row.OutDate = DateTime.Today;
+        _TrnsList.Add(row);
     }
 
-    private void DeleteLine(Masrf m)
+    private void DeleteLine(Related m)
     {
         _TrnsList.Remove(m);
         if (_TrnsList.Count() == 0) AddNewLine();//add new empty row
@@ -277,10 +284,10 @@
                     _sublist = selectedparent.Tklfsubs.OrderBy(a => a.TklfsubCode).ToList();
                     selectedsub = _sublist?.FirstOrDefault();
                     selectedsubcode = selectedsub?.TklfsubCode;
-                    if (db.Masrves != null && selectedsub != null)
+                    if (db.Relateds != null && selectedsub != null)
                     {
-                        section_total = (await db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync()).Sum(d => d.Value ?? 0);
-                        _TrnsList = await db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync();
+                        section_total = (await db.Relateds.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync()).Sum(d => d.Value ?? 0);
+                        _TrnsList = await db.Relateds.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync();
                     }
                     else
                     {
@@ -307,10 +314,10 @@
                 {
                     selectedsub = selectedparent?.Tklfsubs.Where(s => s.TklfsubCode == _value).FirstOrDefault();
                     selectedsubcode = selectedsub?.TklfsubCode;
-                    if (db.Masrves != null && selectedsub != null)
+                    if (db.Relateds != null && selectedsub != null)
                     {
-                        _TrnsList = await db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync();
-                        section_total = (await db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync()).Sum(s => s.Value ?? 0);
+                        _TrnsList = await db.Relateds.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync();
+                        section_total = (await db.Relateds.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync()).Sum(s => s.Value ?? 0);
 
                     }
                     else
@@ -416,7 +423,7 @@
             {
 
 
-                var originaldata = await db.Masrves.Where(c => c.KindCode == ikind_code && c.TklfCode == selectedparent.TklfCode && c.TklfsubCode == selectedsub.TklfsubCode).AsNoTracking().ToListAsync();
+                var originaldata = await db.Relateds.Where(c => c.KindCode == ikind_code && c.TklfCode == selectedparent.TklfCode && c.TklfsubCode == selectedsub.TklfsubCode).AsNoTracking().ToListAsync();
                 foreach (var detailrow in originaldata)
                 {
                     if (!_TrnsList.Any(c => c.Id == detailrow.Id))
@@ -471,7 +478,7 @@
             try
             {
 
-                db.Masrves.RemoveRange(_TrnsList);
+                db.Relateds.RemoveRange(_TrnsList);
                 await db.SaveChangesAsync();
 
             }
@@ -480,13 +487,14 @@
                 gtool.Mynotify("خطأ", "لم يتم الحذف");
                 throw e;
             }
-            _TrnsList = await db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync<Masrf>();
+            _TrnsList = await db.Relateds.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync<Related>();
             gtool.Mynotify("خطأ", "تم الحذف");
         }
         if (_TrnsList.Count() == 0) AddNewLine();//add new empty row
     }
 
 }
+
 
 
 

@@ -1,6 +1,6 @@
 ﻿@typeparam T
 @inject DialogService ds
-<RadzenCard Style="margin: 0;padding:0 ; z-index:15000;">
+<div class="Card" Style="height:420px; margin: 0;padding:0 ; z-index:15000;">
     <div class="alert alert-primary col-12 h5 text-center m-0 p-0 ">
         @title
         <button type="button" class="btn btn-sm close" @onclick=ModalCancel>&times;</button>
@@ -9,7 +9,7 @@
         <div class="col-sm-12">
             <p>@Content</p>
             @ChildContent
-            <GList @ref="glref" T="T" scollist=@scollist colheads="@colheads" data=@data OnRowdblclicked=ModalOk />
+            <GList @ref="glref" T="T" PageSize="5" FormHeight="250px"  scollist=@scollist colheads="@colheads" data=@data OnRowdblclicked=ModalOk />
         </div>
 
     </div>
@@ -19,7 +19,7 @@
             <button type="button" class="btn btn-primary btn-sm" @onclick=ModalCancel>إلغاء</button>
         
     </div>
-</RadzenCard>
+</div>
 
 
 

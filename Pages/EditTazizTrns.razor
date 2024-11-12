@@ -1,4 +1,4 @@
-﻿@page "/editmasrf/{formarg:int}"
+﻿@page "/edittaziztrns/{trnstype:int}/{formarg:int}"
 @inject IDbContextFactory<nrcwebContext> dbf;
 @inject DialogService DialogService
 @inject Gtools gtool
@@ -51,7 +51,7 @@
                 </div>
                 <div class="col-4">
                     <RadzenDropDown @bind-Value=@selectedsubcode Data=@(_sublist) TextProperty="@nameof(Tklfsub.TklfsubName)" ValueProperty="@nameof(Tklfsub.TklfsubCode)"
-                       Change=@(args => f_onchange("tklfsubcode", args)  ) Style="width: 100%; max-width: 400px; display:block;" Name="DropDownParent">
+                                    Change=@(args => f_onchange("tklfsubcode", args)  ) Style="width: 100%; max-width: 400px; display:block;" Name="DropDownParent">
                     </RadzenDropDown>
                 </div>
                 <div class="col-2"> </div>
@@ -89,22 +89,22 @@
                                                     </RadzenDropDown>
                                                 </td>
                                                 <td>
-                                                    <RadzenNumeric ShowUpDown="false" TValue="int?" @bind-Value="@item.No" />
+                                                    <RadzenNumeric ShowUpDown="false" TValue="string" @bind-Value="@item.TazizNo" />
                                                 </td>
 
                                                 <td>
-                                                    <RadzenDatePicker Value=item.OutDate DateFormat="dd/MM/yyyy" ShowTime="false" id="OpenbalDate" TValue=DateTime />
+                                                    <RadzenDatePicker Value=item.TazizDate DateFormat="dd/MM/yyyy" ShowTime="false" id="TazizDate" TValue=DateTime />
                                                 </td>
 
                                                 <td>
-                                                    <RadzenNumeric ShowUpDown="false" TValue="double?" @bind-Value="@item.Value" />
+                                                    <RadzenNumeric ShowUpDown="false" TValue="double?" @bind-Value="@item.TazizVal" />
                                                 </td>
 
                                                 <td>
                                                     <RadzenButton Size="ButtonSize.Medium" Text="X" class="badge" Click="() => DeleteLine(item)" />
                                                 </td>
                                             </tr>
-                                            total += item.Value ?? 0;
+                                            total += item.TazizVal ?? 0;
                                             r++;
                                         }
                                         <tr>
@@ -144,7 +144,7 @@
     [Parameter]
     public int formarg { get; set; }
     [Parameter]
-    public string trnstype { get; set; }
+    public int trnstype { get; set; }
     public string SectionTitle = "";
     public string SearchText = "";
     public string MasterText { get; set; }
@@ -160,14 +160,24 @@
     List<Out> OutHelpList { get; set; } = new();
     Tklfmain selectedparent { get; set; } = new();
     List<Tklfsub> _sublist { get; set; } = new();
-    List<Masrf> _TrnsList { get; set; } = new();
+    List<TazizTran> _TrnsList { get; set; } = new();
     Tklfsub selectedsub { get; set; } = new();
 
     protected override async Task OnParametersSetAsync()
     {
+        switch (trnstype)
+        {
+            case 1:
+                PageTitle = "تعريف مستندات تحويلات داخلية";
+                break;
+            case 2:
+                PageTitle = "تعريف مستندات تعزيز تحويلات خارجية";
+                break;
+            default:
+                break;
+        }
 
-        PageTitle = "تعريف مستندات صرف";
-        
+     
 
         switch (formarg)
         {
@@ -229,7 +239,7 @@
             selectedparent = await db.Tklfmains.Include(p => p.Tklfsubs).Where(t => t.KindCode == ikind_code).FirstOrDefaultAsync();
             _sublist = selectedparent.Tklfsubs.OrderBy(a => a.TklfsubCode).ToList();
             selectedsub = _sublist?.FirstOrDefault();
-            section_total = db.Masrves != null && selectedsub != null ? (await db.Masrves.Where(M => M.KindCode == selectedparent.KindCode && M.TklfCode == selectedparent.TklfCode && M.TklfsubCode == selectedsub.TklfsubCode).ToListAsync()).Sum(d => d.Value ?? 0) : 0.00;
+            section_total = db.TazizTrans != null && selectedsub != null ? (await db.TazizTrans.Where(M => M.KindCode == selectedparent.KindCode && M.TklfCode == selectedparent.TklfCode && M.TklfsubCode == selectedsub.TklfsubCode).ToListAsync()).Sum(d => d.TazizVal ?? 0) : 0.00;
             selectedtklfcode = selectedparent?.TklfCode;
             await f_onchange("tklfcode", selectedtklfcode);
             selectedsubcode = selectedsub?.TklfsubCode;
@@ -242,15 +252,15 @@
     private void AddNewLine()
     {
         if (string.IsNullOrEmpty(ikind_code) || string.IsNullOrEmpty(selectedtklfcode) || selectedsub == null) return;
-        Masrf masrf = new();
-        masrf.KindCode = ikind_code;
-        masrf.TklfCode = selectedtklfcode;
-        masrf.TklfsubCode = selectedsub.TklfsubCode;
-        masrf.OutDate = DateTime.Today;
-        _TrnsList.Add(masrf);
+        TazizTran row = new();
+        row.KindCode = ikind_code;
+        row.TklfCode = selectedtklfcode;
+        row.TklfsubCode = selectedsub.TklfsubCode;
+        row.TazizDate = DateTime.Today;
+        _TrnsList.Add(row);
     }
 
-    private void DeleteLine(Masrf m)
+    private void DeleteLine(TazizTran m)
     {
         _TrnsList.Remove(m);
         if (_TrnsList.Count() == 0) AddNewLine();//add new empty row
@@ -277,10 +287,10 @@
                     _sublist = selectedparent.Tklfsubs.OrderBy(a => a.TklfsubCode).ToList();
                     selectedsub = _sublist?.FirstOrDefault();
                     selectedsubcode = selectedsub?.TklfsubCode;
-                    if (db.Masrves != null && selectedsub != null)
+                    if (db.TazizTrans != null && selectedsub != null)
                     {
-                        section_total = (await db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync()).Sum(d => d.Value ?? 0);
-                        _TrnsList = await db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync();
+                        section_total = (await db.TazizTrans.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync()).Sum(d => d.TazizVal ?? 0);
+                        _TrnsList = await db.TazizTrans.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync();
                     }
                     else
                     {
@@ -307,10 +317,10 @@
                 {
                     selectedsub = selectedparent?.Tklfsubs.Where(s => s.TklfsubCode == _value).FirstOrDefault();
                     selectedsubcode = selectedsub?.TklfsubCode;
-                    if (db.Masrves != null && selectedsub != null)
+                    if (db.TazizTrans != null && selectedsub != null)
                     {
-                        _TrnsList = await db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync();
-                        section_total = (await db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync()).Sum(s => s.Value ?? 0);
+                        _TrnsList = await db.TazizTrans.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync();
+                        section_total = (await db.TazizTrans.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync()).Sum(s => s.TazizVal ?? 0);
 
                     }
                     else
@@ -380,7 +390,7 @@
         //remove empty out codes
         _TrnsList.RemoveAll(item => string.IsNullOrEmpty(item.OutCode));
 
-        if (_TrnsList.Any(t => t.No == null))
+        if (_TrnsList.Any(t => t.TazizNo == null))
         {
             gtool.Mynotify("خطأ", "يجب إدخال رقم المستند");
             return false;
@@ -391,7 +401,7 @@
             return false;
         }
 
-        if (_TrnsList.Any(t => !t.OutDate.HasValue))
+        if (_TrnsList.Any(t => !t.TazizDate.HasValue))
         {
             gtool.Mynotify("خطأ", "يجب إدخال تاريخ المستند");
             return false;
@@ -416,7 +426,7 @@
             {
 
 
-                var originaldata = await db.Masrves.Where(c => c.KindCode == ikind_code && c.TklfCode == selectedparent.TklfCode && c.TklfsubCode == selectedsub.TklfsubCode).AsNoTracking().ToListAsync();
+                var originaldata = await db.TazizTrans.Where(c => c.KindCode == ikind_code && c.TklfCode == selectedparent.TklfCode && c.TklfsubCode == selectedsub.TklfsubCode).AsNoTracking().ToListAsync();
                 foreach (var detailrow in originaldata)
                 {
                     if (!_TrnsList.Any(c => c.Id == detailrow.Id))
@@ -471,7 +481,7 @@
             try
             {
 
-                db.Masrves.RemoveRange(_TrnsList);
+                db.TazizTrans.RemoveRange(_TrnsList);
                 await db.SaveChangesAsync();
 
             }
@@ -480,13 +490,14 @@
                 gtool.Mynotify("خطأ", "لم يتم الحذف");
                 throw e;
             }
-            _TrnsList = await db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync<Masrf>();
+            _TrnsList = await db.TazizTrans.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync<TazizTran>();
             gtool.Mynotify("خطأ", "تم الحذف");
         }
         if (_TrnsList.Count() == 0) AddNewLine();//add new empty row
     }
 
 }
+
 
 
 
