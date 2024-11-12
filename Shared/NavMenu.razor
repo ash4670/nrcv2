@@ -12,10 +12,8 @@
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </li>
-
-
         <li class="nav-item px-3">
-            <NavLink class="nav-link" @onclick="()=>expandStoreBasicdataSubNav = !expandStoreBasicdataSubNav">
+            <NavLink class="nav-link" @onclick="()=> { collapseaAll(); expandStoreBasicdataSubNav = !expandStoreBasicdataSubNav; }">
                 <span class="oi oi-arrow-bottom" aria-hidden="true"></span><strong>بيانات أساسية</strong>
             </NavLink>
         </li>
@@ -26,19 +24,16 @@
                     <span class="oi oi-list-rich" aria-hidden="true"></span> تعريف المخازن
                 </NavLink>
             </li>
-
             <li class="nav-item px-5">
                 <NavLink class="nav-link" href="edititem">
                     <span class="oi oi-plus" aria-hidden="true"></span> تعريف الأصناف
                 </NavLink>
             </li>
-
             <li class="nav-item px-5">
                 <NavLink class="nav-link" href="editstock_old">
                     <span class="oi oi-list-rich" aria-hidden="true"></span> editstock old
                 </NavLink>
             </li>
-
             <li class="nav-item px-5">
                 <NavLink class="nav-link" href="fetchdata">
                     <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
@@ -49,132 +44,12 @@
                     <span class="oi oi-plus" aria-hidden="true"></span> Counter
                 </NavLink>
             </li>
-
-
-            <li class="nav-item px-5">
-                <NavLink class="nav-link" href="editout">
-                    <span class="oi oi-plus" aria-hidden="true"></span> أكواد المصروفات
-                </NavLink>
-            </li>
-
-            <li class="nav-item px-5">
-                <NavLink class="nav-link" href="editemployee">
-                    <span class="oi oi-list-rich" aria-hidden="true"></span> تعريف الموظفين
-                </NavLink>
-            </li>
-
-            <li class="nav-item px-5">
-                <NavLink class="nav-link" href="edittklfmain/1">
-                    <span class="oi oi-plus" aria-hidden="true"></span> تعريف الإدارات
-                </NavLink>
-            </li>
-
-            <li class="nav-item px-5">
-                <NavLink class="nav-link" href="edittklfmain/2">
-                    <span class="oi oi-plus" aria-hidden="true"></span> تعريف الأقسام
-                </NavLink>
-            </li>
-
-            <li class="nav-item px-5">
-                <NavLink class="nav-link" href="edittklfmain/4">
-                    <span class="oi oi-plus" aria-hidden="true"></span> تعريف المعامل و المزارع
-                </NavLink>
-            </li>
-
-            <li class="nav-item px-5">
-                <NavLink class="nav-link" href="edittklfmain/5">
-                    <span class="oi oi-plus" aria-hidden="true"></span> تعريف البرامج
-                </NavLink>
-            </li>
-
-            <li class="nav-item px-5">
-                <NavLink class="nav-link" href="edittklfmain/9">
-                    <span class="oi oi-plus" aria-hidden="true"></span>تعريف الشعب
-                </NavLink>
-
-            </li>
-
-            <li class="nav-item px-5">
-                <span>===============</span>
-            </li>
-
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="edittklfsub/2">
-                    <span class="oi oi-plus" aria-hidden="true"></span> تعريف الرسائل
-                </NavLink>
-            </li>
-
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="edittklfsub/4">
-                    <span class="oi oi-plus" aria-hidden="true"></span> تعرف مشاريع المزارع
-                </NavLink>
-            </li>
-
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="edittklfsub/5">
-                    <span class="oi oi-plus" aria-hidden="true"></span> بيانات محاور الخطة البحثية الثالثة عشر
-                </NavLink>
-            </li>
-
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="edittklfsub/6">
-                    <span class="oi oi-plus" aria-hidden="true"></span>بيان مشروعات الخطة التكميلى MP
-                </NavLink>
-            </li>
-
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="edittklfsub/12">
-                    <span class="oi oi-plus" aria-hidden="true"></span>بيانات الخطة البحثية الثانية عشر E
-                </NavLink>
-            </li>
-
-            <li class="nav-item px-5">
-                <span>===============</span>
-            </li>
-
-
-
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="editbudget/2">
-                    <span class="oi oi-plus" aria-hidden="true"></span>تعريف ميزانية الرسائل
-                </NavLink>
-            </li>
-
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="editbudget/5">
-                    <span class="oi oi-plus" aria-hidden="true"></span>تفاصيل ميزانية محاور الخطة البحثية الثالثة عشر
-                </NavLink>
-            </li>
-
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="editbudget/6">
-                    <span class="oi oi-plus" aria-hidden="true"></span>تفاصيل ميزانية مشروع خطة تكميلى MP
-                </NavLink>
-            </li>
-
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="editbudget/4">
-                    <span class="oi oi-plus" aria-hidden="true"></span>تفاصيل ميزانية مزرعة أو معمل
-                </NavLink>
-            </li>
-
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="editbudget/12">
-                    <span class="oi oi-plus" aria-hidden="true"></span>تفاصيل ميزانية مشروع  الخطة البحثية الثانية عشر E
-                </NavLink>
-            </li>
-
-
         }
-
-
-
         <li class="nav-item px-3">
-            <NavLink class="nav-link" @onclick="()=>expandStoreTrnsSubNav = !expandStoreTrnsSubNav">
+            <NavLink class="nav-link" @onclick="() => { collapseaAll(); expandStoreTrnsSubNav = !expandStoreTrnsSubNav; }">
                 <span class="oi oi-arrow-bottom" aria-hidden="true"></span><strong>مستندات مخزنية</strong>
             </NavLink>
         </li>
-
         @if (expandStoreTrnsSubNav)
         {
             <li class="nav-item px-5">
@@ -189,8 +64,267 @@
             </li>
 
         }
+    </ul>
+</div>
+
+<!----------------------------------------------------cost------------------------------------------------->
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+
+    <ul class="nav flex-column">
+
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" @onclick="()=> { collapseaAll(); expandCostBasicdataSubNav = !expandCostBasicdataSubNav; }">
+                <span class="oi oi-arrow-bottom" aria-hidden="true"></span><strong>بيانات أساسية</strong>
+            </NavLink>
+        </li>
+        @if (expandCostBasicdataSubNav)
+        {
+
+            <li class="nav-item px-5">
+                <NavLink class="nav-link" href="editout">
+                    <span class="oi oi-plus" aria-hidden="true"></span> أكواد المصروفات
+                </NavLink>
+            </li>
+            <li class="nav-item px-5">
+                <NavLink class="nav-link" href="editemployee">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> تعريف الموظفين
+                </NavLink>
+            </li>
+
+            <!-- تعريف  الإدارات-->
+            <li class="nav-item px-5">
+                <NavLink class="nav-link" href="edittklfmain/1">
+                    <span class="oi oi-plus" aria-hidden="true"></span> تعريف الإدارات
+                </NavLink>
+            </li>
+            <li class="nav-item px-5">
+                <NavLink class="nav-link" href="edittklfmain/2">
+                    <span class="oi oi-plus" aria-hidden="true"></span> تعريف الأقسام
+                </NavLink>
+            </li>
+            <li class="nav-item px-5">
+                <NavLink class="nav-link" href="edittklfmain/4">
+                    <span class="oi oi-plus" aria-hidden="true"></span> تعريف المعامل و المزارع
+                </NavLink>
+            </li>
+            <li class="nav-item px-5">
+                <NavLink class="nav-link" href="edittklfmain/5">
+                    <span class="oi oi-plus" aria-hidden="true"></span> تعريف البرامج
+                </NavLink>
+            </li>
+            <li class="nav-item px-5">
+                <NavLink class="nav-link" href="edittklfmain/9">
+                    <span class="oi oi-plus" aria-hidden="true"></span>تعريف الشعب
+                </NavLink>
+
+            </li>
+
+            <!--تعريف الرسائل-->
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="edittklfsub/2">
+                    <span class="oi oi-plus" aria-hidden="true"></span> تعريف الرسائل
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="edittklfsub/4">
+                    <span class="oi oi-plus" aria-hidden="true"></span> تعرف مشاريع المزارع
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="edittklfsub/5">
+                    <span class="oi oi-plus" aria-hidden="true"></span> بيانات محاور الخطة البحثية الثالثة عشر
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="edittklfsub/6">
+                    <span class="oi oi-plus" aria-hidden="true"></span>بيان مشروعات الخطة التكميلى MP
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="edittklfsub/12">
+                    <span class="oi oi-plus" aria-hidden="true"></span>بيانات الخطة البحثية الثانية عشر E
+                </NavLink>
+            </li>
 
 
+            <!--ميزانية-->
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="editbudget/2">
+                    <span class="oi oi-plus" aria-hidden="true"></span>تفاصيل ميزانية الرسائل
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="editbudget/5">
+                    <span class="oi oi-plus" aria-hidden="true"></span>تفاصيل ميزانية محاور الخطة البحثية الثالثة عشر
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="editbudget/6">
+                    <span class="oi oi-plus" aria-hidden="true"></span>تفاصيل ميزانية مشروع خطة تكميلى MP
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="editbudget/4">
+                    <span class="oi oi-plus" aria-hidden="true"></span>تفاصيل ميزانية مزرعة أو معمل
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="editbudget/12">
+                    <span class="oi oi-plus" aria-hidden="true"></span>تفاصيل ميزانية مشروع  الخطة البحثية الثانية عشر E
+                </NavLink>
+            </li>
+        }
+
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" @onclick="()=> { collapseaAll(); expandCostTrnsSubNav = !expandCostTrnsSubNav; }">
+                <span class="oi oi-arrow-bottom" aria-hidden="true"></span><strong>مستندات تكلفة</strong>
+            </NavLink>
+        </li>
+        @if (expandCostTrnsSubNav)
+        {
+            <!--صرف-->
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="editmasrf/2">
+                    <span aria-hidden="true"></span> صرف للرسائل
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="editmasrf/4">
+                    <span aria-hidden="true"></span> صرف للمعامل و المزارع
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="editmasrf/5">
+                    <span aria-hidden="true"></span> صرف على محاور الخطة البحثية الثالثة عشر
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="editmasrf/6">
+                    <span aria-hidden="true"></span> صرف على مشروع الخطة الكميلية MP
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="editmasrf/12">
+                    <span aria-hidden="true"></span>صرف على مشروعات  الخطة البحثية الثانية عشر E
+                </NavLink>
+            </li>
+
+            <!-- تعزيز-->
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="edittaziz/2">
+                    <span aria-hidden="true"></span>  تعزيزات رسائل
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="edittaziz/4">
+                    <span aria-hidden="true"></span>  تعزيزات للمعامل و المزارع
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="edittaziz/5">
+                    <span aria-hidden="true"></span> تعزيزات محاور الخطة البحثية الثالثة عشر
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="edittaziz/6">
+                    <span aria-hidden="true"></span> تعزيزات مشروع الخطة الكميلية MP
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="edittaziz/12">
+                    <span aria-hidden="true"></span>تعزيزات مشروعات  الخطة البحثية الثانية عشر E
+                </NavLink>
+            </li>
+
+
+            <!-- إرتباطات-->
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="editrelated/2">
+                    <span aria-hidden="true"></span>  إرتباطات رسائل
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="editrelated/4">
+                    <span aria-hidden="true"></span>  إرتباطات للمعامل و المزارع
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="editrelated/5">
+                    <span aria-hidden="true"></span> إرتباطات محاور الخطة البحثية الثالثة عشر
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="editrelated/6">
+                    <span aria-hidden="true"></span> إرتباطات مشروع الخطة الكميلية MP
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="editrelated/12">
+                    <span aria-hidden="true"></span>إرتباطات مشروعات  الخطة البحثية الثانية عشر E
+                </NavLink>
+            </li>
+
+
+            <!-- تحويلات داخلية-->
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="edittaziztrns/1/2">
+                    <span aria-hidden="true"></span>تحويلات داخلية رسائل
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="edittaziztrns/1/4">
+                    <span aria-hidden="true"></span>  تحويلات داخلية للمعامل و المزارع
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="edittaziztrns/1/5">
+                    <span aria-hidden="true"></span> تحويلات داخلية محاور الخطة البحثية الثالثة عشر
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="edittaziztrns/1/6">
+                    <span aria-hidden="true"></span> تحويلات داخلية مشروع الخطة الكميلية MP
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="edittaziztrns/1/12">
+                    <span aria-hidden="true"></span>تحويلات داخلية مشروعات  الخطة البحثية الثانية عشر E
+                </NavLink>
+            </li>
+
+
+            <!-- تحويلات خارجية-->
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="edittaziztrns/2/2">
+                    <span aria-hidden="true"></span>تحويلات خارجية رسائل
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="edittaziztrns/2/4">
+                    <span aria-hidden="true"></span>  تحويلات خارجية للمعامل و المزارع
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="edittaziztrns/2/5">
+                    <span aria-hidden="true"></span> تحويلات خارجية محاور الخطة البحثية الثالثة عشر
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="edittaziztrns/2/6">
+                    <span aria-hidden="true"></span> خارجية داخلية مشروع الخطة الكميلية MP
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="edittaziztrns/2/12">
+                    <span aria-hidden="true"></span>تحويلات خارجية مشروعات  الخطة البحثية الثانية عشر E
+                </NavLink>
+            </li>
+
+        }
+        </ul>
+</div>
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <ul  class="nav flex-column">
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="login">
                 <span class="oi oi-account-login" aria-hidden="true"></span> log in
@@ -202,168 +336,22 @@
                 <span class="oi oi-account-logout" aria-hidden="true"></span> log out
             </NavLink>
         </li>
-
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="mytest1">
-                <span aria-hidden="true"></span> mytest1
-            </NavLink>
-        </li>
-
-        <!--صرف-->
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="editmasrf/2">
-                <span aria-hidden="true"></span> صرف للرسائل
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="editmasrf/4">
-                <span aria-hidden="true"></span> صرف للمعامل و المزارع
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="editmasrf/5">
-                <span aria-hidden="true"></span> صرف على محاور الخطة البحثية الثالثة عشر
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="editmasrf/6">
-                <span aria-hidden="true"></span> صرف على مشروع الخطة الكميلية MP
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="editmasrf/12">
-                <span aria-hidden="true"></span>صرف على مشروعات  الخطة البحثية الثانية عشر E
-            </NavLink>
-        </li>
-
-        <!-- تعزيز-->
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="edittaziz/2">
-                <span aria-hidden="true"></span>  تعزيزات رسائل
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="edittaziz/4">
-                <span aria-hidden="true"></span>  تعزيزات للمعامل و المزارع
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="edittaziz/5">
-                <span aria-hidden="true"></span> تعزيزات محاور الخطة البحثية الثالثة عشر
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="edittaziz/6">
-                <span aria-hidden="true"></span> تعزيزات مشروع الخطة الكميلية MP
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="edittaziz/12">
-                <span aria-hidden="true"></span>تعزيزات مشروعات  الخطة البحثية الثانية عشر E
-            </NavLink>
-        </li>
-
-
-        <!-- إرتباطات-->
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="editrelated/2">
-                <span aria-hidden="true"></span>  إرتباطات رسائل
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="editrelated/4">
-                <span aria-hidden="true"></span>  إرتباطات للمعامل و المزارع
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="editrelated/5">
-                <span aria-hidden="true"></span> إرتباطات محاور الخطة البحثية الثالثة عشر
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="editrelated/6">
-                <span aria-hidden="true"></span> إرتباطات مشروع الخطة الكميلية MP
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="editrelated/12">
-                <span aria-hidden="true"></span>إرتباطات مشروعات  الخطة البحثية الثانية عشر E
-            </NavLink>
-        </li>
-
-
-        <!-- تحويلات داخلية-->
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="edittaziztrns/1/2">
-                <span aria-hidden="true"></span>تحويلات داخلية رسائل
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="edittaziztrns/1/4">
-                <span aria-hidden="true"></span>  تحويلات داخلية للمعامل و المزارع
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="edittaziztrns/1/5">
-                <span aria-hidden="true"></span> تحويلات داخلية محاور الخطة البحثية الثالثة عشر
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="edittaziztrns/1/6">
-                <span aria-hidden="true"></span> تحويلات داخلية مشروع الخطة الكميلية MP
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="edittaziztrns/1/12">
-                <span aria-hidden="true"></span>تحويلات داخلية مشروعات  الخطة البحثية الثانية عشر E
-            </NavLink>
-        </li>
-
-
-        <!-- تحويلات خارجية-->
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="edittaziztrns/2/2">
-                <span aria-hidden="true"></span>تحويلات خارجية رسائل
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="edittaziztrns/2/4">
-                <span aria-hidden="true"></span>  تحويلات خارجية للمعامل و المزارع
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="edittaziztrns/2/5">
-                <span aria-hidden="true"></span> تحويلات خارجية محاور الخطة البحثية الثالثة عشر
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="edittaziztrns/2/6">
-                <span aria-hidden="true"></span> خارجية داخلية مشروع الخطة الكميلية MP
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="edittaziztrns/2/12">
-                <span aria-hidden="true"></span>تحويلات خارجية مشروعات  الخطة البحثية الثانية عشر E
-            </NavLink>
-        </li>
-
-
     </ul>
 </div>
-
-
-
-
-
 
 @code {
     private bool collapseNavMenu = true;
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-    
+
     private bool expandStoreTrnsSubNav = false;
     private bool expandStoreBasicdataSubNav = false;
+    private bool expandCostBasicdataSubNav = false;
+    private bool expandCostTrnsSubNav = false;
 
-
+    private void collapseaAll()
+    {
+        expandCostTrnsSubNav = expandCostBasicdataSubNav = expandStoreBasicdataSubNav = expandStoreTrnsSubNav = false;
+    }
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
