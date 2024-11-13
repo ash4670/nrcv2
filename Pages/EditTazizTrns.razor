@@ -24,7 +24,7 @@
         @PageTitle  @SectionTitle - @SubTextMany
     </div>
     <div class="card-body p-0" style="padding: 0px;">
-        <div class="container">
+        <div class="container " >
             <div class="row">
                 <div class="col-2  ">
                     <button class="btn btn-primary w-100 mb-2" @onclick="()=>OnMasterButtonClick()">@MasterText</button>
@@ -52,94 +52,136 @@
                 <div class="col-4">
                     <RadzenDropDown @bind-Value=@selectedsubcode Data=@(_sublist) TextProperty="@nameof(Tklfsub.TklfsubName)" ValueProperty="@nameof(Tklfsub.TklfsubCode)"
                                     Change=@(args => f_onchange("tklfsubcode", args)  ) Style="width: 100%; max-width: 400px; display:block;" Name="DropDownParent">
+                        <Template Context="student">
+                            <div>
+                                <strong> @((student as Tklfsub).TklfsubName) @((student as Tklfsub).Name1)</strong>
+                            </div>
+                        </Template>
                     </RadzenDropDown>
                 </div>
                 <div class="col-2"> </div>
             </div>
 
 
-            <div class="  row  ">
+            <div class="  row ">
                 <div class="col-lg mt-3 p-0 border border-primary">
                     <div class="card ">
                         <div class="card-body" style="padding: 0px;">
-                            <div class="tableFixHead" style=" height: 250px; font-size: small; overflow: auto; ">
-                                <table class="table  table-hover table-bordered  table-sm">
-                                    <thead style="position: sticky ; z-index:5;" class="font-weight-bold text-center alert-primary">
-                                        <tr style="padding:0;margin:0;max-height:fit-content;">
-                                            <th>م</th>
-                                            <th class="col-4" style="padding:0;margin:0;"> إسم البـــنـــد </th>
-                                            <th class="col-3" style="padding:0;margin:0">رقم المستند </th>
-                                            <th class="col-3" style="padding:0;margin:0">تاريخ المستند </th>
-                                            <th class="col-3" style="padding:0;margin:0">القيمة </th>
-                                            <th> </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @{int r = 0; double? total = 00.00;}
 
-                                        @foreach (var item in _TrnsList)
-                                        {
-                                            <tr style="padding:0;margin:0;max-height:fit-content; background-color:lightsteelblue">
-                                                <td>@(r + 1) </td>
-                                                <td>
-                                                    <RadzenDropDown @bind-Value=@item.OutCode Data=@OutHelpList TextProperty="@nameof(Out.OutName)" ValueProperty="@nameof(Out.OutCode)"
-                                                                    @bind-SearchText=SearchText FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" AllowFiltering="true"
-                                                                    Change=@(args => f_onchange("outcode", args) )
-                                                                    Style="width: 100%; max-width: 400px; display:block;" Name="DropDownOuts">
-                                                    </RadzenDropDown>
-                                                </td>
-                                                <td>
-                                                    <RadzenNumeric ShowUpDown="false" TValue="string" @bind-Value="@item.TazizNo" />
-                                                </td>
+                            @{int r = 0; double? total = 00.00;}
 
-                                                <td>
-                                                    <RadzenDatePicker Value=item.TazizDate DateFormat="dd/MM/yyyy" ShowTime="false" id="TazizDate" TValue=DateTime />
-                                                </td>
+                            @foreach (var item in _TrnsList)
+                            {
 
-                                                <td>
-                                                    <RadzenNumeric ShowUpDown="false" TValue="double?" @bind-Value="@item.TazizVal" />
-                                                </td>
+                                <div class="row p-1 text-sm-center">
+                                    <div class="col-4"></div>
+                                    <div class="col-4 "><strong>من</strong></div>
+                                    <div class="col-4 "><strong>إلى</strong></div>
+                                </div>
 
-                                                <td>
-                                                    <RadzenButton Size="ButtonSize.Medium" Text="X" class="badge" Click="() => DeleteLine(item)" />
-                                                </td>
-                                            </tr>
-                                            total += item.TazizVal ?? 0;
-                                            r++;
-                                        }
-                                        <tr>
-                                            <td></td>
-                                            <td>الإجمالى</td>
-                                            <td></td>
-                                            <td>@total</td>
-                                            <td></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <div class="row p-1">
+                                    <div class="col">البرنامج</div>
+                                    <div class="col">
+                                        <RadzenDropDown @bind-Value=@item.TklfCode Data=@Parenthelplist TextProperty="@nameof(Tklfmain.TklfName)" ValueProperty="@nameof(Tklfmain.TklfCode)"
+                                                        @bind-SearchText=SearchText FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" AllowFiltering="true"
+                                                        Style="width: 100%; max-width: 400px; display:block;" Disabled>
+
+                                        </RadzenDropDown>
+                                    </div>
+                                    <div class="col">
+                                        <RadzenDropDown @bind-Value=@item.TklfCode2 Data=@Parenthelplist TextProperty="@nameof(Tklfmain.TklfName)" ValueProperty="@nameof(Tklfmain.TklfCode)"
+                                                        @bind-SearchText=SearchText FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" AllowFiltering="true"
+                                                        Style="width: 100%; max-width: 400px; display:block;" Disabled>
+
+                                        </RadzenDropDown>
+                                    </div>
+                                </div>
+                                <div class="row p-1">
+                                    <div class="col">المشروع</div>
+                                    <div class="col">
+                                        <RadzenDropDown @bind-Value=@item.TklfsubCode Data=@_sublist TextProperty="@nameof(Tklfsub.TklfsubName)" ValueProperty="@nameof(Tklfsub.TklfsubCode)"
+                                                        @bind-SearchText=SearchText FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" AllowFiltering="true"
+                                                        Style="width: 100%; max-width: 400px; display:block;" Disabled>
+                                            <Template Context="student">
+                                                <div>
+                                                    <strong> @((student as Tklfsub).TklfsubName) @((student as Tklfsub).Name1) </strong>
+                                                </div>
+                                            </Template>
+                                        </RadzenDropDown>
+                                    </div>
+                                    <div class="col">
+                                        <RadzenDropDown @bind-Value=@item.TklfsubCode2 Data=@_sublist TextProperty="@nameof(Tklfsub.TklfsubName)" ValueProperty="@nameof(Tklfsub.TklfsubCode)"
+                                                        @bind-SearchText=SearchText FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" AllowFiltering="true"
+                                                        Style="width: 100%; max-width: 400px; display:block;" Disabled="@(trnstype==1)">
+                                            <Template Context="student">
+                                                <div>
+                                                    <strong>@((student as Tklfsub).TklfsubName) @((student as Tklfsub).Name1)</strong>
+                                                </div>
+                                            </Template>
+                                        </RadzenDropDown>
+                                    </div>
+                                </div>
+
+                                <div class="row p-1">
+                                    <div class="col">
+                                        البند
+                                    </div>
+                                    <div class="col">
+                                        <RadzenDropDown @bind-Value=@item.OutCode Data=@OutHelpList TextProperty="@nameof(Out.OutName)" ValueProperty="@nameof(Out.OutCode)"
+                                                        @bind-SearchText=SearchText FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" AllowFiltering="true"
+                                                        Style="width: 100%; max-width: 400px; display:block;" Name="DropDownOuts">
+                                        </RadzenDropDown>
+                                    </div>
+                                    <div class="col">
+                                        <RadzenDropDown @bind-Value=@item.OutCode2 Data=@OutHelpList TextProperty="@nameof(Out.OutName)" ValueProperty="@nameof(Out.OutCode)"
+                                                        @bind-SearchText=SearchText FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" AllowFiltering="true"
+                                                        Style="width: 100%; max-width: 400px; display:block;" Name="DropDownOuts">
+                                        </RadzenDropDown>
+                                    </div>
+
+                                </div>
+
+                                <div class="row pt-4">
+                                    <div class="col">رقم التعزيز </div>
+                                    <div class="col">تاريخ التعزيز</div>
+                                    <div class="col">القيمة</div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col"><RadzenNumeric ShowUpDown="false" TValue="string" @bind-Value="@item.TazizNo" /> </div>
+                                    <div class="col"> <RadzenDatePicker Value=item.TazizDate DateFormat="dd/MM/yyyy" ShowTime="false" id="TazizDate" TValue=DateTime /></div>
+                                    <div class="col"><RadzenNumeric ShowUpDown="false" TValue="double?" @bind-Value="@item.TazizVal" /></div>
+                                </div>
+
+
+                                total += item.TazizVal ?? 0;
+                                r++;
+                            }
+                            <div class="row " >
+                               <div class="col" ></div> <div class="col">إجمالى التعزيزات</div><div class="col">@total</div>
                             </div>
-                        </div>
 
-                        <div class="card-footer p-2">
-                            <div class="row text-center">
-                                <div class="col">
-                                    <RadzenButton Text="تسجيل" Click="onSave"></RadzenButton>
-                                </div>
-                                <div class="col">
-                                    <RadzenButton Text=" حذف كل السطور" Click="onDelete"></RadzenButton>
-                                </div>
-                                <div class="col">
-                                    <RadzenButton Text="إضافة سطر" Click="() => AddNewLine()" />
+                            <div class="card-footer p-2">
+                                <div class="row text-center">
+                                    <div class="col">
+                                        <RadzenButton Text="تسجيل" Click="onSave"></RadzenButton>
+                                    </div>
+                                    <div class="col">
+                                        <RadzenButton Text=" حذف كل السطور" Click="onDelete"></RadzenButton>
+                                    </div>
+                                    <div class="col">
+                                        <RadzenButton Text="إضافة سطر" Click="() => AddNewLine()" />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 @code {
     [Parameter]
     public int formarg { get; set; }
@@ -177,7 +219,7 @@
                 break;
         }
 
-     
+
 
         switch (formarg)
         {
@@ -256,6 +298,8 @@
         row.KindCode = ikind_code;
         row.TklfCode = selectedtklfcode;
         row.TklfsubCode = selectedsub.TklfsubCode;
+        row.TklfCode2 = selectedtklfcode;
+        row.TklfsubCode2 = selectedsub.TklfsubCode;
         row.TazizDate = DateTime.Today;
         _TrnsList.Add(row);
     }
@@ -389,6 +433,7 @@
     {
         //remove empty out codes
         _TrnsList.RemoveAll(item => string.IsNullOrEmpty(item.OutCode));
+        _TrnsList.RemoveAll(item => string.IsNullOrEmpty(item.OutCode2));
 
         if (_TrnsList.Any(t => t.TazizNo == null))
         {
@@ -397,7 +442,12 @@
         }
         if (_TrnsList.Any(t => string.IsNullOrEmpty(t.OutCode)))
         {
-            gtool.Mynotify("خطأ", "يجب إدخال كود الصرف");
+            gtool.Mynotify("خطأ", "يجب إدخال البند من");
+            return false;
+        }
+        if (_TrnsList.Any(t => string.IsNullOrEmpty(t.OutCode2)))
+        {
+            gtool.Mynotify("خطأ", "يجب إدخال البند إلى");
             return false;
         }
 
@@ -407,7 +457,8 @@
             return false;
         }
 
-        if (_TrnsList.Where(t => string.IsNullOrEmpty(t.TklfCode) || string.IsNullOrEmpty(t.TklfsubCode)).Any())
+        if (_TrnsList.Where(t => string.IsNullOrEmpty(t.TklfCode) || string.IsNullOrEmpty(t.TklfsubCode)).Any() ||
+            _TrnsList.Where(t => string.IsNullOrEmpty(t.TklfCode2) || string.IsNullOrEmpty(t.TklfsubCode2)).Any())
         {
             gtool.Mynotify("خطأ", " بشكل سليم" + this.SubTextMany + " يجب إدخال بيانات");
             return false;
@@ -481,7 +532,7 @@
             try
             {
 
-                db.TazizTrans.RemoveRange(_TrnsList);
+                db.TazizTrans.RemoveRange(_TrnsList.Where(t => t.Id != 0));
                 await db.SaveChangesAsync();
 
             }
