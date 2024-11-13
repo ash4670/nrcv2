@@ -5,17 +5,22 @@
 <RadzenNotification />
 <RadzenContextMenu />
 <RadzenTooltip />
-<div class="sidebar" >
-    <NavMenu />
-</div>
+
+
+<!--<div class="sidebar">-->
+
+    @*<NavMenu />*@
+    
+<!--</div>-->
 
 <div class="main">
-
     <div class="top-row px-4" style="max-height:20px; ">
         @*<a href="https://docs.microsoft.com/aspnet/" target="_blank">مرحباً @_username </a>*@
-        <label>مرحباً @_username </Label>
+        <label>مرحباً @_username </label>
 
     </div>
+    <RadzenNavMenu />
+
 
     <div class="content px-4 ">
 
@@ -29,7 +34,8 @@
     protected override async Task OnInitializedAsync()
     {
         _username = ((Entry)await authservice.GetCurrentUserAsync()).UserName;
-        if (String.IsNullOrWhiteSpace(_username)) {
+        if (String.IsNullOrWhiteSpace(_username))
+        {
             NavigationManager.NavigateTo("login");
         }
     }

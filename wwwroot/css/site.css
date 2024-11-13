@@ -53,6 +53,44 @@ app {
     background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%,#483D8B 70%); /*#3a0647*/
 }
 
+.rz-menu {
+    background-color: #7B68EE !important; /* Main menu background */
+
+    color: white; /* Optional: Text color for readability */
+    position: relative; /* or absolute if necessary */
+    z-index: 1500;
+}
+
+.rz-navigation-item-wrapper {
+    background-color: #7B68EE !important; /* Main menu background */
+
+    color: white; /* Optional: Text color for readability */
+    position: relative; /* or absolute if necessary */
+    z-index: 1500;
+}
+.rz-menu-item {
+    background-color: #7B68EE !important;
+    color: white; /* Optional */
+    position: relative; /* or absolute if necessary */
+    z-index: 1500;
+}
+
+    .rz-menu-item:hover {
+        background-color: #45a049 !important; /* Hover color */
+        color: white;
+    }
+
+.rz-menu-popup .rz-menu-item {
+    background-color: #7B68EE !important; /* Submenu background */
+    color: white;
+    position: relative; /* or absolute if necessary */
+    z-index: 1500;
+}
+
+    .rz-menu-popup .rz-menu-item:hover {
+        background-color: #45a049!important; /* Submenu hover color */
+    }
+
     .sidebar .top-row {
         background-color: rgba(0,0,0,0.4);
     }

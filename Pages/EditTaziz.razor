@@ -19,7 +19,7 @@
         }
 </style>
 
-<div class="card p-0 " style="padding: 0px;width:720px;">
+<div class="card p-0 " style="padding: 0px;">
     <div class="card-header alert alert-primary h3 text-center ">
         @PageTitle  @SectionTitle - @SubTextMany
     </div>
@@ -168,7 +168,6 @@
 
         PageTitle = "تعريف مستندات تعزيز";
 
-        
 
         switch (formarg)
         {
@@ -243,12 +242,12 @@
     private void AddNewLine()
     {
         if (string.IsNullOrEmpty(ikind_code) || string.IsNullOrEmpty(selectedtklfcode) || selectedsub == null) return;
-        Taziz row = new();
-        row.KindCode = ikind_code;
-        row.TklfCode = selectedtklfcode;
-        row.TklfsubCode = selectedsub.TklfsubCode;
-        row.TazizDate = DateTime.Today;
-        _TrnsList.Add(row);
+        Taziz masrf = new();
+        masrf.KindCode = ikind_code;
+        masrf.TklfCode = selectedtklfcode;
+        masrf.TklfsubCode = selectedsub.TklfsubCode;
+        masrf.TazizDate = DateTime.Today;
+        _TrnsList.Add(masrf);
     }
 
     private void DeleteLine(Taziz m)
@@ -278,7 +277,7 @@
                     _sublist = selectedparent.Tklfsubs.OrderBy(a => a.TklfsubCode).ToList();
                     selectedsub = _sublist?.FirstOrDefault();
                     selectedsubcode = selectedsub?.TklfsubCode;
-                    if (db.Tazizs != null && selectedsub != null)
+                    if (db.Masrves != null && selectedsub != null)
                     {
                         section_total = (await db.Tazizs.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync()).Sum(d => d.TazizVal ?? 0);
                         _TrnsList = await db.Tazizs.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync();
@@ -308,7 +307,7 @@
                 {
                     selectedsub = selectedparent?.Tklfsubs.Where(s => s.TklfsubCode == _value).FirstOrDefault();
                     selectedsubcode = selectedsub?.TklfsubCode;
-                    if (db.Tazizs != null && selectedsub != null)
+                    if (db.Masrves != null && selectedsub != null)
                     {
                         _TrnsList = await db.Tazizs.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync();
                         section_total = (await db.Tazizs.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync()).Sum(s => s.TazizVal ?? 0);
@@ -488,7 +487,6 @@
     }
 
 }
-
 
 
 
