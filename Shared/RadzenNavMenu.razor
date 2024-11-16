@@ -1,6 +1,6 @@
 ﻿@using Radzen
 
-@switch (GlobalVars.AppId)
+@switch (Gvars.AppId)
 {
     case 1:
         <RadzenMenu>
@@ -26,79 +26,96 @@
     case 2:
 <RadzenMenu>
     <RadzenMenuItem Text="Home" Path="/" Icon="home" />
-    <RadzenMenuItem Text="بيانات أساسية" Icon="store">
-        <RadzenMenuItem Text="أكواد المصروفات" Path="/editout" Icon="list" />
-        <RadzenMenuItem Text=" تعريف الموظفين" Path="/editemployee" Icon="list" />
-        <RadzenMenuItem Text="تعريف الإدارات" Path="/edittklfmain/1" Icon="list" />
-        <RadzenMenuItem Text="تعريف الأقسام" Path="/edittklfmain/2" Icon="list" />
-        <RadzenMenuItem Text="تعريف المعامل و المزارع" Path="/edittklfmain/4" Icon="list" />
-        <RadzenMenuItem Text="تعريف البرامج" Path="/edittklfmain/5" Icon="list" />
-        <RadzenMenuItem Text="تعريف الشعب" Path="/edittklfmain/9" Icon="list" />
-        <RadzenMenuItem Text="___________________" />
-        <RadzenMenuItem Text=" تعريف الرسائل" Path="/edittklfsub/2" Icon="list" />
-        <RadzenMenuItem Text=" تعرف مشاريع المزارع" Path="/edittklfsub/4" Icon="list" />
-        <RadzenMenuItem Text=" بيانات محاور الخطة البحثية الثالثة عشر" Path="/edittklfsub/5" Icon="list" />
-        <RadzenMenuItem Text=" بيان مشروعات الخطة التكميلى MP" Path="/edittklfsub/6" Icon="list" />
-        <RadzenMenuItem Text=" بيانات الخطة البحثية الثانية عشر E" Path="/edittklfsub/12" Icon="list" />
-        <RadzenMenuItem Text="___________________" />
-        <RadzenMenuItem Text=" تفاصيل ميزانية الرسائل" Path="/editbudget/2" Icon="list" />
-        <RadzenMenuItem Text=" تفاصيل ميزانية مزرعة أو معمل" Path="/editbudget/4" Icon="list" />
-        <RadzenMenuItem Text=" تفاصيل ميزانية محاور الخطة البحثية الثالثة عشر" Path="/editbudget/5" Icon="list" />
-        <RadzenMenuItem Text=" تفاصيل ميزانية مشروع خطة تكميلى MP" Path="/editbudget/6" Icon="list" />
-        <RadzenMenuItem Text=" تفاصيل ميزانية مشروع  الخطة البحثية الثانية عشر E" Path="/editbudget/12" Icon="list" />
+    <RadzenMenuItem Text="بيانات أساسية عهد" Icon="store">
+        <RadzenMenuItem Text="تغيير وصف الصنف فى ملف العهد " Path="/editout" Icon="list" />
     </RadzenMenuItem>
 
-    <RadzenMenuItem Text="مستندات التكاليف" Icon="store">
-        <RadzenMenuItem Text="صرف" Icon="store">
-            <RadzenMenuItem Text="صرف للرسائل" Path="/editmasrf/2" Icon="list" />
-            <RadzenMenuItem Text="صرف للمعامل و المزارع" Path="/editmasrf/4" Icon="list" />
-            <RadzenMenuItem Text="صرف على محاور الخطة البحثية الثالثة عشر" Path="/editmasrf/5" Icon="list" />
-            <RadzenMenuItem Text="صرف على مشروع الخطة الكميلية MP" Path="/editmasrf/6" Icon="list" />
-            <RadzenMenuItem Text="صرف على مشروعات  الخطة البحثية الثانية عشر E" Path="/editmasrf/12" Icon="list" />
-        </RadzenMenuItem>
-
-        <RadzenMenuItem Text="تعزيزات" Icon="store">
-            <RadzenMenuItem Text="تعزيزات رسائل" Path="/edittaziz/2" Icon="list" />
-            <RadzenMenuItem Text="تعزيزات للمعامل و المزارع" Path="/edittaziz/4" Icon="list" />
-            <RadzenMenuItem Text="تعزيزات محاور الخطة البحثية الثالثة عشر" Path="/edittaziz/5" Icon="list" />
-            <RadzenMenuItem Text="تعزيزات مشروع الخطة الكميلية MP" Path="/edittaziz/6" Icon="list" />
-            <RadzenMenuItem Text="تعزيزات مشروعات  الخطة البحثية الثانية عشر E" Path="/edittaziz/12" Icon="list" />
-        </RadzenMenuItem>
-
-        <RadzenMenuItem Text="إرتباطات" Icon="store">
-            <RadzenMenuItem Text="إرتباطات رسائل" Path="editrelated/2" Icon="list" />
-            <RadzenMenuItem Text="إرتباطات للمعامل و المزارع" Path="editrelated/4" Icon="list" />
-            <RadzenMenuItem Text="إرتباطات محاور الخطة البحثية الثالثة عشر" Path="editrelated/5" Icon="list" />
-            <RadzenMenuItem Text="إرتباطات مشروع الخطة الكميلية MP" Path="editrelated/6" Icon="list" />
-            <RadzenMenuItem Text="إرتباطات مشروعات  الخطة البحثية الثانية عشر E" Path="editrelated/12" Icon="list" />
-        </RadzenMenuItem>
-
-        <RadzenMenuItem Text="تحويلات داخلية" Icon="store">
-            <RadzenMenuItem Text="تحويلات داخلية رسائل" Path="edittaziztrns/1/2" Icon="list" />
-            <RadzenMenuItem Text="تحويلات داخلية للمعامل و المزارع" Path="edittaziztrns/1/4" Icon="list" />
-            <RadzenMenuItem Text="تحويلات داخلية محاور الخطة البحثية الثالثة عشر" Path="edittaziztrns/1/5" Icon="list" />
-            <RadzenMenuItem Text="تحويلات داخلية مشروع الخطة الكميلية MP" Path="edittaziztrns/1/6" Icon="list" />
-            <RadzenMenuItem Text="تحويلات داخلية مشروعات  الخطة البحثية الثانية عشر E" Path="edittaziztrns/1/12" Icon="list" />
-        </RadzenMenuItem>
-
-        <RadzenMenuItem Text="تحويلات خارجية" Icon="store">
-            <RadzenMenuItem Text="تحويلات خارجية رسائل" Path="edittaziztrns/2/2" Icon="list" />
-            <RadzenMenuItem Text="تحويلات خارجية للمعامل و المزارع" Path="edittaziztrns/2/4" Icon="list" />
-            <RadzenMenuItem Text="تحويلات خارجية محاور الخطة البحثية الثالثة عشر" Path="edittaziztrns/2/5" Icon="list" />
-            <RadzenMenuItem Text="تحويلات خارجية مشروع الخطة الكميلية MP" Path="edittaziztrns/2/6" Icon="list" />
-            <RadzenMenuItem Text="تحويلات خارجية مشروعات  الخطة البحثية الثانية عشر E" Path="edittaziztrns/2/12" Icon="list" />
-        </RadzenMenuItem>
-
+    <RadzenMenuItem Text="مستندات" Icon="store">
+        <RadzenMenuItem Text="إدخال نقل العهدة" Path="/editout" Icon="list" />
+        <RadzenMenuItem Text="إدخال بيان عهدة العاملين" Path="/addohdatrns" Icon="list" />
     </RadzenMenuItem>
 
 </RadzenMenu>
         break;
 
-
     case 3:
+        <RadzenMenu>
+            <RadzenMenuItem Text="Home" Path="/" Icon="home" />
+            <RadzenMenuItem Text="بيانات أساسية" Icon="store">
+                <RadzenMenuItem Text="أكواد المصروفات" Path="/editout" Icon="list" />
+                <RadzenMenuItem Text=" تعريف الموظفين" Path="/editemployee" Icon="list" />
+                <RadzenMenuItem Text="تعريف الإدارات" Path="/edittklfmain/1" Icon="list" />
+                <RadzenMenuItem Text="تعريف الأقسام" Path="/edittklfmain/2" Icon="list" />
+                <RadzenMenuItem Text="تعريف المعامل و المزارع" Path="/edittklfmain/4" Icon="list" />
+                <RadzenMenuItem Text="تعريف البرامج" Path="/edittklfmain/5" Icon="list" />
+                <RadzenMenuItem Text="تعريف الشعب" Path="/edittklfmain/9" Icon="list" />
+                <RadzenMenuItem Text="___________________" />
+                <RadzenMenuItem Text=" تعريف الرسائل" Path="/edittklfsub/2" Icon="list" />
+                <RadzenMenuItem Text=" تعرف مشاريع المزارع" Path="/edittklfsub/4" Icon="list" />
+                <RadzenMenuItem Text=" بيانات محاور الخطة البحثية الثالثة عشر" Path="/edittklfsub/5" Icon="list" />
+                <RadzenMenuItem Text=" بيان مشروعات الخطة التكميلى MP" Path="/edittklfsub/6" Icon="list" />
+                <RadzenMenuItem Text=" بيانات الخطة البحثية الثانية عشر E" Path="/edittklfsub/12" Icon="list" />
+                <RadzenMenuItem Text="___________________" />
+                <RadzenMenuItem Text=" تفاصيل ميزانية الرسائل" Path="/editbudget/2" Icon="list" />
+                <RadzenMenuItem Text=" تفاصيل ميزانية مزرعة أو معمل" Path="/editbudget/4" Icon="list" />
+                <RadzenMenuItem Text=" تفاصيل ميزانية محاور الخطة البحثية الثالثة عشر" Path="/editbudget/5" Icon="list" />
+                <RadzenMenuItem Text=" تفاصيل ميزانية مشروع خطة تكميلى MP" Path="/editbudget/6" Icon="list" />
+                <RadzenMenuItem Text=" تفاصيل ميزانية مشروع  الخطة البحثية الثانية عشر E" Path="/editbudget/12" Icon="list" />
+            </RadzenMenuItem>
+
+            <RadzenMenuItem Text="مستندات التكاليف" Icon="store">
+                <RadzenMenuItem Text="صرف" Icon="store">
+                    <RadzenMenuItem Text="صرف للرسائل" Path="/editmasrf/2" Icon="list" />
+                    <RadzenMenuItem Text="صرف للمعامل و المزارع" Path="/editmasrf/4" Icon="list" />
+                    <RadzenMenuItem Text="صرف على محاور الخطة البحثية الثالثة عشر" Path="/editmasrf/5" Icon="list" />
+                    <RadzenMenuItem Text="صرف على مشروع الخطة الكميلية MP" Path="/editmasrf/6" Icon="list" />
+                    <RadzenMenuItem Text="صرف على مشروعات  الخطة البحثية الثانية عشر E" Path="/editmasrf/12" Icon="list" />
+                </RadzenMenuItem>
+
+                <RadzenMenuItem Text="تعزيزات" Icon="store">
+                    <RadzenMenuItem Text="تعزيزات رسائل" Path="/edittaziz/2" Icon="list" />
+                    <RadzenMenuItem Text="تعزيزات للمعامل و المزارع" Path="/edittaziz/4" Icon="list" />
+                    <RadzenMenuItem Text="تعزيزات محاور الخطة البحثية الثالثة عشر" Path="/edittaziz/5" Icon="list" />
+                    <RadzenMenuItem Text="تعزيزات مشروع الخطة الكميلية MP" Path="/edittaziz/6" Icon="list" />
+                    <RadzenMenuItem Text="تعزيزات مشروعات  الخطة البحثية الثانية عشر E" Path="/edittaziz/12" Icon="list" />
+                </RadzenMenuItem>
+
+                <RadzenMenuItem Text="إرتباطات" Icon="store">
+                    <RadzenMenuItem Text="إرتباطات رسائل" Path="editrelated/2" Icon="list" />
+                    <RadzenMenuItem Text="إرتباطات للمعامل و المزارع" Path="editrelated/4" Icon="list" />
+                    <RadzenMenuItem Text="إرتباطات محاور الخطة البحثية الثالثة عشر" Path="editrelated/5" Icon="list" />
+                    <RadzenMenuItem Text="إرتباطات مشروع الخطة الكميلية MP" Path="editrelated/6" Icon="list" />
+                    <RadzenMenuItem Text="إرتباطات مشروعات  الخطة البحثية الثانية عشر E" Path="editrelated/12" Icon="list" />
+                </RadzenMenuItem>
+
+                <RadzenMenuItem Text="تحويلات داخلية" Icon="store">
+                    <RadzenMenuItem Text="تحويلات داخلية رسائل" Path="edittaziztrns/1/2" Icon="list" />
+                    <RadzenMenuItem Text="تحويلات داخلية للمعامل و المزارع" Path="edittaziztrns/1/4" Icon="list" />
+                    <RadzenMenuItem Text="تحويلات داخلية محاور الخطة البحثية الثالثة عشر" Path="edittaziztrns/1/5" Icon="list" />
+                    <RadzenMenuItem Text="تحويلات داخلية مشروع الخطة الكميلية MP" Path="edittaziztrns/1/6" Icon="list" />
+                    <RadzenMenuItem Text="تحويلات داخلية مشروعات  الخطة البحثية الثانية عشر E" Path="edittaziztrns/1/12" Icon="list" />
+                </RadzenMenuItem>
+
+                <RadzenMenuItem Text="تحويلات خارجية" Icon="store">
+                    <RadzenMenuItem Text="تحويلات خارجية رسائل" Path="edittaziztrns/2/2" Icon="list" />
+                    <RadzenMenuItem Text="تحويلات خارجية للمعامل و المزارع" Path="edittaziztrns/2/4" Icon="list" />
+                    <RadzenMenuItem Text="تحويلات خارجية محاور الخطة البحثية الثالثة عشر" Path="edittaziztrns/2/5" Icon="list" />
+                    <RadzenMenuItem Text="تحويلات خارجية مشروع الخطة الكميلية MP" Path="edittaziztrns/2/6" Icon="list" />
+                    <RadzenMenuItem Text="تحويلات خارجية مشروعات  الخطة البحثية الثانية عشر E" Path="edittaziztrns/2/12" Icon="list" />
+                </RadzenMenuItem>
+
+            </RadzenMenuItem>
+
+        </RadzenMenu>
         break;
+
     case 4:
         break;
     default:
         break;
+
+
+
+
+
 }

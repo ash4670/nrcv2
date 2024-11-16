@@ -16,6 +16,15 @@
             <div class="modal-body">
 
                 <div class="row form-group form-inline">
+                    <RadzenLabel Text="البرنامج" class="col-2" />
+                    <strong>
+                        <RadzenDropDown class="col-7" Data=@ListOfApps @bind-Value=@Gvars.AppId
+                                        TextProperty="Value" ValueProperty="Key">
+
+                        </RadzenDropDown>
+                    </strong>
+                </div>
+                <div class="row form-group form-inline">
                     <RadzenLabel Text="المستخدم" class="col-sm-2" />
                     <input type="text" @bind-value="@Username" placeholder="User name" />
                 </div>
@@ -38,6 +47,14 @@
 @code {
     private string UserId, Username, Password, errorMessage;
     private string display = "block";
+    Dictionary<int,string> ListOfApps = new();
+    protected override void OnInitialized()
+    {
+        ListOfApps.Add(1, "برنامج المخازن");
+        ListOfApps.Add(2, "برنامج العهد");
+        ListOfApps.Add(3, "برنامج التكاليف");
+        base.OnInitialized();
+    }
 
     private async Task HandleLogin()
     {

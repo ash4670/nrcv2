@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace nrcv2.Shared
 {
-    public static class GlobalVars
+    public static class Gvars
     {
-        public static int AppId { get; set; } = 2;//1 stock//2 ohda //3 cost //purch
-    }
+        public static int AppId { get; set; } = 1;//1 stock//2 ohda //3 cost //purch
+     }
 }

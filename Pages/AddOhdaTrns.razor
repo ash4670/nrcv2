@@ -1,0 +1,452 @@
+﻿@page "/addohdatrns"
+@inject IDbContextFactory<nrcwebContext> dbf;
+@inject DialogService ds
+@inject Gtools gtool
+@inject NavigationManager NavigationManager
+<style>
+    /* This CSS ensures the table header stays on top */
+    .tableFixHead {
+        height: 250px;
+        overflow-y: auto;
+    }
+
+        .tableFixHead thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1000; /* Ensures the header stays above table rows */
+            background-color: #007bff; /* Adjust this color to match your header's */
+            color: white;
+        }
+</style>
+
+<div class="card p-0 " style="padding: 0px;">
+    <div class="card-header alert alert-primary h3 text-center ">
+        @PageTitle 
+    </div>
+
+    <div class="card-body p-0" style="padding: 0px;">
+        <div class="container">
+            <div class="row">
+                <Label class="btn-outline-primary btn-sm col-4 h-50 " @onclick="@(async ()=>await f_ondblclick("stockcode"))">كود المخزن ...</Label>
+                <RadzenDropDown @bind-Value=@_StockCode Data=@_stocklist TextProperty="@nameof(Stock.StockName)" ValueProperty="@nameof(Stock.StockCode)"
+                                @bind-SearchText=SearchText FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" AllowFiltering="true"
+                                Change=@(args => f_onMainChange("stockcode", args) )
+                                Style="width: 100%; max-width: 400px; display:block;">
+                </RadzenDropDown>
+             </div>
+            <div  class="row">
+                <Label class="btn-outline-primary btn-sm col-4 h-50 " @onclick="@(async ()=>await f_ondblclick("arname"))">صاحب العهدة ...</Label>
+                <RadzenTextBox class="col-4" @bind-Value="@_ArName" Change=@(args => f_onMainChange("arname", args) ) />
+                <label  class="col-4"> @(_Arnamelist.Where(a => a.ArCode==_ArName).FirstOrDefault()?.ArName1??"")</label>
+            </div>
+            <div class="row">
+                <label  class="col-4">رقم البطاقة</label>
+                @(_Arnamelist.Where(a => a.ArCode==_ArName).FirstOrDefault()?.Nid??"")
+            </div>
+            <div class="row">
+                <label class="col-4">مكان العمل</label>
+                @(_Arnamelist.Where(a => a.ArCode==_ArName).FirstOrDefault()?.Work??"")
+            </div>
+
+
+
+
+            <div class="  row  ">
+                <div class="col-lg mt-3 p-0 border border-primary">
+                    <div class="card ">
+                        <div class="card-body" style="padding: 0px;">
+                            <div class="tableFixHead table-responsive" style=" height: 250px; font-size: small; overflow: auto; ">
+                                <table class="table  table-hover table-sm  table-striped table-bordered table-hover">
+                                    <thead style="position: sticky ; z-index:5;" class="font-weight-bold text-center alert-primary">
+                                        <tr style="padding:0;margin:0;max-height:fit-content;">
+                                            <th class="col-1" style="padding:0;margin:0;width:2%;">م</th>
+                                            <th class="col-1" style="padding:0;margin:0">كود الصنف </th>
+                                            <th class="col-2" style="padding:0;margin:0">اسم الصنف </th>
+                                            <th class="col-1" style="padding: 0; margin: 0;width:20%;">الوحدة</th>
+                                            <th class="col-1" style="padding:0;margin:0">الكمية </th>
+                                            <th class="col-2" style="padding:0;margin:0">توصيف </th>
+                                            <th class="col-2" style="padding:0;margin:0">تاريخ الحركة </th>
+                                            <th class="col-1" style="padding:0;margin:0">رقم المستند </th>
+                                            <th class="col-1" style="padding:0;margin:0">السعر </th>
+                                            <th class="col-1" style="padding:0;margin:0">إجمالى السعر </th>
+                                            <th style="padding:0;margin:0;width:2%;"> </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{int r = 0;}
+
+                                        @foreach (var item in _ArquantList)
+                                        {
+                                            <tr style="padding: 0; margin: 0; max-height: fit-content; background-color: lightsteelblue">
+                                                <td class="col-1 " style="padding: 0; margin: 0; width:2%;text-align: center ">@(r + 1) </td>
+                                                <td class="col-1" style="padding: 0; margin: 0"> <RadzenTextBox Style=" background-color: lemonchiffon; padding: 0; margin: 0;" class="col-12" @ondblclick="@(async () => await f_ondblclickdetail("itemcode", _ArquantList.IndexOf(item)))" Name=itemcode @bind-Value="@item.ItemCode" Change=@(args => f_onchangedetail("itemcode", args, _ArquantList.IndexOf(item))) /></td>
+                                                <td class="col-2" style="padding:0;margin:0 ; "><RadzenTextBox style="padding:0;margin:0;" class="col-12" @bind-Value="@item.EngName" readonly /></td>
+                                                <td class="col-1" style="padding: 0; margin: 0; width: 20%;"><strong>@item.UnitName</strong></td>
+                                                <td class="col-1" style="padding:0;margin:0"> <RadzenNumeric TValue="double?" ShowUpDown="false" form="itemquant" style="padding:0;margin:0;" class="col-12" @bind-Value="@item.ItemQuant" Change=@(args => f_onchangedetail("itemquant", args, _ArquantList.IndexOf(item))) /></td>
+                                                <td class="col-2" style="padding:0;margin:0 ; "><RadzenTextBox style="padding:0;margin:0;" class="col-12" @bind-Value="@item.Notes" /></td>
+                                                <td class="col-2" style="padding:0;margin:0 ; ">
+                                                    <RadzenDatePicker style="padding:0;margin:0 ; " Name="trn_date" TValue=DateTime ShowTime="true" Value=item.TrnDate HourFormat="12"
+                                                                      DateFormat="dd/MM/yyyy" Change=@(args => f_onchangedetail("trn_date", args, _ArquantList.IndexOf(item))) />
+                                                </td>
+                                                <td class="col-1" style="padding: 0; margin: 0"> <RadzenTextBox Style=" padding: 0; margin: 0;" class="col-12" @ondblclick="@(async () => await f_ondblclickdetail("itemcode", _ArquantList.IndexOf(item)))" @bind-Value="@item.TrnNo" Change=@(args => f_onchangedetail("trnsno", args, _ArquantList.IndexOf(item))) /></td>
+                                                <td class="col-1" style="padding:0;margin:0"> <RadzenNumeric TValue="double?" ShowUpDown="false" style="padding:0;margin:0;" class="col-12" @bind-Value="@item.ItemPrice" Change=@(args => f_onchangedetail("itemprice", args, _ArquantList.IndexOf(item))) /></td>
+                                                <td class="col-1" style="padding:0;margin:0">@String.Format("{0:0.000}", item.ItemQuant * item.ItemPrice ?? 0)</td>
+                                                <td style="padding: 0; margin: 0; text-align: center; width: 2%; "> <button tabindex=-1 style="width: inherit;" class="btn btn-primary btn-sm" @onclick="() => { _ArquantList.Remove(item); } ">&times;</button></td>
+
+                                            </tr>
+                                            r++;
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="card-footer p-2">
+                            <div class="row text-center">
+                                <div class="col">
+                                    <RadzenButton Text="جديد" Click="OnNewMain"></RadzenButton>
+                                </div>
+
+                                <div class="col">
+                                    <RadzenButton Text="تسجيل" Click="onSave"></RadzenButton>
+                                </div>
+
+                                <div class="col">
+                                    <RadzenButton Text="إضافة سطر" Click="() => AddNewLine()" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    public string PageTitle { get; set; } = "إدخال بيان عهدة العاملين";
+    public  List<Arquant> _ArquantList { get; set; } = new();
+    public List<Stock> _stocklist { get; set; } = new();
+    public List<Arname> _Arnamelist { get; set; } = new();
+    public List<Item> itemlist { get; set; } = new();
+    public string SearchText { get; set; } = "";
+    public string _StockCode { get; set; } = "";
+    public string _ArName { get; set; } = "";
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+
+
+
+        using (var db = dbf.CreateDbContext())
+        {
+            _stocklist =await db.Stocks.AsNoTracking().ToListAsync();
+            _Arnamelist =await db.Arnames.AsNoTracking().ToListAsync();
+        }
+        await base.OnParametersSetAsync();
+
+    }
+
+    private void AddNewLine()
+    {
+        if (string.IsNullOrEmpty(_StockCode) || string.IsNullOrEmpty(_ArName))
+        {
+
+            return;
+        }
+
+        Arquant row = new();
+        row.ArName = _ArName;
+        row.StockCode= _StockCode;
+        row.Kind = 0;
+        row.TrnYear = (DateTime.Today.Year).ToString();
+        row.TrnDate = DateTime.Today;
+        _ArquantList.Add(row);
+    }
+
+    private void DeleteLine(Arquant a)
+    {
+        _ArquantList.Remove(a);
+        if (_ArquantList.Count() == 0) AddNewLine();//add new empty row
+    }
+
+    void OnNewMain()
+    {
+        _StockCode = "";
+        _ArName = "";
+        _ArquantList.Clear();
+
+    }
+    public async Task f_onMainChange(string name, dynamic arg)
+    {
+        string _value = "";
+        switch (name.ToLower())
+        {
+            case "stockcode":
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _value = arg;
+                if (string.IsNullOrEmpty(_value))  {
+                    gtool.Mynotify("خطأ", "يجب إدخال كود المخزن");
+                    return;
+                }
+                _value = _value.PadLeft(2, '0');
+                _StockCode = _value;
+
+                break;
+
+            case "arname":
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _value = arg;
+
+                if (string.IsNullOrEmpty(_StockCode))
+                {
+                    gtool.Mynotify("خطأ", "يجب إدخال كود المخزن");
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(_value))
+                {
+                    gtool.Mynotify("خطأ", "يجب إدخال كود صاحب العهدة");
+                    return;
+                }
+                _value = _value.PadLeft(5, '0');
+                _ArName = _value;
+
+                using (var db = dbf.CreateDbContext())
+                {
+                    _ArquantList = db.Arquants.Where(q => q.StockCode == _StockCode && q.ArName == _ArName).ToList();
+                }
+                await base.OnParametersSetAsync();
+
+                break;
+            default: break;
+        }
+    }
+
+
+
+
+
+
+
+    private async Task f_ondblclick(string arg) {
+
+        Dictionary<string, object> ret;
+        switch (arg.ToLower())
+        {
+            case "arname":
+                ret = await ds.OpenAsync<GModalList<Arname>>("",
+             new Dictionary<string, object>() { { "title", "قائمة الأفراد" }, { "scollist", "arcode,arname1,nid,work" }, { "colheads", "الكود,الإسم,الرقم القومى,العمل" } },
+             new DialogOptions() { ShowTitle = false, Width = "950px", Height = "400px", Resizable = true, Draggable = true });
+                if (ret != null)
+                {
+                    if (!((bool)ret["status"])) return;
+                    List<Arname> val = ret["result"] as List<Arname>;
+                    _ArName = val[0].ArCode;
+                    await this.f_onMainChange("arname", val[0].ArCode);
+                }
+                break;
+            case "stockcode":
+                ret = await ds.OpenAsync<GModalList<Stock>>("",
+            new Dictionary<string, object>() { { "title", "قائمة المخازن" }, { "scollist", "stockcode,stockname" }, { "colheads", "كود المخزن ,إسم المخزن" } },
+            new DialogOptions() { ShowTitle = false, Width = "400px", Height = "400px", Resizable = true, Draggable = true });
+                if (ret != null)
+                {
+                    if (!((bool)ret["status"])) return;
+                    List<Stock> val = ret["result"] as List<Stock>;
+                    _StockCode = val[0].StockCode;
+                    await this.f_onMainChange("stockcode", val[0].StockCode);
+                }
+
+                break;
+            default: break;
+        }
+    }
+
+    private async Task f_ondblclickdetail(string arg, int rowindx) {
+        Dictionary<string, object> ret;
+        switch (arg.ToLower())
+        {
+            case "itemcode":
+                using (var db = dbf.CreateDbContext()) itemlist =await  db.Items.Where(i => i.StockCode ==_StockCode).ToListAsync();
+                ret = await ds.OpenAsync<GModalList<Item>>("",
+         new Dictionary<string, object>() { { "title", "قائمة الأصناف" }, { "scollist", "itemcode,engname" }, { "colheads", "الكود,الإسم" } , { "data", itemlist } },
+         new DialogOptions() { ShowTitle = false, Width = "950px", Height = "400px", Resizable = true, Draggable = true });
+                if (ret != null)
+                {
+                    if (!((bool)ret["status"])) return;
+                    List<Item> val = ret["result"] as List<Item>;
+                    _ArquantList.ElementAt(rowindx).ItemCode = val[0].ItemCode;
+                    await this.f_onchangedetail("itemcode", val[0].ItemCode, rowindx);
+                }
+                break;
+            default: break;
+        }
+
+    }
+
+    public async Task f_onchangedetail(string name, dynamic arg,int row)
+    {
+        string _value = "";
+        switch (name.ToLower()) {
+            case "itemcode":
+                _ArquantList.ElementAt(row).ItemCode = "";
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _value = arg;
+                _value = _value.Substring(0, Math.Min(5, _value.Length));
+                _value = _value.PadLeft(5, '0');
+                Item item;
+                using (var db = dbf.CreateDbContext()) item = db.Items.FirstOrDefault<Item>(a => a.ItemCode == _value && a.StockCode == _StockCode);
+                if (item == null)
+                {
+                    _ArquantList.ElementAt(row).ItemCode = "";
+                    gtool.Mynotify("خطأ", "الصنف غير معرف");
+                    return;
+                }
+
+                _ArquantList.ElementAt(row).ItemCode = item.ItemCode;
+                _ArquantList.ElementAt(row).EngName = item.EngName;
+                _ArquantList.ToList().ElementAt(row).UnitName = item.UnitName;
+                _ArquantList.ToList().ElementAt(row).ExpDate   = item.ExpDate;
+                _ArquantList.ToList().ElementAt(row).ItemPrice =(double?) item.Value;
+                _ArquantList.ToList().ElementAt(row).ItemDtype=(byte?) item.ItemDtype;
+                _ArquantList.ToList().ElementAt(row).ItemDesc=(byte?) item.ItemDesc;
+                _ArquantList.ToList().ElementAt(row).Transfer = false;
+
+                StateHasChanged();
+                break;
+            default: break;
+        }
+    }
+
+
+    private bool on_presave()
+    {
+        //remove empty out codes
+        _ArquantList.RemoveAll(item => string.IsNullOrEmpty(item.ItemCode));
+
+        if (_ArquantList.Any(t => t.TrnNo == null))
+        {
+            gtool.Mynotify("خطأ", "يجب إدخال رقم المستند");
+            return false;
+        }
+        if (_ArquantList.Any(t => string.IsNullOrEmpty(t.StockCode)))
+        {
+            gtool.Mynotify("خطأ", "يجب إدخال كود المخزن");
+            return false;
+        }
+        if (_ArquantList.Any(t => string.IsNullOrEmpty(t.ArName)))
+        {
+            gtool.Mynotify("خطأ", "يجب إدخال كود صاحب العهدة");
+            return false;
+        }
+
+        if (_ArquantList.Any(t => t.ItemQuant==0))
+        {
+            gtool.Mynotify("خطأ", "يجب إدخال الكمية");
+            return false;
+        }
+
+        if (_ArquantList.Any(t => string.IsNullOrEmpty(t.EngName)))
+        {
+            gtool.Mynotify("خطأ", "يجب إدخال إسم الصنف");
+            return false;
+        }
+
+        if (_ArquantList.Any(t => !t.TrnDate.HasValue))
+        {
+            gtool.Mynotify("خطأ", "يجب إدخال تاريخ المستند");
+            return false;
+        }
+
+        return true;
+    }
+
+    private async Task<int> onSave()
+    {
+        if (!on_presave()) return -1;
+        try
+        {
+            using (var db = dbf.CreateDbContext())
+            {
+
+
+                var originaldata = await db.Arquants.Where(c => c.StockCode== _StockCode && c.ArName == _ArName ).AsNoTracking().ToListAsync();
+                foreach (var detailrow in originaldata)
+                {
+                    if (!_ArquantList.Any(c => c.Id == detailrow.Id))
+                    {
+                        db.Entry(detailrow).State = EntityState.Deleted;
+                    }
+                }
+
+                // Step 2: Handle additions and modifications
+                foreach (var row in _ArquantList)
+                {
+                    if (row.Id == 0) // Assuming 'IsNew' flag indicates a new row
+                    {
+                        db.Add(row); // Add new child to the context
+                    }
+                    else
+                    {
+                        db.Entry(row).State = EntityState.Modified; // Mark existing child as modified
+                    }
+                }
+
+                // Save all changes (adds, updates, and deletes) to the database
+                await db.SaveChangesAsync();
+            }
+
+
+
+
+
+        }
+        catch (Exception)
+        {
+            gtool.Mynotify("خطأ", "لم يتم التسجيل");
+            throw;
+
+        }
+        gtool.Mynotify("", "تم التسجيل");
+        return 0;
+    }
+
+    //private bool on_prdelete()
+    //{
+
+    //    return true;
+    //}
+
+    //private async Task onDelete()
+    //{
+    //    if (!on_prdelete()) return;
+    //    using (var db = dbf.CreateDbContext())
+    //    {
+    //        try
+    //        {
+
+    //            db.Arquants.RemoveRange(_TrnsList);
+    //            await db.SaveChangesAsync();
+
+    //        }
+    //        catch (DbUpdateException e)
+    //        {
+    //            gtool.Mynotify("خطأ", "لم يتم الحذف");
+    //            throw e;
+    //        }
+    //        _TrnsList = await db.Masrves.Where(m => m.KindCode == selectedparent.KindCode && m.TklfCode == selectedparent.TklfCode && m.TklfsubCode == selectedsub.TklfsubCode).ToListAsync<Masrf>();
+    //        gtool.Mynotify("خطأ", "تم الحذف");
+    //    }
+    //    if (_TrnsList.Count() == 0) AddNewLine();//add new empty row
+    //}
+
+}
+
+
+
