@@ -1,0 +1,208 @@
+﻿@page "/ohdatranfertrns"
+@inject IDbContextFactory<nrcwebContext> dbf;
+@inject DialogService ds
+@inject Gtools gtool
+@inject NavigationManager NavigationManager
+<style>
+    /* This CSS ensures the table header stays on top */
+    .tableFixHead {
+        height: 250px;
+        overflow-y: auto;
+    }
+
+        .tableFixHead thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1000; /* Ensures the header stays above table rows */
+            background-color: #007bff; /* Adjust this color to match your header's */
+            color: white;
+        }
+</style>
+
+<div class="card p-0 " style="padding: 0px;">
+    <div class="card-header alert alert-primary h3 text-center ">
+        @PageTitle
+    </div>
+
+    <div class="card-body p-0" style="padding: 0px;">
+        <div class="container container-fluid">
+
+            <div class="row p-1">
+                <label class="col-2 font-weight-bold ">رقم المستند</label>
+                <RadzenTextBox class="col-4"  @bind-Value="@CurrentTrnsNo" Change=@(args => f_onMainChange("currenttrnsno", args) ) />
+            </div>
+            <div class="row  p-1" >
+                <label class=" col-2 font-weight-bold">تاريخ المستند</label>
+               
+                <RadzenDatePicker style="padding:0;margin:0 ; " Name="CurrentTrnsDate" TValue=DateTime ShowTime="false" @bind-Value=CurrentTrnsDate
+                                  DateFormat="dd/MM/yyyy" Change=@(args => f_onMainChange("trn_date", args)) />
+                <RadzenRegexValidator Component="CurrentTrnsDate" Text="يجب إدخال التاريخ بشكل سليم" Pattern="dd/MM/yyyy" />
+            </div>
+
+            <div class="row  p-1">
+                <button type="button" class="btn btn-primary h-100 col-2 font-weight-bold  m-1" @onclick="@(async ()=>await f_ondblclick("currentarcode"))">صاحب العهدة ...</button>
+                <RadzenTextBox style="background-color:lemonchiffon; height:38px;margin:2px;" @bind-Value=@CurrentArCode Change=@(args => f_onMainChange("currentarcode", args) ) @ondblclick=@(async ()=> await f_ondblclick("currentarcode")) />
+                <button class="btn  btn-info h-100  col-3 font-weight-bolder m-1" @onclick="on_GetOhdaClicked">إجمالى عهدة شخص</button>
+            </div>
+            <div class="row  p-1" >
+                <label class="col-4"> @(_Arnamelist.Where(a => a.ArCode== CurrentArCode).FirstOrDefault()?.ArName1??"")</label>
+           </div>
+
+            <div class="row  p-1 ">
+                <label class="col-2 font-weight-bold">رقم البطاقة</label>
+                @(_Arnamelist.Where(a => a.ArCode== CurrentArCode).FirstOrDefault()?.Nid??"")
+
+                <label class="col-2 font-weight-bold">مكان العمل</label>
+                @(_Arnamelist.Where(a => a.ArCode== CurrentArCode).FirstOrDefault()?.Work??"")
+            </div>
+            <div class="row  p-1">
+                @*<button class="btn  btn-info h-100  col-3 font-weight-bolder m-1" @onclick="onDefineMan">تعريف الأفراد</button>*@
+            </div>
+           
+
+
+
+
+        </div>
+
+
+
+
+                <div class="card-footer p-2">
+                    <div class="row text-center">
+                        @*<div class="col">
+                        <RadzenButton Text="جديد" Click="OnNewMain"></RadzenButton>
+                    </div>
+
+                    <div class="col">
+                        <RadzenButton Text="تسجيل" Click="onSave"></RadzenButton>
+                    </div>
+
+                    <div class="col">
+                        <RadzenButton Text="إضافة سطر" Click="() => AddNewLine()" />
+                    </div>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @code {
+            public string PageTitle { get; set; } = "مستند تحويل او تكهين عهدة";
+            public string CurrentTrnsNo { get; set; } = "";
+            public DateTime CurrentTrnsDate { get; set; } = DateTime.Today;
+            string str_date { get; set; } = DateTime.Today.ToString();
+            public String CurrentArCode { get; set; } ="" ;
+
+            public List<Arname> _Arnamelist { get; set; } = new();
+
+
+
+
+
+
+            protected override async Task OnParametersSetAsync()
+            {
+                using (var db = dbf.CreateDbContext())
+                {
+                    _Arnamelist = await db.Arnames.AsNoTracking().ToListAsync();
+                }
+                await base.OnParametersSetAsync();
+
+            }
+
+            public async Task f_onMainChange(string name, dynamic arg)
+            {
+                string _value = "";
+                switch (name.ToLower())
+                {
+                    case "currenttrnson":
+                        //await Task.Delay(1); //Magic!
+                        //StateHasChanged();
+                        //_value = arg;
+
+                        //_value = _value.PadLeft(2, '0');
+                        ////  _StockCode = _value;
+
+
+                        break;
+                    default: break;
+                }
+            }
+
+            //public async Task f_onchangedetail(string name, dynamic arg, int row)
+            //{
+            //    string _value = "";
+            //    switch (name.ToLower())
+            //    {
+            //        case "itemcode":
+            //            _ArquantList.ElementAt(row).ItemCode = "";
+            //            await Task.Delay(1); //Magic!
+            //            StateHasChanged();
+            //            _value = arg;
+            //            _value = _value.Substring(0, Math.Min(5, _value.Length));
+            //            _value = _value.PadLeft(5, '0');
+            //            Item item;
+            //            using (var db = dbf.CreateDbContext()) item = db.Items.FirstOrDefault<Item>(a => a.ItemCode == _value && a.StockCode == _StockCode);
+            //            if (item == null)
+            //            {
+            //                _ArquantList.ElementAt(row).ItemCode = "";
+            //                gtool.Mynotify("خطأ", "الصنف غير معرف");
+            //                return;
+            //            }
+
+            //            _ArquantList.ElementAt(row).ItemCode = item.ItemCode;
+            //            _ArquantList.ElementAt(row).EngName = item.EngName;
+            //            _ArquantList.ToList().ElementAt(row).UnitName = item.UnitName;
+            //            _ArquantList.ToList().ElementAt(row).ExpDate = item.ExpDate;
+            //            _ArquantList.ToList().ElementAt(row).ItemPrice = (double?)item.Value;
+            //            _ArquantList.ToList().ElementAt(row).ItemDtype = (byte?)item.ItemDtype;
+            //            _ArquantList.ToList().ElementAt(row).ItemDesc = (byte?)item.ItemDesc;
+            //            _ArquantList.ToList().ElementAt(row).Transfer = false;
+
+            //            StateHasChanged();
+            //            break;
+            //        default: break;
+            //    }
+            //}
+
+            private async Task f_ondblclick(string arg)
+            {
+                Dictionary<string, object> ret;
+                switch (arg.ToLower())
+                {
+                    case "currentarcode":
+                        ret = await ds.OpenAsync<GModalList<Arname>>("",
+                     new Dictionary<string, object>() { { "title", "قائمة الأفراد" }, { "scollist", "arcode,arname1,nid,work" }, { "colheads", "الكود,الإسم,الرقم القومى,العمل" } },
+                     new DialogOptions() { ShowTitle = false, Width = "950px", Height = "400px", Resizable = true, Draggable = true });
+                        if (ret != null)
+                        {
+                            if (!((bool)ret["status"])) return;
+                            List<Arname> val = ret["result"] as List<Arname>;
+                            CurrentArCode = val[0].ArCode;
+                            await this.f_onMainChange("currentarcode", val[0].ArCode);
+                        }
+                        break;
+
+                    default: break;
+                }
+            }
+
+            async Task on_GetOhdaClicked()
+            {
+                if (!String.IsNullOrWhiteSpace(CurrentArCode))
+                {
+                    var ret = await ds.OpenAsync<ModalManOhda>("",
+                    new Dictionary<string, object>() { { "arg_arcode", CurrentArCode } },
+                    new DialogOptions() { ShowTitle = false, Width = "900px", Height = "400px", Resizable = true, Draggable = true });
+                    if (ret != null)
+                    {
+                        if (!((bool)ret["status"])) return;
+                        List<Arquant> val = ret["result"] as List<Arquant>;
+                        foreach (var item in val)
+                        {
+
+                        }
+                    }
+                }
+            }
+        }

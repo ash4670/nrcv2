@@ -17,8 +17,8 @@
 
                 <div class="row form-group form-inline">
                     <RadzenLabel Text="البرنامج" class="col-2" />
-                    <strong>
-                        <RadzenDropDown class="col-7" Data=@ListOfApps @bind-Value=@Gvars.AppId
+                    <strong class="col-10">
+                        <RadzenDropDown  Data=@ListOfApps @bind-Value=@Gvars.AppId
                                         TextProperty="Value" ValueProperty="Key">
 
                         </RadzenDropDown>
@@ -26,11 +26,15 @@
                 </div>
                 <div class="row form-group form-inline">
                     <RadzenLabel Text="المستخدم" class="col-sm-2" />
-                    <input type="text" @bind-value="@Username" placeholder="User name" />
+                    <strong class="col-10">
+                        <input type="text" @bind-value="@Username" placeholder="User name" />
+                    </strong>
                 </div>
                 <div class="row form-group form-inline">
                     <RadzenLabel Text="كلمة السر" class="col-sm-2" />
-                    <input type="password" @bind-value="@Password" placeholder="password" />
+                    <strong class="col-10">
+                        <input type="password" @bind-value="@Password" placeholder="password" />
+                    </strong>
                 </div>
                 @if (!string.IsNullOrEmpty(errorMessage))
                 {<p style="color:red">@errorMessage</p>}
