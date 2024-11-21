@@ -1,6 +1,6 @@
 ﻿@inherits LayoutComponentBase
-@inject IAuthenticationService authservice
-@inject NavigationManager  NavigationManager
+@*@inject IAuthenticationService authservice
+@inject NavigationManager  NavigationManager*@
 <RadzenDialog />
 <RadzenNotification />
 <RadzenContextMenu />
@@ -16,7 +16,7 @@
 <div class="main">
     <div class="top-row px-4" style="max-height:20px; ">
         @*<a href="https://docs.microsoft.com/aspnet/" target="_blank">مرحباً @_username </a>*@
-        <label>مرحباً @_username </label>
+        @*<label>مرحباً @_username </label>*@
 
     </div>
     <RadzenNavMenu />
@@ -28,16 +28,18 @@
     </div>
     @*@Body*@
 </div>
+
 @code
 {
-    private string _username { get; set; }
-    protected override async Task OnInitializedAsync()
+    // public string _username { get; set; }
+    protected override async Task OnParametersSetAsync()
     {
-        _username = ((Entry)await authservice.GetCurrentUserAsync()).UserName;
-        if (String.IsNullOrWhiteSpace(_username))
-        {
-            NavigationManager.NavigateTo("login");
-        }
+        //_username = ((Entry)await authservice.GetCurrentUserAsync()).UserName;
+        //if (String.IsNullOrWhiteSpace(_username))
+        //{
+        //    NavigationManager.NavigateTo("login");
+        //}
+        await base.OnParametersSetAsync();
     }
 
 }
