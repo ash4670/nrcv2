@@ -172,14 +172,15 @@
         if (_ArquantList.Count() == 0) AddNewLine();//add new empty row
     }
 
-    void OnNewMain()
+    private void OnNewMain()
     {
         _StockCode = "";
         _ArName = "";
         _ArquantList.Clear();
 
     }
-    public async Task f_onMainChange(string name, dynamic arg)
+
+    private async Task f_onMainChange(string name, dynamic arg)
     {
         string _value = "";
         switch (name.ToLower())
@@ -226,12 +227,6 @@
             default: break;
         }
     }
-
-
-
-
-
-
 
     private async Task f_ondblclick(string arg) {
 
@@ -289,7 +284,7 @@
 
     }
 
-    public async Task f_onchangedetail(string name, dynamic arg,int row)
+    private async Task f_onchangedetail(string name, dynamic arg,int row)
     {
         string _value = "";
         switch (name.ToLower()) {
@@ -311,12 +306,12 @@
 
                 _ArquantList.ElementAt(row).ItemCode = item.ItemCode;
                 _ArquantList.ElementAt(row).EngName = item.EngName;
-                _ArquantList.ToList().ElementAt(row).UnitName = item.UnitName;
-                _ArquantList.ToList().ElementAt(row).ExpDate   = item.ExpDate;
-                _ArquantList.ToList().ElementAt(row).ItemPrice =(double?) item.Value;
-                _ArquantList.ToList().ElementAt(row).ItemDtype=(byte?) item.ItemDtype;
-                _ArquantList.ToList().ElementAt(row).ItemDesc=(byte?) item.ItemDesc;
-                _ArquantList.ToList().ElementAt(row).Transfer = false;
+                _ArquantList.ElementAt(row).UnitName = item.UnitName;
+                _ArquantList.ElementAt(row).ExpDate   = item.ExpDate;
+                _ArquantList.ElementAt(row).ItemPrice =(double?) item.Value;
+                _ArquantList.ElementAt(row).ItemDtype=(byte?) item.ItemDtype;
+                _ArquantList.ElementAt(row).ItemDesc=(byte?) item.ItemDesc;
+                _ArquantList.ElementAt(row).Transfer = false;
 
                 StateHasChanged();
                 break;
@@ -374,8 +369,6 @@
         {
             using (var db = dbf.CreateDbContext())
             {
-
-
                 var originaldata = await db.Arquants.Where(c => c.StockCode== _StockCode && c.ArName == _ArName ).AsNoTracking().ToListAsync();
                 foreach (var detailrow in originaldata)
                 {
@@ -389,23 +382,14 @@
                 foreach (var row in _ArquantList)
                 {
                     if (row.Id == 0) // Assuming 'IsNew' flag indicates a new row
-                    {
                         db.Add(row); // Add new child to the context
-                    }
                     else
-                    {
                         db.Entry(row).State = EntityState.Modified; // Mark existing child as modified
-                    }
                 }
 
                 // Save all changes (adds, updates, and deletes) to the database
                 await db.SaveChangesAsync();
             }
-
-
-
-
-
         }
         catch (Exception)
         {

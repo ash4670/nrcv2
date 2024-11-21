@@ -92,8 +92,15 @@
                                             <td class="col-2" style="padding:0;margin:0 ; "><RadzenDatePicker style="padding:0;margin:0 ; " Name="trn_date" TValue=DateTime ShowTime="true" Value=item.olddate HourFormat="12" DateFormat="dd/MM/yyyy" displayonly /></td>
                                             <td class="col-1" style="padding: 0; margin: 0; width: 20%;"><strong>@item.UnitName</strong></td>
                                             <td class="col-1" style="padding:0;margin:0">@String.Format("{0:0.000}", item.olditemqty)</td>
-                                            <td class="col-1" style="padding:0;margin:0"> <RadzenNumeric TValue="double?" ShowUpDown="false" form="itemquant" style="padding:0;margin:0;" class="col-12" @bind-Value="@item.ItemQuant" /></td>
-                                            <td class="col-1" style="padding:0;margin:0"> <RadzenNumeric TValue="double?" ShowUpDown="false" style="padding:0;margin:0;" class="col-12" @bind-Value="@item.ItemPrice"  /></td>
+                                            <td class="col-1" style="padding:0;margin:0"> <RadzenNumeric TValue="double?" ShowUpDown="false" form="itemquant" style="padding:0;margin:0;" class="col-12" @bind-Value="@item.ItemQuant" Change=@(args => f_onchangedetail("itemquantity", args, _ArquantExtendList.IndexOf(item))) /></td>
+                                            <td class="col-1" style="padding:0;margin:0"> <RadzenNumeric TValue="double?" ShowUpDown="false" style="padding:0;margin:0;" class="col-12" @bind-Value="@item.ItemPrice" /></td>
+                                            <td class="col-1" style="padding:0;margin:0">
+                                                <RadzenDropDown @bind-Value="@item.ArName" Data=@_Arnamelist TextProperty="@nameof(Arname.ArName1)" ValueProperty="@nameof(Arname.ArCode)"
+                                                                @bind-SearchText=SearchText FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" AllowFiltering="true"
+                                                                Change=@(args => f_onchangedetail("arcode", args,_ArquantExtendList.IndexOf(item)) )
+                                                                Style="width: 100%; max-width: 400px; display:block;">
+                                                </RadzenDropDown>
+                                             </td>
                                             <td class="col-2" style="padding:0;margin:0 ; "><RadzenTextBox style="padding:0;margin:0;" class="col-12" @bind-Value="@item.Notes" /></td>
                                             <td style="padding: 0; margin: 0; text-align: center; width: 2%; "> <button tabindex=-1 style="width: inherit;" class="btn btn-primary btn-sm" @onclick="() => { _ArquantExtendList.Remove(item); } ">&times;</button></td>
 
@@ -105,7 +112,7 @@
                             </div>
                         </div>
 
-                        @*<div class="card-footer p-2">
+                        <div class="card-footer p-2">
                             <div class="row text-center">
                                 <div class="col">
                                     <RadzenButton Text="جديد" Click="OnNewMain"></RadzenButton>
@@ -116,10 +123,11 @@
                                 </div>
 
                                 <div class="col">
-                                    <RadzenButton Text="إضافة سطر" Click="() => AddNewLine()" />
+                                    @*<RadzenButton Text="تعريف مستلم عهده" Click="/EditArname"></RadzenButton>*@
                                 </div>
+
                             </div>
-                        </div>*@
+                        </div>
 
                     </div>
                 </div>
@@ -136,6 +144,7 @@
             public String CurrentArCode { get; set; } ="" ;
             public List<ArquantExtend> _ArquantExtendList= new() ;
             public List<Arname> _Arnamelist { get; set; } = new();
+            public string SearchText { get; set; } = "";
 
             protected override async Task OnParametersSetAsync()
             {
@@ -174,41 +183,51 @@
                 }
             }
 
-            //public async Task f_onchangedetail(string name, dynamic arg, int row)
-            //{
-            //    string _value = "";
-            //    switch (name.ToLower())
-            //    {
-            //        case "itemcode":
-            //            _ArquantList.ElementAt(row).ItemCode = "";
-            //            await Task.Delay(1); //Magic!
-            //            StateHasChanged();
-            //            _value = arg;
-            //            _value = _value.Substring(0, Math.Min(5, _value.Length));
-            //            _value = _value.PadLeft(5, '0');
-            //            Item item;
-            //            using (var db = dbf.CreateDbContext()) item = db.Items.FirstOrDefault<Item>(a => a.ItemCode == _value && a.StockCode == _StockCode);
-            //            if (item == null)
-            //            {
-            //                _ArquantList.ElementAt(row).ItemCode = "";
-            //                gtool.Mynotify("خطأ", "الصنف غير معرف");
-            //                return;
-            //            }
+            public async Task f_onchangedetail(string name, dynamic arg, int row)
+            {
+                string _value = "" ;
+                switch (name.ToLower())
+                {
+                    case "arcode":
+                        await Task.Delay(1); //Magic!
+                        StateHasChanged();
+                        _value = arg;
+                        if (string.IsNullOrEmpty(_value))
+                        {
+                            gtool.Mynotify("خطأ", "يجب إدخال كود المحول إليه");
+                            return;
+                        }
+                        _value = _value.PadLeft(5, '0');
 
-            //            _ArquantList.ElementAt(row).ItemCode = item.ItemCode;
-            //            _ArquantList.ElementAt(row).EngName = item.EngName;
-            //            _ArquantList.ToList().ElementAt(row).UnitName = item.UnitName;
-            //            _ArquantList.ToList().ElementAt(row).ExpDate = item.ExpDate;
-            //            _ArquantList.ToList().ElementAt(row).ItemPrice = (double?)item.Value;
-            //            _ArquantList.ToList().ElementAt(row).ItemDtype = (byte?)item.ItemDtype;
-            //            _ArquantList.ToList().ElementAt(row).ItemDesc = (byte?)item.ItemDesc;
-            //            _ArquantList.ToList().ElementAt(row).Transfer = false;
+                        if (_value == _ArquantExtendList.ElementAt(row).ArNameto)
+                        {
+                            gtool.Mynotify("خطأ", "لا يمكن التحويل لنفس الفرد");
+                            return;
+                        }
+                        break;
+                    case "itemquantity":
+                        _ArquantExtendList.ElementAt(row).ItemQuant = 0.00;
+                        await Task.Delay(1); //Magic!
+                        StateHasChanged();
+                        _value =Convert.ToString(arg);
+                        if (Convert.ToDouble(_value) < 0 )
+                        {
+                            gtool.Mynotify("خطأ", "يجب أن تكون الكمية أكبر من صفر");
+                            return;
+                        }
+                        if (Convert.ToDouble(_value) > _ArquantExtendList.ElementAt(row).olditemqty)
+                        {
+                            _ArquantExtendList.ElementAt(row).ItemQuant = 0.00;
+                            gtool.Mynotify("خطأ","الكمية أكبر من العهدة");
+                            return;
+                        }
+                        _ArquantExtendList.ElementAt(row).ItemQuant = Convert.ToDouble(_value);
 
-            //            StateHasChanged();
-            //            break;
-            //        default: break;
-            //    }
-            //}
+                        StateHasChanged();
+                        break;
+                    default: break;
+                }
+            }
 
             private async Task f_ondblclick(string arg)
             {
@@ -268,6 +287,7 @@
                                 x.Notes = item.Notes;
                                 x.olddate = item.TrnDate;
                                 x.oldstockcode = item.StockCode;
+                                x.StockCode = item.StockCode;
                                 x.Tdate = item.Tdate;
                                 x.TempPrice = item.TempPrice;
                                 x.Transfer = true;
@@ -285,6 +305,157 @@
                     }
                 }
             }
+
+            void OnNewMain()
+            {
+                CurrentArCode = "";
+                CurrentTrnsNo = "";
+                CurrentTrnsDate = DateTime.Today;
+                this._ArquantExtendList.Clear();
+            }
+
+
+            private bool on_presave()
+            {
+                //remove empty out codes
+                _ArquantExtendList.RemoveAll(item => string.IsNullOrEmpty(item.ItemCode) || item.ItemQuant==0 || item.ItemQuant > item.olditemqty );
+
+                if (_ArquantExtendList.Any(t => t.TrnNo == null))
+                {
+                    gtool.Mynotify("خطأ", "يجب إدخال رقم المستند");
+                    return false;
+                }
+                if (_ArquantExtendList.Any(t => string.IsNullOrEmpty(t.StockCode)))
+                {
+                    gtool.Mynotify("خطأ", "يجب إدخال كود المخزن");
+                    return false;
+                }
+                if (_ArquantExtendList.Any(t => string.IsNullOrEmpty(t.ArName)))
+                {
+                    gtool.Mynotify("خطأ", "يجب إدخال كود المحول إليه");
+                    return false;
+                }
+
+                if (_ArquantExtendList.Any(t => string.IsNullOrEmpty(t.ArNameto)))
+                {
+                    gtool.Mynotify("خطأ", "يجب إدخال كود صاحب العهدة");
+                    return false;
+                }
+
+
+                if (_ArquantExtendList.Any(t => string.IsNullOrEmpty(t.EngName)))
+                {
+                    gtool.Mynotify("خطأ", "يجب إدخال إسم الصنف");
+                    return false;
+                }
+
+                if (_ArquantExtendList.Any(t => !t.TrnDate.HasValue))
+                {
+                    gtool.Mynotify("خطأ", "يجب إدخال تاريخ المستند");
+                    return false;
+                }
+
+                return true;
+            }
+
+            private async Task<int> onSave()
+            {
+                if (!on_presave()) return -1;
+
+                using var db = dbf.CreateDbContext();
+                using var transaction = await db.Database.BeginTransactionAsync();
+                {
+                    try
+                    {
+                        List<string> ls_err = new();
+                        // Step 2: Handle additions and modifications
+                        foreach (var item in _ArquantExtendList)
+                        {
+                            Arquant x = new();
+                            x.ArNameto = CurrentArCode;
+                            x.ArName = item.ArName;
+                            x.ItemCode = item.ItemCode;
+                            x.ItemDesc = item.ItemDesc;
+                            x.ItemDtype = item.ItemDtype;
+                            x.ItemPrice = item.ItemPrice;
+                            x.EngName = item.EngName;
+                            x.ExpDate = item.ExpDate;
+                            x.GhaCode = item.GhaCode;
+                            x.GhaMain = item.GhaMain;
+                            x.GhaNum = item.GhaNum;
+                            x.IncDec = item.IncDec;
+                            x.ItemQuant = item.ItemQuant;
+                            x.Kind = 2;
+                            x.StockCode = item.StockCode;
+                            x.Notes = item.Notes;
+                            x.Tdate = item.Tdate;
+                            x.TempPrice = item.TempPrice;
+                            x.Transfer = true;
+                            x.TransferQuant = 0;
+                            x.TrnDate = CurrentTrnsDate;
+                            x.TrnNo = CurrentTrnsNo;
+                            x.TrnYear = DateTime.Today.Year.ToString();
+                            x.UnitName = item.UnitName;
+                            //decrease the old ohda 
+                            //update arquant    set item_quant = item_quant - :litem_quant where ar_name = :ar_code 
+                            //    and item_code = :litem_code and line_no =:ll_oldlineno
+                            //     and trn_year =:ls_oldtrnsyear and trn_no =:ls_oldtrnsno;
+                            Arquant oldrow = await db.Arquants.Where(q => q.Id == item.oldid).FirstOrDefaultAsync();
+                            if (oldrow == null)
+                            {
+                                gtool.Mynotify("خطأ" + (_ArquantExtendList.IndexOf(item) + 1), "خطأ فى بيانات العهدة القديمة");
+                                ls_err.Add("خطأ فى بيانات العهدة القديمة" + (_ArquantExtendList.IndexOf(item) + 1));
+                            }
+                            if (oldrow.ItemQuant < x.ItemQuant)
+                            {
+                                gtool.Mynotify("خطأ" + (_ArquantExtendList.IndexOf(item) + 1), "الكمية المدخلة أكبر من الكمية المتاحة");
+                                ls_err.Add("الكمية المدخلة أكبر من الكمية المتاحة" + (_ArquantExtendList.IndexOf(item) + 1));
+                            }
+                            oldrow.ItemQuant -= item.ItemQuant;
+                            db.Arquants.Update(oldrow);
+                            db.Add(x);
+
+                        }
+
+                        if (ls_err.Count == 0)
+                        {
+                            await db.SaveChangesAsync();
+                            await transaction.CommitAsync();
+                            gtool.Mynotify("", "تم التسجيل");
+                            return 0;
+
+                        }
+                        else {
+                            await transaction.RollbackAsync();
+                            throw  new Exception(string.Join(',', ls_err));
+                        }
+
+
+
+
+
+
+
+                    }
+                    catch (Exception e)
+                    {
+                        gtool.Mynotify("خطأ", "لم يتم التسجيل"+"/r/n"+ e.Message);
+                        await   transaction.RollbackAsync();
+                        throw;
+
+                    }
+
+                }
+            }
+
+
+
+
+
+
+
+
+
 
 
             public class ArquantExtend : Arquant
