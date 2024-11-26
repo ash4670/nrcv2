@@ -1,6 +1,6 @@
 ﻿@inherits LayoutComponentBase
-@*@inject IAuthenticationService authservice
-@inject NavigationManager  NavigationManager*@
+@inject IAuthenticationService authservice
+@inject NavigationManager  NavigationManager
 <RadzenDialog />
 <RadzenNotification />
 <RadzenContextMenu />
@@ -8,15 +8,14 @@
 
 
 <!--<div class="sidebar">-->
+@*<NavMenu />*@
 
-    @*<NavMenu />*@
-    
 <!--</div>-->
 
 <div class="main">
     <div class="top-row px-4" style="max-height:20px; ">
         @*<a href="https://docs.microsoft.com/aspnet/" target="_blank">مرحباً @_username </a>*@
-        @*<label>مرحباً @_username </label>*@
+        <label>مرحباً @Gvars.guername <span>@DateTime.Today </span></label>
 
     </div>
     <RadzenNavMenu />
@@ -31,15 +30,23 @@
 
 @code
 {
-    // public string _username { get; set; }
-    protected override async Task OnParametersSetAsync()
+    public string _username { get; set; }
+    protected override async Task OnInitializedAsync()
     {
-        //_username = ((Entry)await authservice.GetCurrentUserAsync()).UserName;
-        //if (String.IsNullOrWhiteSpace(_username))
-        //{
-        //    NavigationManager.NavigateTo("login");
-        //}
-        await base.OnParametersSetAsync();
-    }
 
+        var currentUri = NavigationManager.Uri;
+        var isLoginPage = currentUri.Contains("login", StringComparison.OrdinalIgnoreCase);
+
+        if (!isLoginPage) // Only check authentication if not on the login page
+        {
+            _username = Gvars.guername; //((Entry)await authservice.GetCurrentUserAsync()).UserName;
+            if (string.IsNullOrWhiteSpace(_username))
+            {
+                NavigationManager.NavigateTo("login");
+                return; // Prevent further execution to avoid re-render issues.
+            }
+
+
+        }
+    }
 }

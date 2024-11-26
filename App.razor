@@ -1,5 +1,5 @@
-﻿@inject IAuthenticationService authservice
-@inject NavigationManager  NavigationManager
+﻿@*@inject IAuthenticationService authservice
+@inject NavigationManager  NavigationManager*@
 
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(Program).Assembly">
@@ -15,21 +15,5 @@
 </CascadingAuthenticationState>
 
 @code{
-    protected override async Task OnInitializedAsync()
-    {
-        string _username;
-        var currentUri = NavigationManager.Uri;
-        var isLoginPage = currentUri.Contains("login", StringComparison.OrdinalIgnoreCase);
-
-        if (!isLoginPage) // Only check authentication if not on the login page
-        {
-            _username = ((Entry)await authservice.GetCurrentUserAsync()).UserName;
-            if (string.IsNullOrWhiteSpace(_username))
-            {
-                NavigationManager.NavigateTo("login");
-                return; // Prevent further execution to avoid re-render issues.
-            }
-
-        }
-    }
+  
 }

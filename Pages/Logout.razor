@@ -30,6 +30,7 @@
         curentuser =await AuthenticationService.GetCurrentUserAsync();
         user_name = curentuser?.UserName;
         await AuthenticationService.LogoutAsync();
+        Gvars.guername = "";
     }
 }
 

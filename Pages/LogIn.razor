@@ -64,7 +64,8 @@
 
     private async Task HandleLogin()
     {
-     //   Username = "adel"; Password = "123";//remove this line in deployed version
+
+        //   Username = "adel"; Password = "123";//remove this line in deployed version
 
         if (!(string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(Password)))
         {
@@ -77,13 +78,19 @@
                 //OnClose();
                 //  NavigationManager.NavigateTo("/");
                 //}
+                return;
             }
-            else
-            OnClose();
-            //NavigationManager.NavigateTo("/");
+            else {
+                Gvars.guername = Username;
+                OnClose();
+                //NavigationManager.NavigateTo("/");
+            }
         }
         else
+        {
             errorMessage = "أدخل كود المستخدم و كلمة السر";
+            return;
+        }
 
 
     }
