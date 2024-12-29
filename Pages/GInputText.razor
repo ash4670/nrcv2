@@ -3,48 +3,141 @@
 @using System.Reflection
 @using System.ComponentModel
 @using System.Linq.Expressions;
-<InputText @bind-Value="InputValue" @onchange=@(args => f_onchange("inputvalue", args)) />
-<span>@DisplayName</span>
+@inject DialogService DialogService
+
+<div class="form-group row p-0 m-1">
+    <button class="btn btn-primary  m-1" @onclick="onButtonClicked">@buttonText</button>
+    <RadzenTextBox class="m-1" type="text" @bind-Value="InputValue" Change=@(async args => await f_onchange("inputvalue", args)) />
+    <label  class="m-1" >@DisplayName</label>
+</div>
 
 @code {
-    private string InputValue { get; set; } = string.Empty;
+    public string InputValue { get; set; } = string.Empty;
     public string DisplayName { get; set; } = string.Empty;
     public T selectedrow { get; set; }
-    private long codelength { get; set; }
+    [Parameter]
+    public EventCallback OnValueChanged { get; set; }
+    [Parameter]
+    public int codelength { get; set; }
     [Parameter]
     public string codeName { get; set; } = "code";
     [Parameter]
     public string descrName { get; set; } = "name";
+    [Parameter]
+    public string buttonText { get; set; }
+    [Parameter]
+    public string listTitle { get; set; }
 
+    [Parameter] public Expression<Func<T, bool>> CFilter { get; set; }
+
+    protected override Task OnParametersSetAsync()
+    {
+        T _obj = new();
+        switch (_obj.GetType().Name.ToLower())
+        {
+            case "stock":
+                codeName = "stockcode";
+                descrName = "stockname";
+                buttonText=(string.IsNullOrEmpty(buttonText))? "كود المخزن": buttonText;
+                listTitle = (string.IsNullOrEmpty(listTitle)) ? "قائمة المخازن" : listTitle;
+                codelength = 2;
+                break;
+            case "item":
+                codeName = "itemcode";
+                descrName = "engname";
+                buttonText = (string.IsNullOrEmpty(buttonText)) ? "كود الصنف" : buttonText;
+                listTitle = (string.IsNullOrEmpty(listTitle)) ? "قائمة الأصناف" : listTitle;
+                codelength = 5;
+                break;
+            case "arname":
+                codeName = "arcode";
+                descrName = "arname1";
+                buttonText = (string.IsNullOrEmpty(buttonText)) ? "كود الموظف" : buttonText;
+                listTitle = (string.IsNullOrEmpty(listTitle)) ? "قائمة الأفراد" : listTitle;
+                codelength = 5;
+                break;
+            default:
+                codelength = 5;
+                buttonText = (string.IsNullOrEmpty(buttonText)) ? "كود" : buttonText;
+                listTitle = (string.IsNullOrEmpty(listTitle)) ? "أختر": listTitle;
+                break;
+        }
+        return base.OnParametersSetAsync();
+
+    }
     public async Task f_onchange(string name, dynamic arg)
     {
         string _value = "";
         switch (name.ToLower())
         {
-            case "inputvlaue":
+            case "inputvalue":
 
                 await Task.Delay(1); //Magic!
                 StateHasChanged();
                 _value = arg;
-                _value = _value.Substring(0, Math.Min(2, _value.Length));
-                _value = _value.PadLeft(2, '0');
+                _value = _value.Substring(0, Math.Min(codelength, _value.Length));
+                _value = _value.PadLeft(codelength, '0');
                 using (var db = dbf.CreateDbContext())
                 {
-                    var   data = db.Set<T>().AsQueryable();
+                    var data = db.Set<T>().AsQueryable();
+                    if (CFilter !=null)
+                    {
+                        data = data.Where(CFilter);
+                    }
                     var parameter = Expression.Parameter(typeof(T), "entity");
                     var property = Expression.Property(parameter, codeName);// Get the property to filter on
                     var constant = Expression.Constant(_value);// Create the constant to compare to
                     var equality = Expression.Equal(property, constant);// Create the equality expression (entity.ColumnName == colValue)
                     var predicate = Expression.Lambda<Func<T, bool>>(equality, parameter);// Build the lambda expression for the predicate
-                    T selectedrow= data.Where(predicate).ToList().FirstOrDefault();
-                    DisplayName = selectedrow.GetType().GetProperty(descrName).ToString();
+                    T selectedrow = data.Where(predicate).ToList().FirstOrDefault();
+                    if (selectedrow != null)
+                    {
+                        var _properties = selectedrow.GetType().GetProperties();
+                        PropertyInfo propertyInfo = _properties.Where(p => p.Name.ToLower().Equals(descrName.ToLower())).FirstOrDefault();
+                        DisplayName = (propertyInfo.GetValue(selectedrow, null)).ToString();
+                        InputValue = _value;
+                    }
+                    else
+                    {
+                        DisplayName = "غير معرف";
+                        InputValue = "";
+                    }
+                    await OnValueChanged.InvokeAsync(InputValue);
+
                 }
                 StateHasChanged();
                 break;
-               
+
             default: break;
 
 
         }
     }
+    public async void onButtonClicked()
+    {
+        await f_ondblclick("inputvalue");
+    }
+    private async Task f_ondblclick(string name)
+    {
+
+        Dictionary<string, object> ret = await DialogService.OpenAsync<GModalList<T>>("",
+        new Dictionary<string, object>() { { "title", listTitle }, { "scollist", codeName + "," + descrName },{"CFilter",CFilter } },
+        new DialogOptions() { ShowTitle = false, Width = "400px", Height = "400px", Resizable = true, Draggable = true });
+
+        if (ret != null)
+        {
+            if (!((bool)ret["status"])) return;
+            List<T> val = ret["result"] as List<T>;
+            //_stock.StockCode = val[0].StockCode;
+            //  var property = typeof(T).GetProperty(codeName, BindingFlags.Public | BindingFlags.Instance);
+
+            var _properties = typeof(T).GetProperties();
+            PropertyInfo propertyInfo = _properties.Where(p => p.Name.ToLower().Equals(codeName.ToLower())).FirstOrDefault();
+            InputValue = propertyInfo.GetValue(val[0]).ToString();
+            await f_onchange("inputvalue", InputValue);
+        }
+
+
+    }
+
 }
