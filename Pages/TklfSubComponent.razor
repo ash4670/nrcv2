@@ -2,54 +2,50 @@
 @inject DialogService DialogService
 @inject Gtools gtool
 
-<div class="card">
-  
-    <div class="card-body">
-       
-            <div class="form-group  row  ">
-                <button class="btn btn-primary btn-sm col-sm-2 " @onclick="@(async () => await f_ondblclick("tklfcode"))"><span>@MasterButtonText ...</span></button>
-
-                <div class="col-sm-10">
-                    <RadzenDropDown @bind-Value=@_tklfsub.TklfCode Data=@Parenthelplist TextProperty="@nameof(Tklfmain.TklfName)" ValueProperty="@nameof(Tklfmain.TklfCode)"
-                                    @bind-SearchText=SearchText FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" AllowFiltering="true"
-                                    Change=@(args => f_onchange("tklfcode", args))
-                                    @ondblclick="@(async () => await f_ondblclick("tklfcode"))"
-                                    Style="width: 100%; max-width: 400px; display:block;" Name="DropDownParent" />
-                </div>
+        <div class=" row m-1  ">
+            <button class="btn btn-primary btn-sm col-sm-1 " @onclick="@(async () => await f_ondblclick("tklfcode"))"><span>@MasterButtonText</span></button>
+            <div class="col-sm-11">
+                <RadzenDropDown @bind-Value=@_tklfsub.TklfCode Data=@Parenthelplist TextProperty="@nameof(Tklfmain.TklfName)" ValueProperty="@nameof(Tklfmain.TklfCode)"
+                                @bind-SearchText=SearchText FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" AllowFiltering="true"
+                                Change=@(args => f_onchange("tklfcode", args))
+                                @ondblclick="@(async () => await f_ondblclick("tklfcode"))"
+                                Style="width: 100%; max-width: 400px; display:block;" Name="DropDownParent" />
             </div>
+        </div>
 
-
-
-            <div class="form-group  row  ">
-                <button class="btn btn-primary btn-sm col-1 " @onclick="@(async () => await f_ondblclick("tklfsubcode"))"><span>@DetailCodeText ...</span></button>
-                <div class="col-1">
-                    <RadzenMask Mask=@mask Pattern="[^0-9]" style=" background-color: lemonchiffon; width: 100%;" Name="subCode"
-                                @bind-Value=@_tklfsub.TklfsubCode Change=@(args => f_onchange("tklfsubcode", args))
-                                @ondblclick="@(async () => await f_ondblclick("tklfsubcode"))" />
-                </div>
-                @*<RadzenLabel Text="@DetailNameText" class="col-sm-2 font-weight-bold" />*@
-                <div class="col-10">
-                    <RadzenTextBox Disabled="true"  Name="Name" @bind-Value=@_tklfsub.TklfsubName Change=@(args => f_onchange("tklfsubname", args)) />
-               </div>
-
+        <div class=" row m-1 ">
+            <button class="btn btn-primary btn-sm col-sm-1 " @onclick="@(async () => await f_ondblclick("tklfsubcode"))">@DetailCodeText</button>
+            <div class="col-sm-2">
+                <RadzenMask Mask=@mask Pattern="[^0-9]" style=" background-color: lemonchiffon; width: 100%;" Name="subCode"
+                            @bind-Value=@_tklfsub.TklfsubCode Change=@(args => f_onchange("tklfsubcode", args))
+                            @ondblclick="@(async () => await f_ondblclick("tklfsubcode"))" />
             </div>
+            <div class="col-sm-9">
+                <RadzenLabel Text=@(_tklfsub.TklfsubName + ' ' +_tklfsub.Name1) />
+            </div>
+        </div>
 
 
-           
-              
-      
-    </div>
+        <div class="  row m-1  ">
+            <button class="btn btn-primary btn-sm col-sm-1 " @onclick="@(async () => await f_ondblclick("tklfsubcode2"))">إلى @DetailCodeText</button>
+            <div class="col-sm-2">
+                <RadzenMask Mask=@mask Pattern="[^0-9]" style=" background-color: lemonchiffon; width: 100%;" Name="subCode2"
+                            @bind-Value=@_tklfsub2.TklfsubCode Change=@(args => f_onchange("tklfsubcode2", args))
+                            @ondblclick="@(async () => await f_ondblclick("tklfsubcode2"))" />
+            </div>
+            <div class="col-sm-9">
+                <RadzenLabel Text=@(_tklfsub2.TklfsubName + ' ' +_tklfsub2.Name1) />
+            </div>
+        </div>
 
-
-</div>
-
+   
 @code
 {
     [Parameter]
     public int? formarg { get; set; }
     public string ikind_code { get; set; }
     public Tklfsub _tklfsub = new Tklfsub();
-    // public List<Tklfsub> shobalist = new List<Tklfsub>();
+    public Tklfsub _tklfsub2 = new Tklfsub();
     public int parentcodelength { get; set; } = 4;
     public int codelength { get; set; } = 4;
     public string MasterButtonText { get; set; } = "كود القسم";
@@ -65,7 +61,6 @@
     protected override void OnParametersSet()
     {
         if (formarg >= 5 && formarg != 9) parentcodelength = 2;
-
         // if (formarg == 2) { using (var db = dbf.CreateDbContext()) shobalist = db.Tklfsubs.Where(t => t.KindCode == "09").ToList(); }
         DetailCodeText = "كود المشروع";
         DetailNameText = "رقم المشروع";
@@ -125,18 +120,17 @@
                 break;
         }
         mask = mask.PadLeft(codelength, '*');
-
         using (var db = dbf.CreateDbContext()) Parenthelplist = db.Tklfmains.Where(t => t.KindCode == ikind_code).ToList();
-
         onNew();
         base.OnParametersSet();
     }
-
 
     private void onNew()
     {
         _tklfsub = new Tklfsub();
         _tklfsub.KindCode = ikind_code;
+        _tklfsub2 = new Tklfsub();
+        _tklfsub2.KindCode = ikind_code;
         disableName = false;
     }
 
@@ -148,6 +142,7 @@
             case "tklfcode":
                 //this is the parent قسم
                 _tklfsub.TklfCode = "";
+                _tklfsub2.TklfCode = "";
                 await Task.Delay(1); //Magic!
                 StateHasChanged();
                 _value = arg;
@@ -160,6 +155,10 @@
                     _tklfsub.KindCode = ikind_code;
                     _tklfsub.Tklfmainid = current_section.Id;
                     _tklfsub.TklfCode = current_section.TklfCode;
+
+                    _tklfsub2.KindCode = ikind_code;
+                    _tklfsub2.Tklfmainid = current_section.Id;
+                    _tklfsub2.TklfCode = current_section.TklfCode;
                 }
                 else
                     gtool.Mynotify("خطأ", MasterButtonText + " غير معرف");
@@ -188,12 +187,8 @@
                 StateHasChanged();
                 _value = arg;
                 if (string.IsNullOrEmpty(_value)) return;
-
-                Tklfsub  LocalTklfSub;
-                
-
-                using (var db = dbf.CreateDbContext())
-                    LocalTklfSub = db.Tklfsubs.FirstOrDefault<Tklfsub>(a => a.KindCode == ikind_code && a.TklfCode == current_section.TklfCode && a.TklfsubCode == _value);
+                Tklfsub LocalTklfSub;
+                using (var db = dbf.CreateDbContext()) LocalTklfSub = db.Tklfsubs.FirstOrDefault<Tklfsub>(a => a.KindCode == ikind_code && a.TklfCode == current_section.TklfCode && a.TklfsubCode == _value);
                 if (LocalTklfSub != null)
                 {
                     _tklfsub = LocalTklfSub;
@@ -201,49 +196,88 @@
                 }
                 else
                 {
-                    onNew();
-                    _value = _value.Substring(0, Math.Min(codelength, _value.Length));
-                    _value = _value.PadLeft(codelength, '0');
-                    _tklfsub.TklfsubCode = _value;
-                    _tklfsub.Tklfmainid = current_section.Id;
-                    _tklfsub.TklfCode = current_section.TklfCode;
-                    disableName = true;
+                    gtool.Mynotify("2خطأ", MasterButtonText + " غير معرف");
+                    return;
                 }
-
                 StateHasChanged();
                 break;
 
-           
+
+            case "tklfsubcode2":
+
+                if (_tklfsub2.TklfCode == "")
+                {
+                    gtool.Mynotify("1خطأ", MasterButtonText + " غير معرف");
+                    return;
+                }
+                using (var db = dbf.CreateDbContext())
+                {
+                    if (db.Tklfmains.FirstOrDefault<Tklfmain>(a => a.KindCode == ikind_code && a.TklfCode == _tklfsub2.TklfCode) == null)
+                    {
+                        gtool.Mynotify("2خطأ", MasterButtonText + " غير معرف");
+                        return;
+                    }
+
+                }
+
+                _tklfsub2.TklfsubCode = "";
+                await Task.Delay(1); //Magic!
+                StateHasChanged();
+                _value = arg;
+                if (string.IsNullOrEmpty(_value)) return;
+                Tklfsub LocalTklfSub2;
+                using (var db = dbf.CreateDbContext()) LocalTklfSub2 = db.Tklfsubs.FirstOrDefault<Tklfsub>(a => a.KindCode == ikind_code && a.TklfCode == current_section.TklfCode && a.TklfsubCode == _value);
+                if (LocalTklfSub2 != null)
+                {
+                    _tklfsub2 = LocalTklfSub2;
+                    if (formarg == 2) { disableName = true; }
+                }
+                else
+                {
+                    gtool.Mynotify("2خطأ", MasterButtonText + " غير معرف");
+                    return;
+                }
+                StateHasChanged();
+                break;
+
+
+
+
+
+
+
             default: break;
         }
     }
 
     private async Task f_ondblclick(string colname)
     {
+        List<Tklfsub> helplist = new List<Tklfsub>();
+        Dictionary<string, object> ret;
         switch (colname.ToLower())
         {
             case "tklfcode":
-
-
                 Dictionary<string, object> Parentret = await DialogService.OpenAsync<GModalList<Tklfmain>>("",
-            new Dictionary<string, object>() { { "data", Parenthelplist }, { "title", " " + "قائمة " }, { "scollist", "tklfcode,tklfname" }, { "colheads", "الكود,الإسم" } },
-            new DialogOptions() { ShowTitle = false, Width = "800px", Height = "400px", Resizable = true, Draggable = true });
+                    new Dictionary<string, object>() { { "data", Parenthelplist }, { "title", " " + "قائمة " }, { "scollist", "tklfcode,tklfname" }, { "colheads", "الكود,الإسم" } },
+                    new DialogOptions() { ShowTitle = false, Width = "800px", Height = "400px", Resizable = true, Draggable = true });
 
                 if (Parentret != null)
                 {
                     if (!((bool)Parentret["status"])) return;
                     List<Tklfmain> val = Parentret["result"] as List<Tklfmain>;
                     _tklfsub.TklfCode = val[0].TklfCode;
+                    _tklfsub2.TklfCode = val[0].TklfCode;
                     await f_onchange(colname.ToLower(), val[0].TklfCode);
                 }
                 break;
+
             case "tklfsubcode":
-                List<Tklfsub> helplist = new List<Tklfsub>();
+
                 using (var db = dbf.CreateDbContext()) helplist = db.Tklfsubs.Where(t => t.KindCode == ikind_code && t.TklfCode == current_section.TklfCode).ToList();
 
-                Dictionary<string, object> ret = await DialogService.OpenAsync<GModalList<Tklfsub>>("",
-            new Dictionary<string, object>() { { "data", helplist }, { "title", pagetitle + " " + "قائمة " }, { "scollist", "tklfsubcode,tklfsubname,name1" }, { "colheads", "الكود,الإسم,المشرف" } },
-            new DialogOptions() { ShowTitle = false, Width = "800px", Height = "400px", Resizable = true, Draggable = true });
+                ret = await DialogService.OpenAsync<GModalList<Tklfsub>>("",
+                    new Dictionary<string, object>() { { "data", helplist }, { "title", pagetitle + " " + "قائمة " }, { "scollist", "tklfsubcode,tklfsubname,name1" }, { "colheads", "الكود,الإسم,المشرف" } },
+                    new DialogOptions() { ShowTitle = false, Width = "800px", Height = "400px", Resizable = true, Draggable = true });
 
                 if (ret != null)
                 {
@@ -253,14 +287,28 @@
                     await f_onchange(colname.ToLower(), val[0].TklfsubCode);
                 }
                 break;
+
+            case "tklfsubcode2":
+
+                using (var db = dbf.CreateDbContext()) helplist = db.Tklfsubs.Where(t => t.KindCode == ikind_code && t.TklfCode == current_section.TklfCode).ToList();
+
+                 ret = await DialogService.OpenAsync<GModalList<Tklfsub>>("",
+                    new Dictionary<string, object>() { { "data", helplist }, { "title", pagetitle + " " + "قائمة " }, { "scollist", "tklfsubcode,tklfsubname,name1" }, { "colheads", "الكود,الإسم,المشرف" } },
+                    new DialogOptions() { ShowTitle = false, Width = "800px", Height = "400px", Resizable = true, Draggable = true });
+
+                if (ret != null)
+                {
+                    if (!((bool)ret["status"])) return;
+                    List<Tklfsub> val = ret["result"] as List<Tklfsub>;
+                    _tklfsub2.TklfsubCode = val[0].TklfsubCode;
+                    await f_onchange(colname.ToLower(), val[0].TklfsubCode);
+                }
+                break;
             default: break;
         }
 
     }
 
-  
-   
-
 }
 
-
+    

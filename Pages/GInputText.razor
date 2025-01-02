@@ -5,10 +5,16 @@
 @using System.Linq.Expressions;
 @inject DialogService DialogService
 
-<div class="form-group row p-0 m-1">
-    <button class="btn btn-primary  m-1" @onclick="onButtonClicked">@buttonText</button>
-    <RadzenTextBox class="m-1" type="text" @bind-Value="InputValue" Change=@(async args => await f_onchange("inputvalue", args)) />
-    <label  class="m-1" >@DisplayName</label>
+<div class="row m-1 ">
+    
+        <button class="btn btn-primary btn-sm col-sm-1 " @onclick="onButtonClicked">@buttonText</button>
+   
+        <div class="col-sm-2">
+            <RadzenTextBox  type="text" @bind-Value="InputValue" Change=@(async args => await f_onchange("inputvalue", args)) />
+         </div>
+
+            <label>@DisplayName</label>
+
 </div>
 
 @code {
