@@ -1,0 +1,70 @@
+﻿@page "/repviewer/{repname}"
+@page "/repviewer/{repname}/{param}"
+<div>
+    <h1>@repname</h1>
+    <h3>@param</h3>
+</div>
+
+<div>
+    @if (_showstock)
+    {<GInputText T="Stock" OnValueChanged="(arg) => { _stockcode = arg.ToString(); }"></GInputText>}
+    @if (_showfromitem)
+    {<GInputText T="Item" CFilter="I => I.StockCode.Equals(_stockcode)" codelength="5"></GInputText>}
+    @if (_showtoitem)
+    {<GInputText T="Item" buttonText="إلى صنف" CFilter="I => I.StockCode.Equals(_stockcode)" codelength="5"></GInputText>}
+    @if (_showarname)
+    {<GInputText T="Arname" codelength="5"></GInputText>}
+    @if (_showtklf)
+    {<TklfSubComponent formarg="5"></TklfSubComponent>}
+
+</div>
+<div><button class="btn btn-primary btn-sm col-sm-1 " @onclick="OnViewReport">عرض التقرير</button></div>
+
+
+<iframe srcdoc="@HtmlRepContent" style="overflow:scroll ; width:900px; height:300px; border: 1px solid black;" ></iframe>
+
+
+@code{
+    [Parameter] public string repname { get; set; }
+    [Parameter] public string param { get; set; }
+
+    private string _reptitle;
+    private string HtmlRepContent;
+
+    private string _stockcode, _fromitem, _toitem, _arcode;
+    private bool _showstock, _showfromitem, _showtoitem, _showarname, _showtklf;
+
+    protected override void OnParametersSet()
+    {
+        OnShowHideInputs();
+        base.OnParametersSet();
+    }
+
+    private void OnShowHideInputs()
+    {
+        switch (repname.ToLower())
+        {
+            case "itembal":
+                _showstock = _showfromitem = _showtoitem = true;
+                _reptitle = "الأرصدة الحالية للأصناف";
+
+                break;
+            default:
+                break;
+        }
+    }
+
+
+    private void OnViewReport()
+    {
+        switch (repname.ToLower())
+        {
+            case "itembal": OnDoItemBal();
+                break;
+            default:
+                break;
+        }
+    }
+
+        }
+

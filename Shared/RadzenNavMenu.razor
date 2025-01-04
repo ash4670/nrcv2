@@ -3,24 +3,31 @@
 @switch (Gvars.AppId)
 {
     case 1:
-        <RadzenMenu>
-            <RadzenMenuItem Text="Home" Path="/" Icon="home" />
-            <RadzenMenuItem Text="بيانات أساسية" Icon="store">
-                <RadzenMenuItem Text="تعريف المخازن" Path="/editstock" Icon="category" />
-                <RadzenMenuItem Text="تعريف الأصناف" Path="/edititem" Icon="list" />
-                <RadzenMenuItem Text="edit stock old" Path="/editstock_old" Icon="list" />
-                <RadzenMenuItem Text="fetchdata" Path="/fetchdata" Icon="list" />
-                <RadzenMenuItem Text="counter" Path="/counter" Icon="list" />
-            </RadzenMenuItem>
+<RadzenMenu>
+    <RadzenMenuItem Text="Home" Path="/" Icon="home" />
+    <RadzenMenuItem Text="بيانات أساسية" Icon="store">
+        <RadzenMenuItem Text="تعريف المخازن" Path="/editstock" Icon="category" />
+        <RadzenMenuItem Text="تعريف الأصناف" Path="/edititem" Icon="list" />
+        <RadzenMenuItem Text="edit stock old" Path="/editstock_old" Icon="list" />
+        <RadzenMenuItem Text="fetchdata" Path="/fetchdata" Icon="list" />
+        <RadzenMenuItem Text="counter" Path="/counter" Icon="list" />
+    </RadzenMenuItem>
 
-            <RadzenMenuItem Text="مستندات مخزنية" Icon="shopping_cart">
-                <RadzenMenuItem Text="إذن إضافة" Path="/editstTrns/1" Icon="insert_chart" />
-                <RadzenMenuItem Text="إذن صرف" Path="/editstTrns/2" Icon="insert_chart" />
-            </RadzenMenuItem>
-            <RadzenMenuItem Text="Log In" Path="/login" Icon="people" />
-            <RadzenMenuItem Text="Log Out" Path="/logout" Icon="people" />
+    <RadzenMenuItem Text="مستندات مخزنية" Icon="shopping_cart">
+        <RadzenMenuItem Text="إذن إضافة" Path="/editstTrns/1" Icon="insert_chart" />
+        <RadzenMenuItem Text="إذن صرف" Path="/editstTrns/2" Icon="insert_chart" />
+    </RadzenMenuItem>
 
-        </RadzenMenu>
+    <RadzenMenuItem Text="تقارير" Icon="shopping_cart">
+        <RadzenMenuItem Text="الأرصدة الحالية للأصناف" Path="/repviewer/itembal/1" Icon="insert_chart" />
+    </RadzenMenuItem>
+
+    <RadzenMenuItem Text="Log In" Path="/login" Icon="people" />
+    <RadzenMenuItem Text="Log Out" Path="/logout" Icon="people" />
+
+   
+
+</RadzenMenu>
         break;
 
     case 2:

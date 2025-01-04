@@ -1,11 +1,5 @@
 ﻿@page "/"
-<div>
-    <GInputText T="Stock" OnValueChanged="(arg)=> { _stockcode = arg.ToString(); }" ></GInputText>
-    <GInputText T="Arname" codeName="ArCode" descrName="ArName" codelength="5"></GInputText>
-    <GInputText T="Item"  CFilter="I => I.StockCode.Equals(_stockcode)" codeName="ArCode" descrName="ArName" codelength="5"></GInputText>
-    <TklfSubComponent formarg="5"></TklfSubComponent>
 
-</div>
 <div class="bg-info text-center" style="background-color:blanchedalmond !important;">
     <h1 style="color:darkblue">المركز القومى للبحوث </h1>
     
@@ -15,7 +9,7 @@
     <h2 style="color:darkblue">مسئول الشبكة :م/أحمد يونس</h2>
 </div>
 @code{
-    private string _stockcode;
+    
    
 
 }
