@@ -1,8 +1,8 @@
 ﻿@page "/repviewer/{repname}"
 @page "/repviewer/{repname}/{param}"
 <div>
-    <h1>@repname</h1>
-    <h3>@param</h3>
+    repname:@repname
+    param:@param
 </div>
 
 <div>
@@ -21,50 +21,67 @@
 <div><button class="btn btn-primary btn-sm col-sm-1 " @onclick="OnViewReport">عرض التقرير</button></div>
 
 
-<iframe srcdoc="@HtmlRepContent" style="overflow:scroll ; width:900px; height:300px; border: 1px solid black;" ></iframe>
+@*<iframe srcdoc="@HtmlRepContent" style="overflow:scroll ; width:1000px; height:300px; border: 1px solid black;" ></iframe>*@
+<div style="overflow: scroll; width: auto; height: 300px; border: 1px solid black; font-family: Arial, sans-serif; ">
 
+    <div class='row' style="margin: 4px 2px 2px 2px; ">
+        <div class='col-2'><img src='images/nrclogo.jpg' alt='https://www.nrc.sci.eg/' width='50' height='75'>  </div>
+        <div class='col-7 text-center'> <h3 style="font-weight: bold; border-bottom:2px solid;">  @_reptitle </h3>   </div>
+        <div class='col'>
+            <h6 style="font-weight: bold;text-align:center;border-bottom:2px solid;">  المركز القومى للبحـوث</h6>
+            <h6 style="font-weight: bold; text-align: center; border-bottom: 2px solid; ">  شبكة الحاسب الألى بقطاع الشئون الفنية</h6>
+            <h6 style="font-weight: bold; text-align: center; border-bottom: 2px solid; ">  إدارة المخازن</h6>
+        </div>
+    </div>
 
-@code{
-    [Parameter] public string repname { get; set; }
-    [Parameter] public string param { get; set; }
+    <div class='row' style="margin: 4px 2px 2px 2px; ">
 
-    private string _reptitle;
-    private string HtmlRepContent;
+        @((MarkupString) HtmlRepContent)
+    </div>
+</div>
 
-    private string _stockcode, _fromitem, _toitem, _arcode;
-    private bool _showstock, _showfromitem, _showtoitem, _showarname, _showtklf;
+    @code{
+        [Parameter] public string repname { get; set; }
+        [Parameter] public string param { get; set; }
 
-    protected override void OnParametersSet()
-    {
-        OnShowHideInputs();
-        base.OnParametersSet();
-    }
+        private string _reptitle;
+        private string HtmlRepContent;
 
-    private void OnShowHideInputs()
-    {
-        switch (repname.ToLower())
+        private string _stockcode, _fromitem, _toitem, _arcode;
+        private bool _showstock, _showfromitem, _showtoitem, _showarname, _showtklf;
+
+        protected override void OnParametersSet()
         {
-            case "itembal":
-                _showstock = _showfromitem = _showtoitem = true;
-                _reptitle = "الأرصدة الحالية للأصناف";
-
-                break;
-            default:
-                break;
+            OnShowHideInputs();
+            base.OnParametersSet();
         }
-    }
 
-
-    private void OnViewReport()
-    {
-        switch (repname.ToLower())
+        private void OnShowHideInputs()
         {
-            case "itembal": OnDoItemBal();
-                break;
-            default:
-                break;
-        }
-    }
+            switch (repname.ToLower())
+            {
+                case "itembal":
+                    _showstock = _showfromitem = _showtoitem = true;
+                    _reptitle = "الأرصدة الحالية للأصناف";
 
+                    break;
+                default:
+                    break;
+            }
         }
+
+
+        private void OnViewReport()
+        {
+            switch (repname.ToLower())
+            {
+                case "itembal":
+                    OnDoItemBal();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    }
 
