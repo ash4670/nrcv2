@@ -151,5 +151,49 @@ namespace nrcv2.services
             }
             db.Items.Where(i => i.StockCode.Equals(as_stockcode) && i.ItemCode.Equals(as_itemcode) /*i.year.Equals(as_year) */).FirstOrDefault().Value = tempcost;
         }
+
+        public async Task<List<Dictionary<string, object>>> GetDataFromQuery(string argsql) {
+            List<Dictionary<string, object>> _data=new();
+            List<string> Columns = new();
+            try
+            {
+
+           
+            using (var db = dbf.CreateDbContext())
+            {
+                 await   db.Database.OpenConnectionAsync();
+                    var command = db.Database.GetDbConnection().CreateCommand();
+                command.CommandText = argsql;
+                using var reader =  command.ExecuteReader();
+                 
+               
+                
+                
+
+                Columns = Enumerable.Range(0, reader.FieldCount)
+                                    .Select(reader.GetName)
+                                    .ToList();
+
+                    _data = new List<Dictionary<string, object>>();
+                    while (reader.Read())
+                    {
+                        var row = new Dictionary<string, object>();
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            row[reader.GetName(i)] = reader.GetValue(i) ?? "NULL";
+                        }
+                        _data.Add(row);
+                    }
+                
+            }
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+
+            return _data;
+        }
     }
 }

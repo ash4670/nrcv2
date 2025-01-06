@@ -14,14 +14,15 @@ namespace nrcv2.Pages
         {
 
         }
-
+        public List<Dictionary<string, object>> _repdata = new();
       public void  OnDoItemBal() {
-            
-            for (int i = 0; i < 100; i++)
-            {
-                HtmlRepContent += "<p>" + i + "</p>";
-            }
 
+            //for (int i = 0; i < 100; i++)
+            //{
+            //    HtmlRepContent += "<p>" + i + "</p>";
+            //}
+            _repdata =  gtools.GetDataFromQuery("select * from glob_vars").Result ;
+            
           
             
         }

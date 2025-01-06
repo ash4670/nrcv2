@@ -1,5 +1,6 @@
 ﻿@page "/repviewer/{repname}"
 @page "/repviewer/{repname}/{param}"
+@inject Gtools gtools
 <div>
     repname:@repname
     param:@param
@@ -36,7 +37,33 @@
 
     <div class='row' style="margin: 4px 2px 2px 2px; ">
 
-        @((MarkupString) HtmlRepContent)
+        @*@((MarkupString) HtmlRepContent)*@
+
+
+        <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif;">
+            <thead>
+                <tr>
+                   
+                    <th width="10%">A</th>
+                    <th>B</th>
+                    <th>C</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in _repdata)
+                {<tr>
+                    @foreach (var key in row.Keys)
+                    {<td>@row[key]</td>}
+                </tr>}
+            </tbody>
+        </table>
+
+
+
+
+
+
+
     </div>
 </div>
 
@@ -46,7 +73,7 @@
 
         private string _reptitle;
         private string HtmlRepContent;
-
+      
         private string _stockcode, _fromitem, _toitem, _arcode;
         private bool _showstock, _showfromitem, _showtoitem, _showarname, _showtklf;
 
