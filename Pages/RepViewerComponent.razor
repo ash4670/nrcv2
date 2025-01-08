@@ -19,96 +19,137 @@
     {<TklfSubComponent formarg="5"></TklfSubComponent>}
 
 </div>
-<div><button class="btn btn-primary btn-sm col-sm-1 " @onclick="OnViewReport">عرض التقرير</button></div>
+<div><button class="btn btn-primary btn-sm col-sm-1 " @onclick="OnViewReportAsync">عرض التقرير</button></div>
 
 
 @*<iframe srcdoc="@HtmlRepContent" style="overflow:scroll ; width:1000px; height:300px; border: 1px solid black;" ></iframe>*@
 <div style="overflow: scroll; width: auto; height: 300px; border: 1px solid black; font-family: Arial, sans-serif; ">
-
-    <div class='row' style="margin: 4px 2px 2px 2px; ">
-        <div class='col-2'><img src='images/nrclogo.jpg' alt='https://www.nrc.sci.eg/' width='50' height='75'>  </div>
-        <div class='col-7 text-center'> <h3 style="font-weight: bold; border-bottom:2px solid;">  @_reptitle </h3>   </div>
-        <div class='col'>
-            <h6 style="font-weight: bold;text-align:center;border-bottom:2px solid;">  المركز القومى للبحـوث</h6>
-            <h6 style="font-weight: bold; text-align: center; border-bottom: 2px solid; ">  شبكة الحاسب الألى بقطاع الشئون الفنية</h6>
-            <h6 style="font-weight: bold; text-align: center; border-bottom: 2px solid; ">  إدارة المخازن</h6>
+    @*
+        <div class='row' style="margin: 4px 2px 2px 2px; ">
+            <div class='col-2'><img src='images/nrclogo.jpg' alt='https://www.nrc.sci.eg/' width='50' height='75'>  </div>
+            <div class='col-7 text-center'> <h3 style="font-weight: bold; border-bottom:2px solid;">  @_reptitle </h3>   </div>
+            <div class='col'>
+                <h6 style="font-weight: bold;text-align:center;border-bottom:2px solid;">  المركز القومى للبحـوث</h6>
+                <h6 style="font-weight: bold; text-align: center; border-bottom: 2px solid; ">  شبكة الحاسب الألى بقطاع الشئون الفنية</h6>
+                <h6 style="font-weight: bold; text-align: center; border-bottom: 2px solid; ">  إدارة المخازن</h6>
+            </div>
         </div>
-    </div>
 
-    <div class='row' style="margin: 4px 2px 2px 2px; ">
-
-        @*@((MarkupString) HtmlRepContent)*@
+        <div class='row' style="margin: 4px 2px 2px 2px; ">
 
 
-        <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif;">
-            <thead>
-                <tr>
-                   
-                    <th width="10%">A</th>
-                    <th>B</th>
-                    <th>C</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var row in _repdata)
-                {<tr>
-                    @foreach (var key in row.Keys)
-                    {<td>@row[key]</td>}
-                </tr>}
-            </tbody>
-        </table>
+            <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif;">
+                <thead>
+                    <tr>
 
+                        <th width="10%">المخزن</th>
+                        <th>كود الصنف</th>
+                        <th>إسم الصنف</th>
+                        <th>السعر</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @((MarkupString)HtmlRepContent)
+                </tbody>
+            </table>
+        </div> *@
 
+    @HtmlRepContent
 
-
-
-
-
-    </div>
 </div>
 
-    @code{
-        [Parameter] public string repname { get; set; }
-        [Parameter] public string param { get; set; }
-
-        private string _reptitle;
-        private string HtmlRepContent;
-      
-        private string _stockcode, _fromitem, _toitem, _arcode;
-        private bool _showstock, _showfromitem, _showtoitem, _showarname, _showtklf;
-
-        protected override void OnParametersSet()
-        {
-            OnShowHideInputs();
-            base.OnParametersSet();
-        }
-
-        private void OnShowHideInputs()
-        {
-            switch (repname.ToLower())
-            {
-                case "itembal":
-                    _showstock = _showfromitem = _showtoitem = true;
-                    _reptitle = "الأرصدة الحالية للأصناف";
-
-                    break;
-                default:
-                    break;
-            }
-        }
 
 
-        private void OnViewReport()
-        {
-            switch (repname.ToLower())
-            {
-                case "itembal":
-                    OnDoItemBal();
-                    break;
-                default:
-                    break;
-            }
-        }
+@code{
+    [Parameter] public string repname { get; set; }
+    [Parameter] public string param { get; set; }
 
+    private string _reptitle;
+    private MarkupString HtmlRepContent;
+
+    private string _stockcode, _fromitem, _toitem, _arcode;
+    private bool _showstock, _showfromitem, _showtoitem, _showarname, _showtklf;
+
+
+
+
+
+
+
+
+    protected override void OnParametersSet()
+    {
+        OnShowHideInputs();
+        base.OnParametersSet();
     }
+
+    private void OnShowHideInputs()
+    {
+        switch (repname.ToLower())
+        {
+            case "itembal":
+                _showstock = _showfromitem = _showtoitem = true;
+                _reptitle = "الأرصدة الحالية للأصناف";
+
+                break;
+            default:
+                break;
+        }
+    }
+
+    public List<Item> _repdata = new();
+
+    public async Task OnViewReportAsync()
+    {
+        switch (repname.ToLower())
+        {
+            case "itembal":
+                _repdata = await gtools.GetDataFromSqlAsync<Item>("select * from items");
+
+                HtmlRepContent = GenerateTableRows(_repdata);
+
+                break;
+            default:
+                break;
+        }
+    }
+
+
+    private MarkupString GenerateTableRows(IEnumerable<Item> data)
+    {
+
+        var builder = new System.Text.StringBuilder();
+        string repHeader;
+        repHeader = @"<div class='row' style='margin: 4px 2px 2px 2px; '>
+            <div class='col-2'><img src = 'images/nrclogo.jpg' alt='https://www.nrc.sci.eg/' width='50' height='75'>  </div>
+            <div class='col-7 text-center'> <h3 style = 'font-weight: bold; border-bottom:2px solid;' > " + _reptitle + @" </ h3 >   </div>
+            <div class='col'>
+                <h6 style = 'font-weight: bold;text-align:center;border-bottom:2px solid;' > المركز القومى للبحـوث</h6>
+                <h6 style = 'font-weight: bold; text-align: center; border-bottom: 2px solid; ' > شبكة الحاسب الألى بقطاع الشئون الفنية</h6>
+                <h6 style = 'font-weight: bold; text-align: center; border-bottom: 2px solid; ' > إدارة المخازن</h6>
+            </div>
+        </div>";
+
+
+        builder.Append(repHeader);
+        builder.Append(@"<table border='1' cellspacing='0' cellpadding='5' style='width: 100 %; border - collapse: collapse; font - family: Arial, sans - serif; '>
+                <thead>
+                    <tr>    <th width='10%'>المخزن</th> <th>كود الصنف</th> <th>إسم الصنف</th>  <th>السعر</th> </tr>
+                </thead>
+                <tbody>");
+
+
+
+
+
+        foreach (var row in data)
+        {
+            builder.Append(@"<tr><td>" + row.StockCode + "</td><td>" + row.ItemCode + "</td><td>" + row.EngName + "</td><td>" + row.OpenPrice + "</td></tr>");
+        }
+
+        builder.Append(@"</tbody> </table> </div></div>");
+        return (MarkupString) builder.ToString();
+    }
+
+}
 
