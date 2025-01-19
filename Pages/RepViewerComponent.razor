@@ -3,6 +3,8 @@
 @inject Gtools gtools
 @inject IJSRuntime JSRuntime
 @using System.IO;
+
+
 <div>
     repname:@repname
     param:@param
@@ -229,7 +231,8 @@ else{<p>Loading PDF...</p>}
     {
         // Call the API to get the PDF as a byte array
         // await Http.GetByteArrayAsync("api/Pdf/GetPdf");
-        var pdfBytes = GeneratePdf();
+        var divContent = await JSRuntime.InvokeAsync<string>("getDivContent", "contentDiv");
+        var pdfBytes = GeneratePdf(divContent);
 
         // Convert byte array to Base64 string
         base64Pdf = Convert.ToBase64String(pdfBytes);
@@ -239,12 +242,12 @@ else{<p>Loading PDF...</p>}
         //await JSRuntime.InvokeVoidAsync("open", pdfDataUrl, "_blank");
     }
 
-    private byte[] GeneratePdf()
+    private byte[] GeneratePdf(string divContent)
     {
         // Sample PDF generation logic
         using var ms = new MemoryStream();
         using var writer = new StreamWriter(ms);
-        writer.WriteLine("Hello, this is your PDF content.");
+        writer.WriteLine(divContent);
         writer.Flush();
         return ms.ToArray();
     }

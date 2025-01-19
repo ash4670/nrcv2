@@ -18,7 +18,7 @@
 </head>
 <body>
     <app>
-        <component type="typeof(App)" render-mode="ServerPrerendered"/>  
+        <component type="typeof(App)" render-mode="ServerPrerendered" />
     </app>
 
     <div id="blazor-error-ui">
@@ -34,5 +34,11 @@
 
     <script src="_framework/blazor.server.js"></script>
     <script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
+    <script>
+    function getDivContent(divId) {
+            return document.getElementById(divId)?.innerHTML || '';
+        }
+    </script>
+
 </body>
 </html>
