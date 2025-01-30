@@ -38,6 +38,18 @@
     function getDivContent(divId) {
             return document.getElementById(divId)?.innerHTML || '';
         }
+
+
+
+        function myprint(content) {
+            
+            const printWindow = window.open("", "_blank");
+            setTimeout(() => {
+                printWindow.document.open();
+                printWindow.document.write(content);
+                printWindow.document.close();
+            }, 100); // Delay to allow window initialization
+        }
     </script>
 
 </body>
